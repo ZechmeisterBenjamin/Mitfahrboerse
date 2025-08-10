@@ -21,18 +21,12 @@
             display: flex;
             align-items: center;
             padding: 10px 30px;
-            justify-content: flex-start;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
+        .logo img {
+            height: 90px;
+            margin-right: 10px;
         }
-
-            .logo img {
-                height: 90px;
-                margin-right: 10px;
-            }
 
         .menu {
             display: flex;
@@ -60,6 +54,58 @@
             .coin-balance img {
                 height: 50px;
             }
+
+        main {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            height: calc(100vh - 110px);
+            box-sizing: border-box;
+        }
+
+        .left-column {
+            flex: 1;
+            background-color: #666;
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .fahrt-item {
+            background-color: #4d4d4d;
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .right-column {
+            flex: 2;
+            background-color: #4d4d4d;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .fahrt-details {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .anfrage-button {
+            background-color: transparent;
+            border: 2px solid white;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
     </style>
 </head>
 <body>
@@ -78,5 +124,39 @@
             <img src="https://images.vexels.com/media/users/3/130116/isolated/preview/215a871596b92451a1678e36960c0ab7-dollar-coin-icon.png" alt="Coins" />
         </div>
     </header>
+
+    <main>
+        <div class="left-column">
+            <div class="fahrt-item">
+                <strong>Name</strong><br>
+                Von - Nach<br>
+                Wann
+            </div>
+            <div class="fahrt-item">
+                <strong>Name</strong><br>
+                Von - Nach<br>
+                Wann
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div>
+                <div class="fahrt-details">
+                    <span>Name</span>
+                    <span>Klasse</span>
+                    <span>Plätze</span>
+                </div>
+                <div class="fahrt-details">
+                    <span>Von - Nach</span>
+                    <span>Um</span>
+                    <span>Wann</span>
+                </div>
+                <div>
+                    [Kennzeichen des Autos]
+                </div>
+            </div>
+            <button class="anfrage-button">Anfrage schicken</button>
+        </div>
+    </main>
 </body>
 </html>
