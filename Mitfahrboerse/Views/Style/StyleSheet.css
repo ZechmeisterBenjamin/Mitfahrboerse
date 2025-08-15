@@ -1,0 +1,107 @@
+﻿body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #a5a5a5;
+    overflow: hidden;
+}
+
+header {
+    background-color: #cfe2ff;
+    display: flex;
+    align-items: center;
+    padding: 10px 30px;
+    justify-content: flex-start;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+    .logo img {
+        height: 90px;
+        margin-right: 10px;
+    }
+
+.menu {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    margin-left: 30px;
+}
+
+.menu-item {
+    text-align: center;
+    cursor: pointer;
+}
+
+    .menu-item span {
+        display: block;
+    }
+
+.coin-balance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+    .coin-balance img {
+        height: 50px;
+    }
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 40px;
+}
+
+.info-box {
+    background-color: #4d4d4d;
+    color: #ffffff;
+    padding: 40px;
+    border-radius: 30px;
+    width: 400px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    font-size: 20px;
+}
+
+.map-box {
+    border-radius: 30px;
+    overflow: hidden;
+    width: 500px;
+    height: 400px;
+    border: 4px solid #cccccc;
+}
+
+    .map-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 30px;
+    }
+
+.styled-button {
+    background-color: #cfe2ff;
+    color: black;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+    max-width: 300px;
+    align-self: center;
+}
+
+    .styled-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.03);
+    }

@@ -1,0 +1,172 @@
+﻿@{
+    Layout = null;
+    int coinBalance = 100;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>HTL Waidhofen - Profil</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #a5a5a5;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #cfe2ff;
+            display: flex;
+            align-items: center;
+            padding: 10px 30px;
+            justify-content: flex-start;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo img {
+                height: 90px;
+                margin-right: 10px;
+            }
+
+        .menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-left: 30px;
+        }
+
+        .menu-item {
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .coin-balance {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+            .coin-balance img {
+                height: 40px;
+            }
+
+        .main-container {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .side-menu {
+            background-color: #4d4d4d;
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 250px;
+        }
+
+        .side-button {
+            background-color: #7a7a7a;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+        }
+
+            .side-button.active {
+                border: 2px solid #ffd966;
+                text-decoration: underline;
+            }
+
+            .side-button.logout {
+                background-color: #d32f2f;
+                border: none;
+            }
+
+        .content-panel {
+            flex: 1;
+            background-color: #4d4d4d;
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+        }
+
+            .content-panel h2 {
+                text-align: center;
+                margin-bottom: 30px;
+                text-decoration: underline;
+            }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fb/HTL_Waidhofen_Ybbs.png" alt="HTL Logo" />
+        </div>
+        <div class="menu">
+            <div class="menu-item">Mitfahren</div>
+            <div class="menu-item">Fahrt erstellen</div>
+            <div class="menu-item">Shop</div>
+            <div class="menu-item" style="text-decoration: underline; font-weight: bold;">Profil</div>
+        </div>
+        <div class="coin-balance">
+            <span>@coinBalance</span>
+            <img src="https://images.vexels.com/media/users/3/130116/isolated/preview/215a871596b92451a1678e36960c0ab7-dollar-coin-icon.png" alt="Coins" />
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="side-menu" id="sideMenu">
+            <button class="side-button active" data-content="settings">Einstellungen</button>
+            <button class="side-button" data-content="check">Fahrten überprüfen</button>
+            <button class="side-button" data-content="history">Fahrten Historie</button>
+            <button class="side-button" data-content="create">Auto Erstellen</button>
+            <button class="side-button logout">Logout</button>
+        </div>
+
+        <div class="content-panel" id="contentPanel">
+        </div>
+    </main>
+
+
+    //Chatgpt zum wechseln zwischen den Unterseiten
+    <script>
+        const buttons = document.querySelectorAll('.side-button:not(.logout)');
+        const contentPanel = document.getElementById('contentPanel');
+
+        const contentData = {
+            settings: `
+            `,
+            check: `
+            `,
+            history: `
+            `,
+            create: `
+            `
+        };
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                buttons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const contentKey = button.getAttribute('data-content');
+                contentPanel.innerHTML = contentData[contentKey];
+            });
+        });
+    </script>
+</body>
+</html>
