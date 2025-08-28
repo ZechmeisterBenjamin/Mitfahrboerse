@@ -6,11 +6,11 @@ public class RideController : Controller
 {
     public IActionResult Index()
     {
-        return View("Mitfahren");
+        return View();
     }
 
     public IActionResult Create()
     {
-        return View("Fahrt_erstellen");
+        return View();
     }
 }
