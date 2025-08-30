@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Models;
 
 namespace Mitfahrboerse.Controllers;
@@ -12,7 +13,13 @@ public class RideController : Controller
     }
     public IActionResult Index()
     {
-        return View();
+        var rides = _context.t_Rides
+            .Include(r => r.FK_Driver_Person)
+            .Include(r => r.FK_StartsAt_Position)
+            .Include(r => r.FK_EndsAt_Position)
+            .ToList();
+
+        return View(rides);
     }
 
     public IActionResult Create()

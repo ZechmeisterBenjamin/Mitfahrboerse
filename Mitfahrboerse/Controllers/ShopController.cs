@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Models;
 
 namespace Mitfahrboerse.Controllers;
@@ -12,7 +13,9 @@ public class ShopController : Controller
     }
     public IActionResult Index()
     { 
-        var offers = _context.t_Offers.ToList();
-        return View();
+        var offers = _context.t_Offers
+            .OrderBy(o => o.ValidUntil)
+            .ToList();
+        return View(offers);
     }
 }
