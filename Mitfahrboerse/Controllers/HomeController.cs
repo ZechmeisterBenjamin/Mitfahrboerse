@@ -45,6 +45,7 @@ public class HomeController : Controller
 
             var content2 = response2.Content;
 
+            var useremail = JObject.Parse(content2);
         }
         return View();
     }
