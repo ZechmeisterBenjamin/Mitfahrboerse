@@ -37,7 +37,14 @@ public class HomeController : Controller
             var res = JObject.Parse(content);
             
             
-           
+            var client2 = new RestClient("https://graph.microsoft.com/v1.0/me");
+            client2.AddDefaultHeader("Authorization", "Bearer" + res["access_token"]);
+            request = new RestRequest();
+            request.Method = Method.Get;
+            var response2 = client.Execute(request);
+
+            var content2 = response2.Content;
+
         }
         return View();
     }
