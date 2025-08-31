@@ -11,16 +11,24 @@ public class RideController : Controller
     {
         _context = context;
     }
-    public IActionResult Index()
-    {
-        var rides = _context.t_Rides
-            .Include(r => r.FK_Driver_Person)
-            .Include(r => r.FK_StartsAt_Position)
-            .Include(r => r.FK_EndsAt_Position)
-            .ToList();
+public IActionResult Index(int? selectedRideId = null)
+{
+    var rides = _context.t_Rides
+        .Include(r => r.FK_Driver_Person)
+        .Include(r => r.FK_StartsAt_Position)
+        .Include(r => r.FK_EndsAt_Position)
+        .Include(r => r.FK_People)
+        .ToList();
 
-        return View(rides);
-    }
+    // Get the selected ride or default to the first one
+    var selectedRide = selectedRideId.HasValue 
+        ? rides.FirstOrDefault(r => r.RideId == selectedRideId.Value)
+        : rides.FirstOrDefault();
+
+    ViewBag.SelectedRide = selectedRide;
+    
+    return View(rides);
+}
 
     public IActionResult Create()
     {
