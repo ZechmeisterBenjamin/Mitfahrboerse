@@ -151,3 +151,55 @@ header {
     cursor: pointer;
     align-self: flex-start;
 }
+
+.main-container {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+.side-menu {
+    background-color: #4d4d4d;
+    border-radius: 20px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 250px;
+}
+
+.side-button {
+    background-color: #7a7a7a;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    padding: 15px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    font-size: 16px;
+}
+
+    .side-button.active {
+        border: 2px solid #ffd966;
+        text-decoration: underline;
+    }
+
+    .side-button.logout {
+        background-color: #d32f2f;
+        border: none;
+    }
+
+.content-panel {
+    flex: 1;
+    background-color: #4d4d4d;
+    border-radius: 20px;
+    padding: 20px;
+    color: white;
+}
+
+    .content-panel h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        text-decoration: underline;
+    }
