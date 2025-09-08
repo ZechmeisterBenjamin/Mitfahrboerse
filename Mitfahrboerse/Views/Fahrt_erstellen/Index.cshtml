@@ -8,7 +8,8 @@
 <head>
     <meta charset="utf-8" />
     <title>HTL Waidhofen - Mitfahren</title>
-    <style src="../Style"></style>
+    <style src="../Style/StyleSheet.css"></style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
@@ -30,9 +31,13 @@
     <div class="container">
         <div class="info-box">
             <p><strong>Von:</strong></p>
+            <input type="text" placeholder="Startpunkt eingeben">
             <p><strong>Nach:</strong></p>
+            <input type="text" placeholder="Ziel eingeben">
             <p><strong>Um:</strong></p>
+            <input type="time">
             <p><strong>Auto:</strong></p>
+            <input type="text" placeholder="Auto">
             <button class="styled-button">Fahrt erstellen</button>
         </div>
         <div class="map-box">
