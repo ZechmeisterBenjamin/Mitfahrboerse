@@ -1,20 +1,10 @@
 ﻿@model IEnumerable<Mitfahrboerse.Models.t_Ride>
 @{
-    int coinBalance = 0;
+    ViewData["Title"] = "Mitfahren";
     var firstRide = Model.FirstOrDefault();
-
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>HTL Waidhofen - Mitfahren</title>
-    <link rel="stylesheet" href="~/css/StyleSheet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-</head>
-<body>
-<main>
+<main style="display: flex; gap: 20px; padding: 20px;">
     <div class="left-column">
         @foreach (var ride in Model)
         {
@@ -76,42 +66,42 @@
     </div>
 </main>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const rideItems = document.querySelectorAll('.fahrt-item');
-        const driverName = document.getElementById('driver-name');
-        const driverClass = document.getElementById('driver-class');
-        const seats = document.getElementById('seats');
-        const route = document.getElementById('route');
-        const time = document.getElementById('time');
-        const date = document.getElementById('date');
-        const requestButton = document.getElementById('request-button');
-        let selectedRideId = @(firstRide?.RideId ?? 0);
-        
-        rideItems.forEach(item => {
-            item.addEventListener('click', function() {
-                rideItems.forEach(ri => ri.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                driverName.textContent = this.getAttribute('data-driver-name');
-                driverClass.textContent = this.getAttribute('data-driver-class');
-                seats.textContent = `Plätze: ${this.getAttribute('data-seats')}`;
-                route.textContent = `${this.getAttribute('data-from')} - ${this.getAttribute('data-to')}`;
-                time.textContent = this.getAttribute('data-time');
-                date.textContent = this.getAttribute('data-date');
-                
-                selectedRideId = parseInt(this.getAttribute('data-ride-id'));
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rideItems = document.querySelectorAll('.fahrt-item');
+            const driverName = document.getElementById('driver-name');
+            const driverClass = document.getElementById('driver-class');
+            const seats = document.getElementById('seats');
+            const route = document.getElementById('route');
+            const time = document.getElementById('time');
+            const date = document.getElementById('date');
+            const requestButton = document.getElementById('request-button');
+            let selectedRideId = @(firstRide?.RideId ?? 0);
+            
+            rideItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    rideItems.forEach(ri => ri.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    driverName.textContent = this.getAttribute('data-driver-name');
+                    driverClass.textContent = this.getAttribute('data-driver-class');
+                    seats.textContent = `Plätze: ${this.getAttribute('data-seats')}`;
+                    route.textContent = `${this.getAttribute('data-from')} - ${this.getAttribute('data-to')}`;
+                    time.textContent = this.getAttribute('data-time');
+                    date.textContent = this.getAttribute('data-date');
+                    
+                    selectedRideId = parseInt(this.getAttribute('data-ride-id'));
+                });
+            });
+            
+            requestButton.addEventListener('click', function() {
+                if (selectedRideId) {
+                    // Submit form or make AJAX request
+                    alert(`Anfrage für Fahrt ${selectedRideId} wird gesendet`);
+                    // Here you would typically submit a form or make an AJAX request
+                }
             });
         });
-        
-        requestButton.addEventListener('click', function() {
-            if (selectedRideId) {
-                // Submit form or make AJAX request
-                alert(`Anfrage für Fahrt ${selectedRideId} wird gesendet`);
-                // Here you would typically submit a form or make an AJAX request
-            }
-        });
-    });
-</script>
-</body>
-</html>
+    </script>
+}
