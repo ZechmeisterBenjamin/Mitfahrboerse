@@ -17,6 +17,12 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Home\Privacy.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Fahrt_erstellen\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Mitfahren\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\css\StyleSheet.css" />
     </ItemGroup>
 
 </Project>

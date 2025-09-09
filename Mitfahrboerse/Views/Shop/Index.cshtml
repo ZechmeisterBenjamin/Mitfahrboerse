@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<Mitfahrboerse.Models.t_Offer>
 @{
+    ViewData["Title"] = "Shop";
     int coinBalance = 0;
     var firstOffer = Model.FirstOrDefault();
     var initialTitle = firstOffer?.Title ?? "Kein Gutschein ausgewählt";
@@ -12,6 +13,8 @@
 <head>
     <meta charset="utf-8" />
     <title>HTL Waidhofen - Mitfahren</title>
+    <link rel="stylesheet" href="~/css/StyleSheet.css" />
+
     <style>
         body {
             margin: 0;

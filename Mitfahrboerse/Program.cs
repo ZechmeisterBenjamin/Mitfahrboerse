@@ -31,6 +31,7 @@ app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Ride}/{action=Index}/")
     .WithStaticAssets();
+app.UseStaticFiles();
 
 
 app.Run();
