@@ -1,0 +1,65 @@
+﻿@{
+    Layout = null;
+    int coinBalance = 0;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>HTL Waidhofen - Mitfahren</title>
+    <style src="../Style/StyleSheet.css"></style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fb/HTL_Waidhofen_Ybbs.png" alt="HTL Logo" />
+        </div>
+        <div class="menu">
+            <div class="menu-item"><span style="text-decoration: underline;">Mitfahren</span></div>
+            <div class="menu-item"><span>Fahrt erstellen</span></div>
+            <div class="menu-item"><span>Shop</span></div>
+            <div class="menu-item"><span>Profil</span></div>
+        </div>
+        <div class="coin-balance">
+            <span>@coinBalance</span>
+            <img src="https://images.vexels.com/media/users/3/130116/isolated/preview/215a871596b92451a1678e36960c0ab7-dollar-coin-icon.png" alt="Coins" />
+        </div>
+    </header>
+
+    <main>
+        <div class="left-column">
+            <div class="fahrt-item">
+                <strong>Name</strong><br>
+                Von - Nach<br>
+                Wann
+            </div>
+            <div class="fahrt-item">
+                <strong>Name</strong><br>
+                Von - Nach<br>
+                Wann
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div>
+                <div class="fahrt-details">
+                    <span>Name</span>
+                    <span>Klasse</span>
+                    <span>Plätze</span>
+                </div>
+                <div class="fahrt-details">
+                    <span>Von - Nach</span>
+                    <span>Um</span>
+                    <span>Wann</span>
+                </div>
+                <div>
+                    [Kennzeichen des Autos]
+                </div>
+            </div>
+            <button class="anfrage-button">Anfrage schicken</button>
+        </div>
+    </main>
+</body>
+</html>
