@@ -24,6 +24,10 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add(new AuthorizeFilter(policy));
 });
 
+builder.Services.AddDbContext<MitfahrboerseDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    );
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
