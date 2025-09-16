@@ -49,7 +49,10 @@ public class HomeController : Controller
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", accessToken);
 
-            
+            var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
+            var content = await response.Content.ReadAsStringAsync();
+
+            ViewData["GraphResult"] = content;
             return View();
         }
         catch (MicrosoftIdentityWebChallengeUserException)
