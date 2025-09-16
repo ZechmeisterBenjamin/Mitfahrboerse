@@ -36,7 +36,7 @@ public class HomeController : Controller
             OpenIdConnectDefaults.AuthenticationScheme);
     }
     [Authorize]
-    public IActionResult Index(string code)
+    public async Task<IActionResult> Index(string code)
     {
         if (!string.IsNullOrWhiteSpace(code))
         {
