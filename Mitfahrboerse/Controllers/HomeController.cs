@@ -9,6 +9,7 @@ using RestSharp;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mitfahrboerse.Controllers;
 
@@ -34,7 +35,7 @@ public class HomeController : Controller
             },
             OpenIdConnectDefaults.AuthenticationScheme);
     }
-
+    [Authorize]
     public IActionResult Index(string code)
     {
         if (!string.IsNullOrWhiteSpace(code))
