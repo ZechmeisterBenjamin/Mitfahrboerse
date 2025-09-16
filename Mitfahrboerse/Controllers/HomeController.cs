@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Mitfahrboerse.Models;
 using RestSharp;
 using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Mitfahrboerse.Controllers;
 
@@ -21,6 +23,16 @@ public class HomeController : Controller
         _logger = logger;
         _httpClientFactory = httpClientFactory;
         _tokenAcquisition = tokenAcquisition;
+    }
+
+    public IActionResult Login()
+    {
+        return Challenge(
+            new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("Index", "Home")
+            },
+            OpenIdConnectDefaults.AuthenticationScheme);
     }
 
     public IActionResult Index(string code)
