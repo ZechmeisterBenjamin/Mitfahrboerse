@@ -106,4 +106,6 @@ public class HomeController : Controller
 <p>Graph API Result:</p>
 <pre>@ViewData["GraphResult"]</pre>
 
-<a asp-action="Logout">Abmelden</a>
+<a asp-action="Logout" > Abmelden </ a >
+
+Alle wichtigen Daten von Microsoft azure in appsettings.josn übertragen
