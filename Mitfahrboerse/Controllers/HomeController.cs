@@ -6,12 +6,14 @@ using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Mitfahrboerse.Models;
 using RestSharp;
+using Microsoft.Identity.Web;
 
 namespace Mitfahrboerse.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    
 
     public HomeController(ILogger<HomeController> logger)
     {
