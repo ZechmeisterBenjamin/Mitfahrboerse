@@ -1,4 +1,13 @@
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi(
+        new string[] { "User.Read" })
+    .AddInMemoryTokenCaches();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
