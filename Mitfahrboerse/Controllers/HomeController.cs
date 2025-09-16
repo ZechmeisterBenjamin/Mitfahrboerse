@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Mitfahrboerse.Controllers;
 
@@ -64,6 +65,14 @@ public class HomeController : Controller
                 },
                 OpenIdConnectDefaults.AuthenticationScheme);
         }
+    }
+
+    public IActionResult Logout()
+    {
+        return SignOut(
+            new AuthenticationProperties { RedirectUri = Url.Action("Index", "Home") },
+            OpenIdConnectDefaults.AuthenticationScheme,
+            CookieAuthenticationDefaults.AuthenticationScheme);
     }
 
     public IActionResult Privacy()
