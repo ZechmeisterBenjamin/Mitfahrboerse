@@ -13,11 +13,14 @@ namespace Mitfahrboerse.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    
+    private IHttpClientFactory _httpClientFactory;
+    private readonly ITokenAcquisition _tokenAcquisition;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory, ITokenAcquisition tokenAcquisition)
     {
         _logger = logger;
+        _httpClientFactory = httpClientFactory;
+        _tokenAcquisition = tokenAcquisition;
     }
 
     public IActionResult Index(string code)
