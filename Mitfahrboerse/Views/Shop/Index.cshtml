@@ -1,6 +1,11 @@
-﻿@{
-    Layout = null;
+﻿@model IEnumerable<Mitfahrboerse.Models.t_Offer>
+@{
+    ViewData["Title"] = "Shop";
     int coinBalance = 0;
+    var firstOffer = Model.FirstOrDefault();
+    var initialTitle = firstOffer?.Title ?? "Kein Gutschein ausgewählt";
+    var initialDate = firstOffer?.ValidUntil.ToString("d. MMMM yyyy") ?? "";
+    var currentTime = DateTime.Now.ToString("HH:mm");
 }
 
 <!DOCTYPE html>
@@ -8,6 +13,8 @@
 <head>
     <meta charset="utf-8" />
     <title>HTL Waidhofen - Mitfahren</title>
+    <link rel="stylesheet" href="~/css/StyleSheet.css" />
+
     <style>
         body {
             margin: 0;
@@ -126,47 +133,54 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fb/HTL_Waidhofen_Ybbs.png" alt="HTL Logo" />
-        </div>
-        <div class="menu">
-            <div class="menu-item"><span>Mitfahren</span></div>
-            <div class="menu-item"><span>Fahrt erstellen</span></div>
-            <div class="menu-item"><span style="text-decoration: underline;">Shop</span></div>
-            <div class="menu-item"><span>Profil</span></div>
-        </div>
-        <div class="coin-balance">
-            <span>@coinBalance</span>
-            <img src="https://images.vexels.com/media/users/3/130116/isolated/preview/215a871596b92451a1678e36960c0ab7-dollar-coin-icon.png" alt="Coins" />
-        </div>
-    </header>
-
     <main class="shop-container">
         <div class="voucher-list" id="voucherList">
-            <div class="voucher-item selected"
-                 data-title="Gutschein 10% Kantine"
-                 data-time="12:40"
-                 data-date="2. Mai 2025">
-                Gutschein 10%<br>100 pkt
+            @foreach (var offer in Model)
+            {   
+            <div class="voucher-item @(offer == firstOffer ? "selected" : "")"
+                 data-title="@offer.Title"
+                 data-date="@offer.ValidUntil.ToString("d. MMMM yyyy")"
+                 data-price="@offer.Price">
+                @offer.Title<br>@offer.Price pkt
             </div>
-            <div class="voucher-item"
-                 data-title="Daurer sei Ehre"
-                 data-time="Ganztägig"
-                 data-date="Immer gültig">
-                Daurer sei Ehre<br>10 pkt
-            </div>
+            }
         </div>
 
         <div class="voucher-details" id="voucherDetails">
             <div class="voucher-header">
-                <span id="voucherTitle">Gutschein 10% Kantine</span>
-                <span id="voucherTime">12:40</span>
-                <span id="voucherDate">2. Mai 2025</span>
+                <span id="voucherTitle">@initialTitle</span>
+                <span id="voucherTime">@currentTime</span>
+                <span id="voucherDate">@initialDate</span>
             </div>
-            <button class="buy-button">Gutschein kaufen</button>
+            <button class="buy-button" id="buyButton">Gutschein kaufen</button>
         </div>
     </main>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const voucherItems = document.querySelectorAll('.voucher-item');
+            const voucherTitle = document.getElementById('voucherTitle');
+            const voucherDate = document.getElementById('voucherDate');
+            const buyButton = document.getElementById('buyButton');
+            let selectedPrice = @(firstOffer?.Price ?? 0);
+
+            voucherItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    voucherItems.forEach(vItem => vItem.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    voucherTitle.textContent = this.getAttribute('data-title');
+                    voucherDate.textContent = this.getAttribute('data-date');
+                    selectedPrice = parseInt(this.getAttribute('data-price'));
+                    
+                    buyButton.textContent = `Gutschein kaufen (${selectedPrice} pkt)`;
+                });
+            });
+
+            if (@(firstOffer != null ? "true" : "false")) {
+                buyButton.textContent = `Gutschein kaufen (${selectedPrice} pkt)`;
+            }
+        });
+    </script>
 </body>
 </html>

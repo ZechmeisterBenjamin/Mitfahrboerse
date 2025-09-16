@@ -1,7 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using Mitfahrboerse.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<MitfahrboerseDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    );
 
 var app = builder.Build();
 
@@ -22,8 +29,9 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}")
+        pattern: "{controller=Ride}/{action=Index}/")
     .WithStaticAssets();
+app.UseStaticFiles();
 
 
 app.Run();
