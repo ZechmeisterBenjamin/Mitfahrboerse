@@ -21,7 +21,9 @@
             <button class="side-button" data-content="check">Fahrten überprüfen</button>
             <button class="side-button" data-content="history">Fahrten Historie</button>
             <button class="side-button" data-content="create">Auto Erstellen</button>
-            <button class="side-button logout">Logout</button>
+            <form asp-action="Logout" method="post">
+                <button type="submit" class="side-button logout">Logout</button>
+            </form>
         </div>
 
         <div class="content-panel" id="contentPanel">
