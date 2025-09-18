@@ -5,6 +5,8 @@
 }
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 <div class="container" style="margin-top: 30px;">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -92,6 +94,21 @@
             endSelect.addEventListener('change', updateOptions);
             
             updateOptions();
+        });
+
+        const map = L.map('map').setView([47.9505574, 14.7842044], 16); // Start: HTL Waidhofen/Ybbs
+
+
+
+
+
+        document.getElementById("start").addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(calculateRoute, 500);
+        });
+        document.getElementById("end").addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(calculateRoute, 500);
         });
     </script>
     
