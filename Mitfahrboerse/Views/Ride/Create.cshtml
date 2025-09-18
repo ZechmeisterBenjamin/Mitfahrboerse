@@ -3,7 +3,8 @@
     ViewData["Title"] = "Fahrt erstellen";
     var positions = ViewBag.Positions as List<Mitfahrboerse.Models.t_Position> ?? new List<Mitfahrboerse.Models.t_Position>();
 }
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
 <div class="container" style="margin-top: 30px;">
     <div class="row justify-content-center">
         <div class="col-md-8">
