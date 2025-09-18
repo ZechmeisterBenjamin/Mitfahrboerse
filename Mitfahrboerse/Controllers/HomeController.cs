@@ -42,7 +42,7 @@ public class HomeController : Controller
     {
         try
         {
-            string[] scopes = { "User.Read" };
+            string[] scopes = { "User.Read", "profile" };
             var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
             ViewData["Token"] = accessToken;
 
@@ -52,6 +52,8 @@ public class HomeController : Controller
 
             var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
             var content = await response.Content.ReadAsStringAsync();
+
+            
 
             ViewData["GraphResult"] = content;
             return View();
