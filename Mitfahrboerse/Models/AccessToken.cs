@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using System.Net.Http.Headers;
+using Mitfahrboerse.Interfaces;
 
 namespace Mitfahrboerse.Models
 {
-    public class AccessToken
+    public class AccessToken : IAccessToken
     {
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly IHttpClientFactory _httpClientFactory;
