@@ -12,20 +12,19 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Mitfahrboerse.Interfaces;
 
 namespace Mitfahrboerse.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private IHttpClientFactory _httpClientFactory;
-    private readonly ITokenAcquisition _tokenAcquisition;
+    private readonly IAccessToken _accessToken;
 
-    public HomeController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory, ITokenAcquisition tokenAcquisition)
+    public HomeController(ILogger<HomeController> logger, IAccessToken accessToken)
     {
         _logger = logger;
-        _httpClientFactory = httpClientFactory;
-        _tokenAcquisition = tokenAcquisition;
+        _accessToken = accessToken;
     }
 
     public IActionResult Login()
@@ -43,13 +42,11 @@ public class HomeController : Controller
         try
         {
             string[] scopes = { "User.Read", "profile" };
-            var accessToken = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+
+            var accessToken = await _accessToken.GetAccessTokenAsync(scopes);
             ViewData["Token"] = accessToken;
 
-            var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", accessToken);
-
+            var client = await _accessToken.GetAuthorizedClientAsync(scopes);
             var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
             var content = await response.Content.ReadAsStringAsync();
 
