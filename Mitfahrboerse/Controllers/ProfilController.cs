@@ -8,29 +8,15 @@ using Azure.Core;
 
 namespace Mitfahrboerse.Controllers;
 
-public class ProfilController : Controller
+public class ProfilController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
-    private readonly IAccessToken _accessToken;
-    public ProfilController(MitfahrboerseDbContext context, IAccessToken acessToken)
+    public ProfilController(MitfahrboerseDbContext context, ILogger<ProfilController> logger, IAccessToken accessToken) : base(logger, accessToken)
     {
         _context = context;
-        _accessToken = acessToken;
     }
     public async Task<IActionResult> Index()
     {
-        string[] scopes = { "User.Read", "profile" };
-
-        var accessToken = await _accessToken.GetAccessTokenAsync(scopes);
-        ViewData["Token"] = accessToken;
-
-        var client = await _accessToken.GetAuthorizedClientAsync(scopes);
-
-        var photoresponse = await client.GetAsync("https://graph.microsoft.com/v1.0/me/photo/$value");
-        var imageData = await photoresponse.Content.ReadAsByteArrayAsync();
-        string base64 = Convert.ToBase64String(imageData);
-        ViewData["ProfilePicture"] = $"data:image/jpeg;base64,{base64}";
-
         return View();   
     }
 

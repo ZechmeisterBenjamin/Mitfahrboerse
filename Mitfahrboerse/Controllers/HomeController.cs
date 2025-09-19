@@ -16,63 +16,22 @@ using Mitfahrboerse.Interfaces;
 
 namespace Mitfahrboerse.Controllers;
 
-public class HomeController : Controller
+public class HomeController : BaseController
 {
-    private readonly ILogger<HomeController> _logger;
-    private readonly IAccessToken _accessToken;
 
-    public HomeController(ILogger<HomeController> logger, IAccessToken accessToken)
+    public HomeController(ILogger<HomeController> logger, IAccessToken accessToken) : base(logger, accessToken)
     {
-        _logger = logger;
-        _accessToken = accessToken;
+        
     }
 
-    public IActionResult Login()
-    {
-        return Challenge(
-            new AuthenticationProperties
-            {
-                RedirectUri = Url.Action("Index", "Home")
-            },
-            OpenIdConnectDefaults.AuthenticationScheme);
-    }
+
     [Authorize]
-    public async Task<IActionResult> Index(string code)
+    public IActionResult Index(string code)
     {
-        try
-        {
-            string[] scopes = { "User.Read", "profile" };
-
-            var accessToken = await _accessToken.GetAccessTokenAsync(scopes);
-            ViewData["Token"] = accessToken;
-
-            var client = await _accessToken.GetAuthorizedClientAsync(scopes);
-            var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
-            var content = await response.Content.ReadAsStringAsync();
-
-            
-
-            ViewData["GraphResult"] = content;
-            return View();
-        }
-        catch (MicrosoftIdentityWebChallengeUserException)
-        {
-            return Challenge(
-                new AuthenticationProperties
-                {
-                    RedirectUri = Url.Action("Index", "Home")
-                },
-                OpenIdConnectDefaults.AuthenticationScheme);
-        }
+        return View();
     }
 
-    public IActionResult Logout()
-    {
-        return SignOut(
-            new AuthenticationProperties { RedirectUri = Url.Action("Index", "Home") },
-            OpenIdConnectDefaults.AuthenticationScheme,
-            CookieAuthenticationDefaults.AuthenticationScheme);
-    }
+    
 
     public IActionResult Privacy()
     {
