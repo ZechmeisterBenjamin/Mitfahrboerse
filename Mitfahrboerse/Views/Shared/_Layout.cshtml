@@ -24,6 +24,11 @@
             <div class="menu-item"><a asp-controller="Ride" asp-action="Create"><span>Fahrt erstellen</span></a></div>
             <div class="menu-item"><a asp-controller="Shop" asp-action="Index"><span>Shop</span></a></div>
             <div class="menu-item"><a asp-controller="Profil" asp-action="Index"><span>Profil</span></a></div>
+                <div class="profilepic">
+                    <a asp-controller="Profil, Ride, Shop" asp-action="Index">
+                        <img src="@ViewData["ProfilePicture"]" alt="Profilbild" style="width:50px; height:50px; border-radius:50%;"/>
+                    </a>
+            </div>
         </div>
         <div class="coin-balance">
             <span>@coinBalance</span>
