@@ -23,7 +23,7 @@ namespace Mitfahrboerse.Controllers
             return Challenge(
                 new AuthenticationProperties
                 {
-                    RedirectUri = Url.Action("Index", "Home")
+                    RedirectUri = Url.Action("Index", "Ride")
                 },
                 OpenIdConnectDefaults.AuthenticationScheme);
         }
@@ -60,7 +60,7 @@ namespace Mitfahrboerse.Controllers
                 context.Result = Challenge(
                     new AuthenticationProperties
                     {
-                        RedirectUri = Url.Action("Index", "Home")
+                        RedirectUri = Url.Action("Index", "Ride")
                     },
                     OpenIdConnectDefaults.AuthenticationScheme);
                 return; 
