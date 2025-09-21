@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Mitfahrboerse.Interfaces;
 using Microsoft.Identity.Web;
+using System.Text.Json;
 
 namespace Mitfahrboerse.Controllers
 {
@@ -42,7 +43,7 @@ namespace Mitfahrboerse.Controllers
                 var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
                 var content = await response.Content.ReadAsStringAsync();
                 ViewData["GraphResult"] = content;
-
+                
                 var photoResponse = await client.GetAsync("https://graph.microsoft.com/v1.0/me/photo/$value");
                 if (photoResponse.IsSuccessStatusCode)
                 {
@@ -54,6 +55,12 @@ namespace Mitfahrboerse.Controllers
                 {
                     ViewData["ProfilePicture"] = Url.Content("~/Pics/Profile.jpg");
                 }
+
+                var doc = JsonDocument.Parse(content);
+                string personId = doc.RootElement.GetProperty("id").GetString();
+                string firstname = doc.RootElement.GetProperty("givenName").GetString();
+                string lastname = doc.RootElement.GetProperty("surname").GetString();
+                string email = doc.RootElement.GetProperty("mail").GetString();
             }
             catch
             {
@@ -65,6 +72,8 @@ namespace Mitfahrboerse.Controllers
                     OpenIdConnectDefaults.AuthenticationScheme);
                 return; 
             }
+
+            
 
             await next();
         }
