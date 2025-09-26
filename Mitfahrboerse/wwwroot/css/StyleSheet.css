@@ -2,53 +2,60 @@
     margin: 0;
     font-family: Arial, sans-serif;
     background-color: #a5a5a5;
-    overflow: hidden;
 }
+
 
 header {
     background-color: #cfe2ff;
+    padding: 10px 30px; 
+}
+
+nav {
     display: flex;
     align-items: center;
-    padding: 10px 30px;
     justify-content: flex-start;
 }
 
-.logo {
-    display: flex;
-    align-items: center;
+.logo img {
+    height: 90px;
 }
-
-    .logo img {
-        height: 90px;
-        margin-right: 10px;
-    }
 
 .menu {
     display: flex;
-    gap: 30px;
+    gap: 30px; 
     align-items: center;
-    margin-left: 30px;
+    margin-left: 50px; 
 }
 
 .menu-item {
     text-align: center;
-    cursor: pointer;
 }
 
-    .menu-item span {
+    .menu-item a {
+        color: black;
+        text-decoration: none;
+        font-size: 18px;
+        padding: 10px;
         display: block;
     }
+
+        .menu-item a.active {
+            border-bottom: 3px solid #ffd60a; 
+            font-weight: bold;
+        }
 
 .coin-balance {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-left: auto;
+    font-size: 20px;
+    margin-left: auto; 
 }
 
     .coin-balance img {
         height: 50px;
     }
+
 
 .container {
     display: flex;
@@ -105,8 +112,6 @@ header {
         background-color: #0056b3;
         transform: scale(1.03);
     }
-
-
 
 .left-column {
     flex: 1;
