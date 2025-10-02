@@ -1,13 +1,15 @@
 ﻿body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #a5a5a5;
+    overflow: hidden; /* Übernommen aus dem ersten Block */
 }
 
 
 header {
     background-color: #cfe2ff;
-    padding: 10px 30px; 
+    display: flex; /* Übernommen aus dem ersten Block */
+    align-items: center; /* Übernommen aus dem ersten Block */
+    padding: 10px 30px;
 }
 
 nav {
@@ -16,19 +18,26 @@ nav {
     justify-content: flex-start;
 }
 
-.logo img {
-    height: 90px;
+.logo {
+    display: flex; /* Neu */
+    align-items: center; /* Neu */
 }
+
+    .logo img {
+        height: 90px;
+        margin-right: 10px; /* Neu */
+    }
 
 .menu {
     display: flex;
-    gap: 30px; 
+    gap: 30px;
     align-items: center;
-    margin-left: 50px; 
+    margin-left: 30px; /* Geändert von 50px auf 30px */
 }
 
 .menu-item {
     text-align: center;
+    cursor: pointer; /* Neu */
 }
 
     .menu-item a {
@@ -40,7 +49,7 @@ nav {
     }
 
         .menu-item a.active {
-            border-bottom: 3px solid #ffd60a; 
+            border-bottom: 3px solid #ffd60a;
             font-weight: bold;
         }
 
@@ -48,14 +57,85 @@ nav {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 20px;
-    margin-left: auto; 
+    font-size: 20px; /* Beibehalten */
+    margin-left: auto;
 }
 
     .coin-balance img {
         height: 50px;
     }
 
+/* --- Neue Shop-spezifische Stile --- */
+
+.shop-container { /* Neu */
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+.voucher-list { /* Neu */
+    background-color: #4d4d4d;
+    padding: 10px;
+    border-radius: 20px;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.voucher-item { /* Neu */
+    background-color: #7a7a7a;
+    padding: 15px;
+    text-align: center;
+    border-radius: 15px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+    .voucher-item.selected { /* Neu */
+        border: 2px solid #b8b8ff;
+    }
+
+.voucher-details { /* Neu */
+    background-color: #4d4d4d;
+    padding: 20px;
+    border-radius: 20px;
+    flex: 1;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.voucher-header { /* Neu */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+    .voucher-header span { /* Neu */
+        font-size: 1.1em;
+    }
+
+.buy-button { /* Neu */
+    background-color: #7a7a7a;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    align-self: center;
+}
+
+    .buy-button:hover { /* Neu */
+        background-color: #999;
+    }
+
+/* --- Bestehende, unveränderte Stile --- */
 
 .container {
     display: flex;
