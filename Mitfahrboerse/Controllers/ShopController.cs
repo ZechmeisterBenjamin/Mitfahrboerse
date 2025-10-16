@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Mitfahrboerse.Interfaces;
 using Mitfahrboerse.Models;
 
 namespace Mitfahrboerse.Controllers;
 
-public class ShopController : Controller
+public class ShopController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
-    public ShopController(MitfahrboerseDbContext context)
+    public ShopController(MitfahrboerseDbContext context, ILogger<ShopController> logger, IAccessToken accessToken) : base(logger, accessToken) 
     {
         _context = context;
     }

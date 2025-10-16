@@ -3,17 +3,19 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Mitfahrboerse.Models;
+using Mitfahrboerse.Interfaces;
+using Azure.Core;
 
 namespace Mitfahrboerse.Controllers;
 
-public class ProfilController : Controller
+public class ProfilController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
-    public ProfilController(MitfahrboerseDbContext context)
+    public ProfilController(MitfahrboerseDbContext context, ILogger<ProfilController> logger, IAccessToken accessToken) : base(logger, accessToken)
     {
         _context = context;
     }
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
         return View();   
     }
