@@ -7,8 +7,8 @@ namespace Mitfahrboerse.Models
 {
     public class AccessToken : IAccessToken
     {
-        private readonly ITokenAcquisition _tokenAcquisition;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ITokenAcquisition _tokenAcquisition;   // Wird von Microsoft Identity Web zur Verfügung gestellt --> Token Verwaltung
+        private readonly IHttpClientFactory _httpClientFactory; // Factory zum Erstellen Wiederverwendbare HTTPClient 
 
         public AccessToken(ITokenAcquisition tokenAcquisition, IHttpClientFactory httpClientFactory)
         {
@@ -16,11 +16,13 @@ namespace Mitfahrboerse.Models
             _httpClientFactory = httpClientFactory;
         }
 
+        // Ruft AccessToken für Benutzer ab
         public async Task<string> GetAccessTokenAsync(string[] scopes)
         {
             return await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
         }
 
+        // Erstellt autorisierten Client mit Token im Header
         public async Task<HttpClient> GetAuthorizedClientAsync(string[] scopes)
         {
             var accessToken = await GetAccessTokenAsync(scopes);
