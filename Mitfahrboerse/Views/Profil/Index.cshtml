@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="~/css/StyleSheet.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <style>
+        /* Bestehende Styles für Einstellungen */
         .settings-container {
             display: flex;
             flex-direction: column;
@@ -75,11 +76,12 @@
             margin-left: 10px;
         }
 
+        /* Styles für Fahrten Statistik */
         .statistics-container {
             padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 30px; 
+            gap: 30px;
         }
 
             .statistics-container h2 {
@@ -87,7 +89,45 @@
             }
 
         .statistic-item {
-            font-size: 24px; 
+            font-size: 24px;
+        }
+
+        /* NEUE/ANGEPASSTE Styles für Auto Erstellen */
+        .create-form-container {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+            .create-form-container h2 {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+        .form-group {
+            display: flex; 
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 20px; 
+        }
+
+            .form-group label {
+                min-width: 150px; 
+                text-align: left;
+            }
+
+        .create-form-container input[type="text"] {
+            flex-grow: 1;
+            max-width: 450px;
+            padding: 12px 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 18px;
+            background-color: white;
+            box-sizing: border-box;
+            color: black;
         }
     </style>
 </head>
@@ -167,6 +207,36 @@
         </div>
             `,
             create: `
+            <div class="create-form-container">
+                <h2>Auto erstellen</h2>
+
+                <div class="form-group">
+                    <label for="kennzeichen">Kennzeichen:</label>
+                    <input type="text" id="kennzeichen" name="kennzeichen" />
+                </div>
+
+                <div class="form-group">
+                    <label for="sitze">Anzahl Sitzplätze:</label>
+                    <input type="text" id="sitze" name="sitze" />
+                </div>
+
+                <div class="form-group">
+                    <label for="marke">Marke:</label>
+                    <input type="text" id="marke" name="marke" />
+                </div>
+
+                <div class="form-group">
+                    <label for="modell">Modell:</label>
+                    <input type="text" id="modell" name="modell" />
+                </div>
+
+                <div class="form-group">
+                    <label for="farbe">Farbe:</label>
+                    <input type="text" id="farbe" name="farbe" />
+                </div>
+                
+                <button class="styled-button" style="max-width: 400px; margin-top: 20px;">Auto speichern</button>
+            </div>
             `
         };
 
