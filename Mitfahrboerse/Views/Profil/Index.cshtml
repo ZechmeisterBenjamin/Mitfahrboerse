@@ -92,7 +92,7 @@
             font-size: 24px;
         }
 
-        /* NEUE/ANGEPASSTE Styles für Auto Erstellen */
+        /* Styles für AUTO ERSTELLEN */
         .create-form-container {
             padding: 30px;
             display: flex;
@@ -106,15 +106,15 @@
             }
 
         .form-group {
-            display: flex; 
+            display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            font-size: 20px; 
+            font-size: 20px;
         }
 
             .form-group label {
-                min-width: 150px; 
+                min-width: 150px;
                 text-align: left;
             }
 
@@ -129,8 +129,43 @@
             box-sizing: border-box;
             color: black;
         }
+
+        .ride-list-container {
+            padding: 20px;
+        }
+
+            .ride-list-container h2 {
+                text-align: center;
+            }
+
+        .ride-list-group {
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+            .ride-list-group h3 {
+                font-size: 24px;
+                text-decoration: underline;
+                margin-bottom: 15px;
+            }
+
+            .ride-list-group ul {
+                list-style-type: disc;
+                padding-left: 40px;
+            }
+
+            .ride-list-group li {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+
+            .ride-list-group a {
+                color: white;
+                text-decoration: underline;
+            }
     </style>
 </head>
+<body>
     <main class="main-container">
         <div class="side-menu" id="sideMenu">
             <button class="side-button active" data-content="settings">Einstellungen</button>
@@ -151,62 +186,84 @@
         const buttons = document.querySelectorAll('.side-button:not(.logout)');
         const contentPanel = document.getElementById('contentPanel');
 
-        const contentData = {
-            settings: `
-        <div class="settings-container">
-            <h2 style="text-align: center;">Einstellungen</h2>
+        const settingsHTML = `
+            <div class="settings-container">
+                <h2 style="text-align: center;">Einstellungen</h2>
 
-            <div style="margin-top: 10px;">
-                <span class="setting-label">Design:</span>
-                <div class="design-options">
-                    <div class="design-option active-design" id="designA">Design A</div>
-                    <div class="design-option" id="designB">Design B</div>
+                <div style="margin-top: 10px;">
+                    <span class="setting-label">Design:</span>
+                    <div class="design-options">
+                        <div class="design-option active-design" id="designA">Design A</div>
+                        <div class="design-option" id="designB">Design B</div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <span class="setting-label">Startseite:</span>
+                    <select id="startseite">
+                        <option value="#" selected>Mitfahren</option>
+                        <option value="#">Fahrt Erstellen</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <span class="setting-label">Autos:</span>
+                    <select id="autos">
+                        <option value="auto1" selected>Auto 1</option>
+                        <option value="auto2">Auto 2</option>
+                        <option value="auto3">Auto 3</option>
+                    </select>
+                    <button class="remove-button">Entfernen</button>
                 </div>
             </div>
+        `;
 
-            <div class="setting-group">
-                <span class="setting-label">Startseite:</span>
-                <select id="startseite">
-                    <option value="#" selected>Mitfahren</option>
-                    <option value="#">Fahrt Erstellen</option>
-                </select>
-            </div>
+        const statisticsHTML = `
+            <div class="statistics-container">
+                <h2>Fahrten Statistik</h2>
 
-            <div class="setting-group">
-                <span class="setting-label">Autos:</span>
-                <select id="autos">
-                    <option value="auto1" selected>Auto 1</option>
-                    <option value="auto2">Auto 2</option>
-                    <option value="auto3">Auto 3</option>
-                </select>
-                <button class="remove-button">Entfernen</button>
-            </div>
-        </div>
-            `,
-            check: `
-            `,
-            history: `
-        <div class="statistics-container">
-            <h2>Fahrten Statistik</h2>
+                <div class="statistic-item">
+                    Fahrten gesamt: 5
+                </div>
 
-            <div class="statistic-item">
-                Fahrten gesamt: 5
-            </div>
+                <div class="statistic-item">
+                    Gesamt gefahrene Kilometer: 100km
+                </div>
 
-            <div class="statistic-item">
-                Gesamt gefahrene Kilometer: 100km
-            </div>
+                <div class="statistic-item">
+                    So oft mitgefahren: 0
+                </div>
 
-            <div class="statistic-item">
-                So oft mitgefahren: 0
+                <div class="statistic-item">
+                    Gesamt Anzahl Passagiere: 10
+                </div>
             </div>
+        `;
 
-            <div class="statistic-item">
-                Gesamt Anzahl Passagiere: 10
+        const checkRidesHTML = `
+            <div class="ride-list-container">
+                <h2>Fahrten überprüfen</h2>
+
+                <div class="ride-list-group">
+                    <h3>Meine Fahrten:</h3>
+                    <ul>
+                        <li><a href="#">1.9.2025 5:00 Uhr von Gresten nach HTL Waidhofen/Ybbs</a></li>
+                        <li><a href="#">1.9.2025 9:00 Uhr von HTL Waidhofen/Ybbs nach Gresten</a></li>
+                    </ul>
+                </div>
+
+                <div class="ride-list-group">
+                    <h3>Mitfahren:</h3>
+                    <ul>
+                        <li><a href="#">1.9.2025 5:00 Uhr von Gresten nach HTL Waidhofen/Ybbs</a></li>
+                        <li><a href="#">1.9.2025 9:00 Uhr von HTL Waidhofen/Ybbs nach Gresten</a></li>
+                    </ul>
+                </div>
             </div>
-        </div>
-            `,
-            create: `
+        `;
+
+
+        const createCarHTML = `
             <div class="create-form-container">
                 <h2>Auto erstellen</h2>
 
@@ -234,11 +291,21 @@
                     <label for="farbe">Farbe:</label>
                     <input type="text" id="farbe" name="farbe" />
                 </div>
-                
-                <button class="styled-button" style="max-width: 400px; margin-top: 20px;">Auto speichern</button>
+
+                <button class="styled-button" style="max-width: 450px; margin-top: 20px; align-self: flex-start;">Auto speichern</button>
             </div>
-            `
+        `;
+
+
+        const contentData = {
+            settings: settingsHTML,
+            check: checkRidesHTML, 
+            history: statisticsHTML, 
+            create: createCarHTML
         };
+
+        contentPanel.innerHTML = contentData.settings;
+
 
         buttons.forEach(button => {
             button.addEventListener('click', () => {
@@ -250,4 +317,5 @@
             });
         });
     </script>
+</body>
 </html>
