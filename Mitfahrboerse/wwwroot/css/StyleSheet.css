@@ -1,14 +1,20 @@
 ﻿body {
     margin: 0;
     font-family: Arial, sans-serif;
-    overflow: hidden; /* Übernommen aus dem ersten Block */
+    overflow-x: hidden; 
 }
 
 
+.header-content-wrapper { 
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
 header {
     background-color: #cfe2ff;
-    display: flex; /* Übernommen aus dem ersten Block */
-    align-items: center; /* Übernommen aus dem ersten Block */
+    display: flex;
+    align-items: center;
     padding: 10px 30px;
 }
 
@@ -16,28 +22,29 @@ nav {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    width: 100%;
 }
 
 .logo {
-    display: flex; /* Neu */
-    align-items: center; /* Neu */
+    display: flex;
+    align-items: center;
 }
 
     .logo img {
         height: 90px;
-        margin-right: 10px; /* Neu */
+        margin-right: 10px;
     }
 
 .menu {
     display: flex;
     gap: 30px;
     align-items: center;
-    margin-left: 30px; /* Geändert von 50px auf 30px */
+    margin-left: 30px;
 }
 
 .menu-item {
     text-align: center;
-    cursor: pointer; /* Neu */
+    cursor: pointer;
 }
 
     .menu-item a {
@@ -53,11 +60,21 @@ nav {
             font-weight: bold;
         }
 
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+
 .coin-balance {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 20px; /* Beibehalten */
+    font-size: 20px;
     margin-left: auto;
 }
 
@@ -65,15 +82,95 @@ nav {
         height: 50px;
     }
 
-/* --- Neue Shop-spezifische Stile --- */
 
-.shop-container { /* Neu */
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 20px;
+    }
+
+    nav {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .header-content-wrapper {
+        width: 100%;
+        justify-content: space-between;
+        flex-grow: 0;
+        margin-bottom: 10px;
+    }
+
+    .logo img {
+        height: 60px; 
+    }
+
+    .menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        margin-left: 0;
+        gap: 0;
+        background-color: #e6f0ff; 
+        border-radius: 10px;
+        padding: 10px 0;
+        order: 3; 
+        position: relative; 
+        top: 0;
+    }
+
+        .menu.open {
+            display: flex;
+        }
+
+    .menu-item {
+        width: 100%;
+        border-bottom: 1px solid #cfe2ff; 
+    }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item a {
+            padding: 15px 10px;
+            font-size: 16px;
+            text-align: left;
+        }
+
+            .menu-item a.active {
+                border-bottom: none;
+                border-left: 3px solid #ffd60a; 
+            }
+
+    .menu-toggle {
+        display: block; 
+    }
+
+    .coin-balance {
+        order: 2; 
+        margin: 0 auto 10px 0; 
+        align-self: flex-start;
+        font-size: 18px;
+    }
+
+        .coin-balance img {
+            height: 35px; 
+        }
+}
+
+
+
+.shop-container { 
     display: flex;
     padding: 20px;
     gap: 20px;
 }
 
-.voucher-list { /* Neu */
+.voucher-list { 
     background-color: #4d4d4d;
     padding: 10px;
     border-radius: 20px;
@@ -83,7 +180,7 @@ nav {
     gap: 15px;
 }
 
-.voucher-item { /* Neu */
+.voucher-item { 
     background-color: #7a7a7a;
     padding: 15px;
     text-align: center;
@@ -94,11 +191,11 @@ nav {
     border: 2px solid transparent;
 }
 
-    .voucher-item.selected { /* Neu */
+    .voucher-item.selected { 
         border: 2px solid #b8b8ff;
     }
 
-.voucher-details { /* Neu */
+.voucher-details {
     background-color: #4d4d4d;
     padding: 20px;
     border-radius: 20px;
@@ -109,18 +206,18 @@ nav {
     justify-content: center;
 }
 
-.voucher-header { /* Neu */
+.voucher-header { 
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
 }
 
-    .voucher-header span { /* Neu */
+    .voucher-header span { 
         font-size: 1.1em;
     }
 
-.buy-button { /* Neu */
+.buy-button { 
     background-color: #7a7a7a;
     padding: 10px 20px;
     border: none;
@@ -131,11 +228,10 @@ nav {
     align-self: center;
 }
 
-    .buy-button:hover { /* Neu */
+    .buy-button:hover { 
         background-color: #999;
     }
 
-/* --- Bestehende, unveränderte Stile --- */
 
 .container {
     display: flex;
