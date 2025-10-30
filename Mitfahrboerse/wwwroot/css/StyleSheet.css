@@ -1,11 +1,11 @@
 ﻿body {
     margin: 0;
     font-family: Arial, sans-serif;
-    overflow-x: hidden; 
+    overflow-x: hidden;
 }
 
 
-.header-content-wrapper { 
+.header-content-wrapper {
     display: flex;
     align-items: center;
     flex-grow: 1;
@@ -69,7 +69,6 @@ nav {
     margin-right: 20px;
 }
 
-
 .coin-balance {
     display: flex;
     align-items: center;
@@ -84,93 +83,83 @@ nav {
 
 
 
-@media (max-width: 768px) {
-    header {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 10px 20px;
-    }
-
-    nav {
-        flex-wrap: wrap;
-        justify-content: space-between;
-        width: 100%;
-    }
-
-    .header-content-wrapper {
-        width: 100%;
-        justify-content: space-between;
-        flex-grow: 0;
-        margin-bottom: 10px;
-    }
-
-    .logo img {
-        height: 60px; 
-    }
-
-    .menu {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        margin-left: 0;
-        gap: 0;
-        background-color: #e6f0ff; 
-        border-radius: 10px;
-        padding: 10px 0;
-        order: 3; 
-        position: relative; 
-        top: 0;
-    }
-
-        .menu.open {
-            display: flex;
-        }
-
-    .menu-item {
-        width: 100%;
-        border-bottom: 1px solid #cfe2ff; 
-    }
-
-        .menu-item:last-child {
-            border-bottom: none;
-        }
-
-        .menu-item a {
-            padding: 15px 10px;
-            font-size: 16px;
-            text-align: left;
-        }
-
-            .menu-item a.active {
-                border-bottom: none;
-                border-left: 3px solid #ffd60a; 
-            }
-
-    .menu-toggle {
-        display: block; 
-    }
-
-    .coin-balance {
-        order: 2; 
-        margin: 0 auto 10px 0; 
-        align-self: flex-start;
-        font-size: 18px;
-    }
-
-        .coin-balance img {
-            height: 35px; 
-        }
+.left-column {
+    flex: 1;
+    background-color: #666;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
+.fahrt-item {
+    background-color: #4d4d4d;
+    border-radius: 15px;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+}
+
+    .fahrt-item.selected {
+        border: 2px solid #ffd60a; 
+    }
+
+.right-column {
+    flex: 2;
+    background-color: #4d4d4d;
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.fahrt-details {
+    display: flex;
+    flex-direction: column; 
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.fahrt-details-row {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #7a7a7a;
+}
+
+.detail-label {
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 80px;
+}
+
+.anfrage-button {
+    background-color: transparent;
+    border: 2px solid white;
+    color: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.3s;
+}
+
+    .anfrage-button:hover {
+        background-color: #7a7a7a;
+    }
 
 
-.shop-container { 
+.shop-container {
     display: flex;
     padding: 20px;
     gap: 20px;
 }
 
-.voucher-list { 
+.voucher-list {
     background-color: #4d4d4d;
     padding: 10px;
     border-radius: 20px;
@@ -180,7 +169,7 @@ nav {
     gap: 15px;
 }
 
-.voucher-item { 
+.voucher-item {
     background-color: #7a7a7a;
     padding: 15px;
     text-align: center;
@@ -191,7 +180,7 @@ nav {
     border: 2px solid transparent;
 }
 
-    .voucher-item.selected { 
+    .voucher-item.selected {
         border: 2px solid #b8b8ff;
     }
 
@@ -206,18 +195,18 @@ nav {
     justify-content: center;
 }
 
-.voucher-header { 
+.voucher-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
 }
 
-    .voucher-header span { 
+    .voucher-header span {
         font-size: 1.1em;
     }
 
-.buy-button { 
+.buy-button {
     background-color: #7a7a7a;
     padding: 10px 20px;
     border: none;
@@ -228,10 +217,9 @@ nav {
     align-self: center;
 }
 
-    .buy-button:hover { 
+    .buy-button:hover {
         background-color: #999;
     }
-
 
 .container {
     display: flex;
@@ -289,50 +277,6 @@ nav {
         transform: scale(1.03);
     }
 
-.left-column {
-    flex: 1;
-    background-color: #666;
-    border-radius: 15px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.fahrt-item {
-    background-color: #4d4d4d;
-    border-radius: 15px;
-    padding: 10px;
-    text-align: center;
-    color: white;
-}
-
-.right-column {
-    flex: 2;
-    background-color: #4d4d4d;
-    border-radius: 15px;
-    padding: 20px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.fahrt-details {
-    display: flex;
-    justify-content: space-between;
-}
-
-.anfrage-button {
-    background-color: transparent;
-    border: 2px solid white;
-    color: white;
-    border-radius: 20px;
-    padding: 10px 20px;
-    cursor: pointer;
-    align-self: flex-start;
-}
-
 .main-container {
     display: flex;
     padding: 20px;
@@ -384,3 +328,127 @@ nav {
         margin-bottom: 30px;
         text-decoration: underline;
     }
+
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 20px;
+    }
+
+    nav {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .header-content-wrapper {
+        width: 100%;
+        justify-content: space-between;
+        flex-grow: 0;
+        margin-bottom: 10px;
+    }
+
+    .logo img {
+        height: 60px;
+    }
+
+    .menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        margin-left: 0;
+        gap: 0;
+        background-color: #e6f0ff;
+        border-radius: 10px;
+        padding: 10px 0;
+        order: 3;
+        position: relative;
+        top: 0;
+    }
+
+        .menu.open {
+            display: flex;
+        }
+
+    .menu-item {
+        width: 100%;
+        border-bottom: 1px solid #cfe2ff;
+    }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item a {
+            padding: 15px 10px;
+            font-size: 16px;
+            text-align: left;
+        }
+
+            .menu-item a.active {
+                border-bottom: none;
+                border-left: 3px solid #ffd60a;
+            }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .coin-balance {
+        order: 2;
+        margin: 0 auto 10px 0;
+        align-self: flex-start;
+        font-size: 18px;
+    }
+
+        .coin-balance img {
+            height: 35px;
+        }
+
+
+    main {
+        flex-direction: column; 
+        padding: 10px;
+    }
+
+    .left-column, .right-column {
+        flex: auto;
+        min-width: unset;
+        margin: 0;
+        padding: 15px;
+    }
+
+    .right-column {
+        order: -1; 
+        margin-bottom: 20px;
+    }
+
+    .left-column {
+        padding: 5px; 
+    }
+
+    .fahrt-item {
+        font-size: 14px;
+        padding: 10px;
+        text-align: left; 
+    }
+
+    .fahrt-details-row {
+        font-size: 14px;
+    }
+
+    .anfrage-button {
+        align-self: stretch;
+        text-align: center;
+    }
+
+    .shop-container, .main-container {
+        flex-direction: column;
+    }
+
+    .side-menu, .voucher-list {
+        width: 100%;
+    }
+}

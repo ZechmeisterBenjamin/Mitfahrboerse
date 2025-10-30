@@ -78,23 +78,23 @@
             const date = document.getElementById('date');
             const requestButton = document.getElementById('request-button');
             let selectedRideId = @(firstRide?.RideId ?? 0);
-            
+
             rideItems.forEach(item => {
                 item.addEventListener('click', function() {
                     rideItems.forEach(ri => ri.classList.remove('selected'));
                     this.classList.add('selected');
-                    
+
                     driverName.textContent = this.getAttribute('data-driver-name');
                     driverClass.textContent = this.getAttribute('data-driver-class');
                     seats.textContent = `Plätze: ${this.getAttribute('data-seats')}`;
                     route.textContent = `${this.getAttribute('data-from')} - ${this.getAttribute('data-to')}`;
                     time.textContent = this.getAttribute('data-time');
                     date.textContent = this.getAttribute('data-date');
-                    
+
                     selectedRideId = parseInt(this.getAttribute('data-ride-id'));
                 });
             });
-            
+
             requestButton.addEventListener('click', function() {
                 if (selectedRideId) {
                     alert(`Anfrage für Fahrt ${selectedRideId} wird gesendet`);
