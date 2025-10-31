@@ -9,7 +9,7 @@ namespace Mitfahrboerse.Controllers;
 public class RideController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
-    public RideController(MitfahrboerseDbContext context, ILogger<RideController> logger, IAccessToken accessToken) : base(logger, accessToken)
+    public RideController(MitfahrboerseDbContext context, ILogger<RideController> logger, IAccessToken accessToken) : base(logger, accessToken, context)
     {
         _context = context;
     }
