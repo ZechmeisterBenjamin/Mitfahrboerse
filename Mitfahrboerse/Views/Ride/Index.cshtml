@@ -17,7 +17,7 @@
                  data-time="@ride.RideDateTime.ToString("HH:mm")"
                  data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
                  data-seats="@(ride.PersonRides?.Count ?? 0)">
-                 <strong>@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong><br>
+                <strong>@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong><br>
                 @ride.FK_StartsAt_Position.Description - @ride.FK_EndsAt_Position.Description<br>
                 @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm")
             </div>
@@ -30,7 +30,8 @@
             <div id="ride-details" class="fahrt-details">
                 <div class="fahrt-details-row">
                     <span class="detail-label">Fahrer:</span>
-                    <span id="driver-name" class="detail-value">@firstRide.FK_Driver_Person.FirstName @firstRide.FK_Driver_Person.LastName</span>
+                    <span id="driver-name"
+                          class="detail-value">@firstRide.FK_Driver_Person.FirstName @firstRide.FK_Driver_Person.LastName</span>
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Klasse:</span>
@@ -42,7 +43,8 @@
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Strecke:</span>
-                    <span id="route" class="detail-value">@firstRide.FK_StartsAt_Position.Description - @firstRide.FK_EndsAt_Position.Description</span>
+                    <span id="route"
+                          class="detail-value">@firstRide.FK_StartsAt_Position.Description - @firstRide.FK_EndsAt_Position.Description</span>
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Zeit:</span>
@@ -68,7 +70,7 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const rideItems = document.querySelectorAll('.fahrt-item');
             const driverName = document.getElementById('driver-name');
             const driverClass = document.getElementById('driver-class');
@@ -78,44 +80,54 @@
             const date = document.getElementById('date');
             const requestButton = document.getElementById('request-button');
             let selectedRideId = @(firstRide?.RideId ?? 0);
-            
+
             rideItems.forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function () {
                     rideItems.forEach(ri => ri.classList.remove('selected'));
                     this.classList.add('selected');
-                    
+
                     driverName.textContent = this.getAttribute('data-driver-name');
                     driverClass.textContent = this.getAttribute('data-driver-class');
                     seats.textContent = `Plätze: ${this.getAttribute('data-seats')}`;
                     route.textContent = `${this.getAttribute('data-from')} - ${this.getAttribute('data-to')}`;
                     time.textContent = this.getAttribute('data-time');
                     date.textContent = this.getAttribute('data-date');
-                    
+
                     selectedRideId = parseInt(this.getAttribute('data-ride-id'));
                 });
             });
             // ChatGPT
-            requestButton.addEventListener('click', function() {
+            requestButton.addEventListener('click', function () {
                 if (selectedRideId) {
                     fetch('@Url.Action("RequestRide", "Ride")', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
+                            // Change the Content-Type to send form data instead of JSON
+                            'Content-Type': 'application/x-www-form-urlencoded',
                         },
-                        body: JSON.stringify({ rideId: selectedRideId })
+                        // Send the data as a simple key=value string
+                        body: `rideId=${selectedRideId}`
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                        } else {
-                            alert('Fehler: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Es ist ein Fehler aufgetreten.');
-                    });
+                        .then(response => {
+                            if (!response.ok) {
+                                // Handle HTTP errors like 400 or 500
+                                alert('Ein Serverfehler ist aufgetreten.');
+                                return Promise.reject('Server error');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                            } else {
+                                alert('Fehler: ' + data.message);
+                            }
+                            
+
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
                 }
             });
         });

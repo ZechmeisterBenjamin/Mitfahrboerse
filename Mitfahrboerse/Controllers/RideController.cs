@@ -80,10 +80,11 @@ public class RideController : BaseController
 
             if (ride == null)
             {
-                return Json(new { success = false, message = "Fahrt nicht gefunden." });
+                return Json(new { success = false, message = $"Fahrt ({rideId}) nicht gefunden." });
             }
-            
-            
+
+            _context.t_PersonRides.Add(new t_PersonRide(personId, rideId, 0));
+            _context.SaveChanges();
             
             return Json(new { success = true, message = "Anfrage erfolgreich gesendet!" });
         }

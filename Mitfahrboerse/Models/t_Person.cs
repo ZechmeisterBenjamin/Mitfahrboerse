@@ -48,7 +48,6 @@ public partial class t_Person
     [InverseProperty("Person")]
     public virtual ICollection<t_PersonRide> PersonRides { get; set; } = new List<t_PersonRide>();
 
-    [ForeignKey("FK_PersonId")]
     [InverseProperty("FK_People")]
     public virtual ICollection<t_Offer> t_Offers { get; set; } = new List<t_Offer>();
 }
