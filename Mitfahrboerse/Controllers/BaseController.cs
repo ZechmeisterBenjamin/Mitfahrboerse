@@ -15,6 +15,7 @@ namespace Mitfahrboerse.Controllers
         protected readonly ILogger _logger; // Wird für Fehlermelungen verwendet
         protected readonly IAccessToken _accessToken; // Schnittstelle um den AcessToken zu erhalten
         private readonly MitfahrboerseDbContext _context;
+        protected string personId;
 
         public BaseController(ILogger logger, IAccessToken accessToken, MitfahrboerseDbContext context)
         {
@@ -69,7 +70,7 @@ namespace Mitfahrboerse.Controllers
 
                 // Einzelne Werte speichern
                 var doc = JsonDocument.Parse(content);
-                string personId = doc.RootElement.GetProperty("id").GetString();
+                personId = doc.RootElement.GetProperty("id").GetString();
                 string firstname = doc.RootElement.GetProperty("givenName").GetString();
                 string lastname = doc.RootElement.GetProperty("surname").GetString();
                 string email = doc.RootElement.GetProperty("mail").GetString();
