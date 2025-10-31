@@ -45,9 +45,8 @@ public partial class t_Person
     [InverseProperty("FK_Driver_Person")]
     public virtual ICollection<t_Ride> t_Rides { get; set; } = new List<t_Ride>();
 
-    [ForeignKey("FK_PersonId")]
-    [InverseProperty("FK_People")]
-    public virtual ICollection<t_Ride> FK_Rides { get; set; } = new List<t_Ride>();
+    [InverseProperty("Person")]
+    public virtual ICollection<t_PersonRide> PersonRides { get; set; } = new List<t_PersonRide>();
 
     [ForeignKey("FK_PersonId")]
     [InverseProperty("FK_People")]

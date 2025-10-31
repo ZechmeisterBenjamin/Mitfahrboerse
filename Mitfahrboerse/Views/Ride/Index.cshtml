@@ -16,8 +16,8 @@
                  data-to="@ride.FK_EndsAt_Position.Description"
                  data-time="@ride.RideDateTime.ToString("HH:mm")"
                  data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
-                 data-seats="@(ride.FK_People?.Count ?? 0)">
-                <strong>@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong><br>
+                 data-seats="@(ride.PersonRides?.Count ?? 0)">
+                 <strong>@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong><br>
                 @ride.FK_StartsAt_Position.Description - @ride.FK_EndsAt_Position.Description<br>
                 @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm")
             </div>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Plätze:</span>
-                    <span id="seats" class="detail-value">Plätze: @(firstRide.FK_People?.Count ?? 0)</span>
+                    <span id="seats" class="detail-value">Plätze: @(firstRide.PersonRides?.Count ?? 0)</span>
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Strecke:</span>
@@ -94,10 +94,28 @@
                     selectedRideId = parseInt(this.getAttribute('data-ride-id'));
                 });
             });
-            
+            // ChatGPT
             requestButton.addEventListener('click', function() {
                 if (selectedRideId) {
-                    alert(`Anfrage für Fahrt ${selectedRideId} wird gesendet`);
+                    fetch('@Url.Action("RequestRide", "Ride")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ rideId: selectedRideId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                        } else {
+                            alert('Fehler: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Es ist ein Fehler aufgetreten.');
+                    });
                 }
             });
         });

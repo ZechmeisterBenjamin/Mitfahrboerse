@@ -20,7 +20,8 @@ public class RideController : BaseController
             .Include(r => r.FK_Driver_Person)
             .Include(r => r.FK_StartsAt_Position)
             .Include(r => r.FK_EndsAt_Position)
-            .Include(r => r.FK_People)
+            .Include(r => r.PersonRides)
+            .ThenInclude(pr => pr.Person)
             .ToList();
 
         var selectedRide = selectedRideId.HasValue 
@@ -66,5 +67,30 @@ public class RideController : BaseController
         
         ViewBag.Positions = _context.t_Positions.ToList();
         return View(ride);
+    }
+
+    [HttpPost]
+    public IActionResult RequestRide(int rideId)
+    {
+        try
+        {
+            var ride = _context.t_Rides
+                .Include(r => r.FK_Driver_Person)
+                .FirstOrDefault(r => r.RideId == rideId);
+
+            if (ride == null)
+            {
+                return Json(new { success = false, message = "Fahrt nicht gefunden." });
+            }
+            
+            
+            
+            return Json(new { success = true, message = "Anfrage erfolgreich gesendet!" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error requesting ride {RideId}", rideId);
+            return Json(new { success = false, message = "Es ist ein Fehler aufgetreten." });
+        }
     }
 }

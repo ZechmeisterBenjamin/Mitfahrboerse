@@ -12,35 +12,24 @@ public partial class MitfahrboerseDbContext : DbContext
     }
 
     public virtual DbSet<t_Car> t_Cars { get; set; }
-
     public virtual DbSet<t_Offer> t_Offers { get; set; }
-
     public virtual DbSet<t_Person> t_People { get; set; }
-
+    public virtual DbSet<t_PersonRide> t_PersonRides { get; set; }
     public virtual DbSet<t_Position> t_Positions { get; set; }
-
     public virtual DbSet<t_Ride> t_Rides { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<t_Car>(entity =>
         {
-            entity.HasKey(e => e.CarId).HasName("PK__t_Car__68A0342E5D79D025");
-
-            entity.Property(e => e.CarId).ValueGeneratedNever();
-
-            entity.HasOne(d => d.FK_Owner_Person).WithMany(p => p.t_Cars)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__t_Car__FK_Owner___5AEE82B9");
+            entity.HasKey(e => e.CarId).HasName("PK__t_Car__68A0342E0453EE9E");
         });
 
         modelBuilder.Entity<t_Offer>(entity =>
         {
-            entity.HasKey(e => new { e.OfferId, e.ValidUntil }).HasName("PK__t_Offer__9C2DC74548CBFE42");
+            entity.HasKey(e => new { e.OfferId, e.ValidUntil }).HasName("PK__t_Offer__9C2DC745C1C27462");
 
-            entity.Property(e => e.ValidUntil).HasDefaultValueSql("(CONVERT([date],dateadd(year,(1),getdate())))");
-
-            entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
+             entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
                 .UsingEntity<Dictionary<string, object>>(
                     "t_PersonOffer",
                     r => r.HasOne<t_Person>().WithMany()
@@ -66,55 +55,42 @@ public partial class MitfahrboerseDbContext : DbContext
 
         modelBuilder.Entity<t_Person>(entity =>
         {
-            entity.HasKey(e => e.PersonId).HasName("PK__t_Person__AA2FFBE50C4D7DC2");
+            entity.HasKey(e => e.PersonId).HasName("PK__t_Person__AA2FFBE50A75FD1B");
+        });
+
+        modelBuilder.Entity<t_PersonRide>(entity =>
+        {
+            entity.HasKey(e => new { e.FK_RideId, e.FK_PersonId }).HasName("PK__t_Person__DA7D13BD7F4B549D");
+
+            entity.ToTable("t_PersonRide");
+
+            entity.HasIndex(e => e.FK_PersonId, "IX_PersonRide_PersonId");
+
+            entity.Property(e => e.FK_RideId).HasColumnName("FK_RideId");
+            entity.Property(e => e.FK_PersonId)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("FK_PersonId");
+
+            entity.HasOne(d => d.Person).WithMany(p => p.PersonRides)
+                .HasForeignKey(d => d.FK_PersonId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__t_PersonR__FK_Pe__4A8310C6");
+
+            entity.HasOne(d => d.Ride).WithMany(p => p.PersonRides)
+                .HasForeignKey(d => d.FK_RideId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__t_PersonR__FK_Ri__47A6A41B");
         });
 
         modelBuilder.Entity<t_Position>(entity =>
         {
-            entity.HasKey(e => e.PositionId).HasName("PK__t_Positi__60BB9A79C90DA882");
-
-            entity.Property(e => e.PositionId).ValueGeneratedNever();
+            entity.HasKey(e => e.PositionId).HasName("PK__t_Positi__60BB9A79D35912D1");
         });
 
         modelBuilder.Entity<t_Ride>(entity =>
         {
-            entity.HasKey(e => e.RideId).HasName("PK__t_Ride__C5B8C4F43457DE73");
-
-            entity.Property(e => e.RideId).ValueGeneratedNever();
-            entity.Property(e => e.RideDateTime).HasDefaultValueSql("(getdate())");
-
-            entity.HasOne(d => d.FK_Driver_Person).WithMany(p => p.t_Rides)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__t_Ride__FK_Drive__52593CB8");
-
-            entity.HasOne(d => d.FK_EndsAt_Position).WithMany(p => p.t_RideFK_EndsAt_Positions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__t_Ride__FK_EndsA__5165187F");
-
-            entity.HasOne(d => d.FK_StartsAt_Position).WithMany(p => p.t_RideFK_StartsAt_Positions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__t_Ride__FK_Start__5070F446");
-
-            entity.HasMany(d => d.FK_People).WithMany(p => p.FK_Rides)
-                .UsingEntity<Dictionary<string, object>>(
-                    "t_PersonRide",
-                    r => r.HasOne<t_Person>().WithMany()
-                        .HasForeignKey("FK_PersonId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__t_PersonR__FK_Pe__5629CD9C"),
-                    l => l.HasOne<t_Ride>().WithMany()
-                        .HasForeignKey("FK_RideId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__t_PersonR__FK_Ri__5535A963"),
-                    j =>
-                    {
-                        j.HasKey("FK_RideId", "FK_PersonId").HasName("PK__t_Person__DA7D13BD064FFE9D");
-                        j.ToTable("t_PersonRide");
-                        j.HasIndex(new[] { "FK_PersonId" }, "IX_PersonRide_PersonId");
-                        j.IndexerProperty<string>("FK_PersonId")
-                            .HasMaxLength(50)
-                            .IsUnicode(false);
-                    });
+            entity.HasKey(e => e.RideId).HasName("PK__t_Ride__C5B8C4F43975CE97");
         });
 
         OnModelCreatingPartial(modelBuilder);
