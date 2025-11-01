@@ -5,6 +5,7 @@
 }
 
 
+/* --- 1. Header & Navigation Stile (Desktop/Basis) --- */
 
 .header-content-wrapper {
     display: flex;
@@ -83,6 +84,7 @@ nav {
     }
 
 
+/* --- 2. Sekundäre Tab-Navigation (sub-navigation) --- */
 
 .sub-navigation {
     display: flex;
@@ -114,6 +116,7 @@ nav {
         }
 
 
+/* --- 3. Mitfahren Stile (Ride/Index) --- */
 
 .left-column {
     flex: 1;
@@ -185,6 +188,7 @@ nav {
     }
 
 
+/* --- 4. Fahrt erstellen Stile (Ride/Create) --- */
 
 .main-content-layout {
     display: flex;
@@ -231,7 +235,7 @@ nav {
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 15px;
-    width: 100%; 
+    width: 100%;
     box-sizing: border-box;
 }
 
@@ -241,8 +245,9 @@ nav {
     font-weight: bold;
 }
 
+/* Basis für Buttons */
 .styled-button {
-    background-color: #cfe2ff; 
+    background-color: #cfe2ff; /* Hellblau */
     color: black;
     border: none;
     padding: 12px 24px;
@@ -252,28 +257,30 @@ nav {
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s, transform 0.2s;
-    width: 100%; 
-    max-width: 300px; 
+    width: 100%;
+    max-width: 300px;
     align-self: center;
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
     .styled-button:hover {
-        background-color: #0056b3;
+        background-color: #0056b3; /* Dunkleres Blau */
         transform: scale(1.03);
     }
 
+/* Spezieller Stil für den Haupt-Button ("Fahrt erstellen") */
 .primary-button {
-    background-color: #ffd60a; 
+    background-color: #ffd60a; /* Gelb */
     color: black;
 }
 
     .primary-button:hover {
-        background-color: #ffc400; 
+        background-color: #ffc400; /* Dunkleres Gelb beim Hover */
     }
 
 
+/* --- 5. Shop Stile (Shop/Index) --- */
 
 .shop-container {
     display: flex;
@@ -343,6 +350,8 @@ nav {
         background-color: #999;
     }
 
+
+/* --- 6. Profil Stile (Profil/Index) --- */
 
 .container {
     display: flex;
@@ -432,8 +441,13 @@ nav {
     }
 
 
+/* ================================================= */
+/* --- 7. Responsive Anpassungen (Mobile bis 768px) --- */
+/* ================================================= */
 
 @media (max-width: 768px) {
+
+    /* --- Header-Korrektur (Hamburger-Menü) --- */
     header {
         flex-direction: row;
         align-items: center;
@@ -467,7 +481,7 @@ nav {
         background-color: #e6f0ff;
         border-radius: 10px;
         padding: 10px 0;
-        order: 4;
+        order: 4; /* Das Menü rutscht unter das Haupt-Header-Element */
     }
 
         .menu.open {
@@ -509,10 +523,12 @@ nav {
             height: 35px;
         }
 
+    /* --- Allgemein: Hauptinhalt auf Stapel umstellen --- */
     main {
         padding: 10px;
     }
 
+    /* Wichtig: Alle Haupt-Layouts werden gestapelt */
     .shop-container, .main-container, .container {
         flex-direction: column;
         padding: 10px;
@@ -525,6 +541,7 @@ nav {
         margin-bottom: 10px;
     }
 
+    /* --- Fahrten-Ansicht Anpassungen (Ride/Index) --- */
 
     .left-column, .right-column {
         flex: auto;
@@ -534,6 +551,7 @@ nav {
         padding: 15px;
     }
 
+    /* Wichtig: Fahrtenauswahl (right-column) zuerst anzeigen */
     .right-column {
         order: -1;
         margin-bottom: 20px;
@@ -560,8 +578,7 @@ nav {
 
     .card {
         width: 100%;
-        order: 1;
-        padding: 15px; 
+        order: 1; 
     }
 
     .card-body {
@@ -578,10 +595,9 @@ nav {
         margin-bottom: 15px;
     }
 
-
     #map-container {
         width: 100%;
-        height: 300px;
+        height: 300px; 
         order: 2;
         margin-bottom: 10px;
     }
@@ -589,8 +605,8 @@ nav {
     .styled-button {
         max-width: 100%;
         padding: 15px 24px;
-        font-size: 17px; 
-        margin-bottom: 10px; 
+        font-size: 17px;
+        margin-bottom: 10px;
     }
 
     .info-box, .map-box {
