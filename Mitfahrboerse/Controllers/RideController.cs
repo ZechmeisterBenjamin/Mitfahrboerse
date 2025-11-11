@@ -65,7 +65,7 @@
                     FK_EndsAt_PositionId = endPositionId,    
                     RideDateTime = rideDateTime,
                     Distance = (int)(routeLength * 1000), 
-                    Status = 0
+                    Status = 0 
                     // FK_CarId = carId
                 };
 
