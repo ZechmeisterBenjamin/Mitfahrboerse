@@ -1,17 +1,37 @@
-﻿@model IEnumerable<Mitfahrboerse.Models.t_Ride>
+@model IEnumerable<Mitfahrboerse.Models.t_Ride>
 @{
     ViewData["Title"] = "Mitfahren";
     var firstRide = Model.FirstOrDefault();
 }
 
 <main class="main-container">
+    <div class="left-column">
+        @foreach (var ride in Model)
+        {
+            <div class="fahrt-item @(firstRide != null && firstRide.RideId == ride.RideId ? "selected" : "")"
+                 data-ride-id="@ride.RideId"
+                 data-driver-name="@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName"
+                 data-driver-class="@ride.FK_Driver_Person.Class"
+                 data-from="@ride.FK_StartsAt_Position.Description"
+                 data-to="@ride.FK_EndsAt_Position.Description"
+                 data-time="@ride.RideDateTime.ToString("HH:mm")"
+                 data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
+                 data-seats="@(ride.PersonRides?.Count ?? 0)">
+                <strong>@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong><br>
+                @ride.FK_StartsAt_Position.Description - @ride.FK_EndsAt_Position.Description<br>
+                @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm")
+            </div>
+        }
+    </div>
+
     <div class="right-column">
         @if (firstRide != null)
         {
             <div id="ride-details" class="fahrt-details">
                 <div class="fahrt-details-row">
                     <span class="detail-label">Fahrer:</span>
-                    <span id="driver-name" class="detail-value">@firstRide.FK_Driver_Person.FirstName @firstRide.FK_Driver_Person.LastName</span>
+                    <span id="driver-name"
+                          class="detail-value">@firstRide.FK_Driver_Person.FirstName @firstRide.FK_Driver_Person.LastName</span>
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Klasse:</span>
@@ -19,11 +39,12 @@
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Plätze:</span>
-                    <span id="seats" class="detail-value">Plätze: @(firstRide.FK_People?.Count ?? 0)</span>
+                    <span id="seats" class="detail-value">Plätze: @(firstRide.PersonRides?.Count ?? 0)</span>
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Strecke:</span>
-                    <span id="route" class="detail-value">@firstRide.FK_StartsAt_Position.Description - @firstRide.FK_EndsAt_Position.Description</span>
+                    <span id="route"
+                          class="detail-value">@firstRide.FK_StartsAt_Position.Description - @firstRide.FK_EndsAt_Position.Description</span>
                 </div>
                 <div class="fahrt-details-row">
                     <span class="detail-label">Zeit:</span>
@@ -68,7 +89,7 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const rideItems = document.querySelectorAll('.fahrt-item');
             const driverName = document.getElementById('driver-name');
             const driverClass = document.getElementById('driver-class');
@@ -80,7 +101,7 @@
             let selectedRideId = @(firstRide?.RideId ?? 0);
 
             rideItems.forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function () {
                     rideItems.forEach(ri => ri.classList.remove('selected'));
                     this.classList.add('selected');
 
@@ -94,14 +115,40 @@
                     selectedRideId = parseInt(this.getAttribute('data-ride-id'));
                 });
             });
+            // ChatGPT
+            requestButton.addEventListener('click', function () {
+                if (selectedRideId) {
+                    fetch('@Url.Action("RequestRide", "Ride")', {
+                        method: 'POST',
+                        headers: {
+                            // Change the Content-Type to send form data instead of JSON
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        // Send the data as a simple key=value string
+                        body: `rideId=${selectedRideId}`
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                // Handle HTTP errors like 400 or 500
+                                alert('Ein Serverfehler ist aufgetreten.');
+                                return Promise.reject('Server error');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                            } else {
+                                alert('Fehler: ' + data.message);
+                            }
+                            
 
-            if (requestButton) {
-                requestButton.addEventListener('click', function() {
-                    if (selectedRideId) {
-                        alert(`Anfrage für Fahrt ${selectedRideId} wird gesendet`);
-                    }
-                });
-            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
+            });
         });
     </script>
 }
