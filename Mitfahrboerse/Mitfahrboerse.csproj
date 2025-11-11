@@ -40,9 +40,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Resource Include="Pics\Profile.jpg">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </Resource>
+      <Folder Include="Views\Anfragen\" />
+      <Folder Include="Views\Requests\" />
     </ItemGroup>
 
 </Project>

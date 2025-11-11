@@ -1,8 +1,15 @@
 ﻿body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #a5a5a5;
-    overflow: hidden;
+    overflow-x: hidden;
+}
+
+
+
+.header-content-wrapper {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
 }
 
 header {
@@ -10,7 +17,13 @@ header {
     display: flex;
     align-items: center;
     padding: 10px 30px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
     justify-content: flex-start;
+    width: 100%;
 }
 
 .logo {
@@ -35,20 +48,302 @@ header {
     cursor: pointer;
 }
 
-    .menu-item span {
+    .menu-item a {
+        color: black;
+        text-decoration: none;
+        font-size: 18px;
+        padding: 10px;
         display: block;
     }
+
+        .menu-item a.active {
+            border-bottom: 3px solid #ffd60a;
+            font-weight: bold;
+        }
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    margin-right: 20px;
+}
 
 .coin-balance {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 20px;
     margin-left: auto;
 }
 
     .coin-balance img {
         height: 50px;
     }
+
+
+
+.sub-navigation {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #e6f0ff;
+    padding: 5px 0;
+    border-bottom: 1px solid #cce5ff;
+}
+
+    .sub-navigation a {
+        text-decoration: none;
+        color: #333;
+        padding: 10px 15px;
+        font-weight: bold;
+        font-size: 16px;
+        flex-grow: 1;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+
+        .sub-navigation a.active {
+            border-bottom: 3px solid #ffd60a;
+            color: black;
+        }
+
+        .sub-navigation a:hover {
+            background-color: #cfe2ff;
+        }
+
+
+
+.left-column {
+    flex: 1;
+    background-color: #666;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.fahrt-item {
+    background-color: #4d4d4d;
+    border-radius: 15px;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+}
+
+    .fahrt-item.selected {
+        border: 2px solid #ffd60a;
+    }
+
+.right-column {
+    flex: 2;
+    background-color: #4d4d4d;
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.fahrt-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.fahrt-details-row {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #7a7a7a;
+}
+
+.detail-label {
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 80px;
+}
+
+.anfrage-button {
+    background-color: transparent;
+    border: 2px solid white;
+    color: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.3s;
+}
+
+    .anfrage-button:hover {
+        background-color: #7a7a7a;
+    }
+
+
+
+.main-content-layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    margin-top: 50px;
+}
+
+#map-container {
+    width: 700px;
+    height: 600px;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 4px solid #4d4d4d;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+.card {
+    width: 350px;
+    background-color: #4d4d4d;
+    color: white;
+    border-radius: 15px;
+}
+
+.card-header {
+    background-color: #666;
+    border-radius: 15px 15px 0 0;
+    padding: 15px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.form-control {
+    background-color: #666;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.styled-button {
+    background-color: #cfe2ff;
+    color: black;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+    max-width: 300px;
+    align-self: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+    .styled-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.03);
+    }
+
+.primary-button {
+    background-color: #ffd60a;
+    color: black;
+}
+
+    .primary-button:hover {
+        background-color: #ffc400;
+    }
+
+
+
+.shop-container {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+.voucher-list {
+    background-color: #4d4d4d;
+    padding: 10px;
+    border-radius: 20px;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.voucher-item {
+    background-color: #7a7a7a;
+    padding: 15px;
+    text-align: center;
+    border-radius: 15px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+    .voucher-item.selected {
+        border: 2px solid #b8b8ff;
+    }
+
+.voucher-details {
+    background-color: #4d4d4d;
+    padding: 20px;
+    border-radius: 20px;
+    flex: 1;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.voucher-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+    .voucher-header span {
+        font-size: 1.1em;
+    }
+
+.buy-button {
+    background-color: #7a7a7a;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    align-self: center;
+}
+
+    .buy-button:hover {
+        background-color: #999;
+    }
+
+
 
 .container {
     display: flex;
@@ -84,73 +379,6 @@ header {
         object-fit: cover;
         border-radius: 30px;
     }
-
-.styled-button {
-    background-color: #cfe2ff;
-    color: black;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, transform 0.2s;
-    width: 100%;
-    max-width: 300px;
-    align-self: center;
-}
-
-    .styled-button:hover {
-        background-color: #0056b3;
-        transform: scale(1.03);
-    }
-
-
-
-.left-column {
-    flex: 1;
-    background-color: #666;
-    border-radius: 15px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.fahrt-item {
-    background-color: #4d4d4d;
-    border-radius: 15px;
-    padding: 10px;
-    text-align: center;
-    color: white;
-}
-
-.right-column {
-    flex: 2;
-    background-color: #4d4d4d;
-    border-radius: 15px;
-    padding: 20px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.fahrt-details {
-    display: flex;
-    justify-content: space-between;
-}
-
-.anfrage-button {
-    background-color: transparent;
-    border: 2px solid white;
-    color: white;
-    border-radius: 20px;
-    padding: 10px 20px;
-    cursor: pointer;
-    align-self: flex-start;
-}
 
 .main-container {
     display: flex;
@@ -203,3 +431,172 @@ header {
         margin-bottom: 30px;
         text-decoration: underline;
     }
+
+
+
+
+@media (max-width: 768px) {
+
+    header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        flex-wrap: wrap;
+    }
+
+    nav {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .header-content-wrapper {
+        width: auto;
+        justify-content: flex-start;
+        flex-grow: 0;
+        margin-bottom: 0;
+    }
+
+    .logo img {
+        height: 60px;
+    }
+
+    .menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        margin-left: 0;
+        gap: 0;
+        background-color: #e6f0ff;
+        border-radius: 10px;
+        padding: 10px 0;
+        order: 4; 
+    }
+
+        .menu.open {
+            display: flex;
+        }
+
+    .menu-item {
+        width: 100%;
+        border-bottom: 1px solid #cfe2ff;
+    }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item a {
+            padding: 15px 10px;
+            font-size: 16px;
+            text-align: left;
+        }
+
+            .menu-item a.active {
+                border-bottom: none;
+                border-left: 3px solid #ffd60a;
+            }
+
+    .menu-toggle {
+        display: block;
+        order: 2;
+    }
+
+    .coin-balance {
+        order: 3;
+        margin-left: auto;
+        font-size: 18px;
+    }
+
+        .coin-balance img {
+            height: 35px;
+        }
+
+    main {
+        padding: 10px;
+    }
+
+    .shop-container, .main-container, .container {
+        flex-direction: column;
+        padding: 10px;
+        margin: 10px;
+        gap: 20px;
+    }
+
+    .side-menu, .voucher-list {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+
+    .left-column, .right-column {
+        flex: auto;
+        width: 100%;
+        min-width: unset;
+        margin: 0;
+        padding: 15px;
+    }
+
+    .right-column {
+        order: -1;
+        margin-bottom: 20px;
+    }
+
+    .fahrt-item {
+        font-size: 14px;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .anfrage-button {
+        align-self: stretch;
+    }
+
+
+
+    .main-content-layout {
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 20px;
+        padding: 0 10px;
+    }
+
+    .card {
+        width: 100%;
+        order: 1; 
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .form-group label {
+        font-size: 1.1em;
+    }
+
+    .form-control {
+        font-size: 1em;
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+
+    #map-container {
+        width: 100%;
+        height: 300px; 
+        order: 2;
+        margin-bottom: 10px;
+    }
+
+    .styled-button {
+        max-width: 100%;
+        padding: 15px 24px;
+        font-size: 17px;
+        margin-bottom: 10px;
+    }
+
+    .info-box, .map-box {
+        width: 100%;
+        height: auto;
+        min-height: 300px;
+    }
+}

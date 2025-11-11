@@ -8,7 +8,7 @@ namespace Mitfahrboerse.Controllers;
 public class ShopController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
-    public ShopController(MitfahrboerseDbContext context, ILogger<ShopController> logger, IAccessToken accessToken) : base(logger, accessToken) 
+    public ShopController(MitfahrboerseDbContext context, ILogger<ShopController> logger, IAccessToken accessToken) : base(logger, accessToken, context) 
     {
         _context = context;
     }

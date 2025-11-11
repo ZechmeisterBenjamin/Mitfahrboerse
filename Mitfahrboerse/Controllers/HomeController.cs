@@ -18,8 +18,8 @@ namespace Mitfahrboerse.Controllers;
 
 public class HomeController : BaseController
 {
-
-    public HomeController(ILogger<HomeController> logger, IAccessToken accessToken) : base(logger, accessToken)
+    private readonly MitfahrboerseDbContext _context;
+    public HomeController(MitfahrboerseDbContext context, ILogger<HomeController> logger, IAccessToken accessToken) : base(logger, accessToken, context)
     {
         
     }
