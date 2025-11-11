@@ -44,7 +44,6 @@ public partial class t_Ride
     [InverseProperty("t_RideFK_StartsAt_Positions")]
     public virtual t_Position FK_StartsAt_Position { get; set; } = null!;
 
-    [ForeignKey("FK_RideId")]
-    [InverseProperty("FK_Rides")]
-    public virtual ICollection<t_Person> FK_People { get; set; } = new List<t_Person>();
+    [InverseProperty("Ride")]
+    public virtual ICollection<t_PersonRide> PersonRides { get; set; } = new List<t_PersonRide>();
 }

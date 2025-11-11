@@ -11,7 +11,7 @@ namespace Mitfahrboerse.Controllers;
 public class ProfilController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
-    public ProfilController(MitfahrboerseDbContext context, ILogger<ProfilController> logger, IAccessToken accessToken) : base(logger, accessToken)
+    public ProfilController(MitfahrboerseDbContext context, ILogger<ProfilController> logger, IAccessToken accessToken) : base(logger, accessToken, context)
     {
         _context = context;
     }
