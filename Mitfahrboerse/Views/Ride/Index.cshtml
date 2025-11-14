@@ -78,7 +78,7 @@
                  data-to="@ride.FK_EndsAt_Position.Description"
                  data-time="@ride.RideDateTime.ToString("HH:mm")"
                  data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
-                 data-seats="@(ride.FK_People?.Count ?? 0)">
+                 data-seats="@(ride.PersonRides?.Count ?? 0)">
                 <strong>@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong><br>
                 @ride.FK_StartsAt_Position.Description - @ride.FK_EndsAt_Position.Description<br>
                 @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm")
