@@ -66,6 +66,25 @@
             <div>Keine Fahrten verfügbar</div>
         }
     </div>
+
+    <div class="left-column">
+        @foreach (var ride in Model)
+        {
+            <div class="fahrt-item @(firstRide != null && firstRide.RideId == ride.RideId ? "selected" : "")"
+                 data-ride-id="@ride.RideId"
+                 data-driver-name="@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName"
+                 data-driver-class="@ride.FK_Driver_Person.Class"
+                 data-from="@ride.FK_StartsAt_Position.Description"
+                 data-to="@ride.FK_EndsAt_Position.Description"
+                 data-time="@ride.RideDateTime.ToString("HH:mm")"
+                 data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
+                 data-seats="@(ride.PersonRides?.Count ?? 0)">
+                <strong>@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong><br>
+                @ride.FK_StartsAt_Position.Description - @ride.FK_EndsAt_Position.Description<br>
+                @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm")
+            </div>
+        }
+    </div>
 </main>
 
 @section Scripts {
