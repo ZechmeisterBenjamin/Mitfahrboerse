@@ -21,7 +21,7 @@ header {
 nav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; 
     width: 100%;
 }
 
@@ -40,7 +40,7 @@ nav {
     margin-left: auto;
     margin-right: auto;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: space-evenly; 
     flex-grow: 1;
     max-width: 900px;
 }
@@ -397,6 +397,10 @@ nav {
     width: 250px;
 }
 
+    .side-menu form {
+        width: 100%; 
+    }
+
 .side-button {
     background-color: #7a7a7a;
     border: 2px solid transparent;
@@ -418,6 +422,11 @@ nav {
         background-color: #d32f2f;
         border: none;
     }
+
+.side-menu form .side-button.logout {
+    width: 100%;
+}
+
 
 .content-panel {
     flex: 1;
@@ -526,6 +535,41 @@ nav {
 
     .side-menu, .voucher-list {
         width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .design-options {
+        flex-direction: column;
+        gap: 15px;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .design-option {
+        width: 100%;
+        height: 70px; 
+        font-size: 16px;
+    }
+
+    .setting-group {
+        flex-direction: column;
+        align-items: flex-start; 
+        gap: 10px;
+    }
+
+    .setting-label {
+        margin-right: 0;
+        margin-bottom: 5px; 
+        font-size: 18px;
+    }
+
+    .setting-group select,
+    .remove-button {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .setting-group select {
         margin-bottom: 10px;
     }
 

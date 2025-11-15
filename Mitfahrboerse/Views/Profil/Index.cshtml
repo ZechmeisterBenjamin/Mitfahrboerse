@@ -23,6 +23,14 @@
             gap: 20px;
         }
 
+        .side-menu form {
+            width: 100%;
+        }
+
+            .side-menu form .side-button.logout {
+                width: 100%;
+            }
+
         .design-options {
             display: flex;
             gap: 30px;
@@ -87,7 +95,7 @@
             }
 
         .statistic-item {
-            font-size: 24px;
+            font-size: 16px;
         }
 
         .create-form-container {
@@ -105,19 +113,19 @@
         .form-group {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            font-size: 20px;
+            justify-content: flex-start; 
+            gap: 30px; 
+            font-size: 18px;
         }
 
             .form-group label {
-                min-width: 150px;
+                min-width: 120px;
                 text-align: left;
             }
 
         .create-form-container input[type="text"] {
             flex-grow: 1;
-            max-width: 450px;
+            max-width: 300px;
             padding: 12px 10px;
             border-radius: 10px;
             border: none;
@@ -125,6 +133,10 @@
             background-color: white;
             box-sizing: border-box;
             color: black;
+        }
+
+        .create-form-container .styled-button {
+            align-self: flex-start !important; 
         }
 
         .ride-list-container {
@@ -152,7 +164,7 @@
             }
 
             .ride-list-group li {
-                font-size: 18px;
+                font-size: 16px;
                 margin-bottom: 10px;
             }
 
@@ -270,7 +282,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="sitze">Anzahl Sitzplätze:</label>
+                    <label for="sitze">Sitzplätze:</label>
                     <input type="text" id="sitze" name="sitze" />
                 </div>
 
@@ -296,8 +308,8 @@
 
         const contentData = {
             settings: settingsHTML,
-            check: checkRidesHTML, 
-            history: statisticsHTML, 
+            check: checkRidesHTML,
+            history: statisticsHTML,
             create: createCarHTML
         };
 
