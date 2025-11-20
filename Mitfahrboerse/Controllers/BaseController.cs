@@ -6,6 +6,7 @@ using Mitfahrboerse.Interfaces;
 using Microsoft.Identity.Web;
 using System.Text.Json;
 using Mitfahrboerse.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mitfahrboerse.Controllers
 {
@@ -81,6 +82,7 @@ namespace Mitfahrboerse.Controllers
                     _context.t_People.Add(new t_Person { PersonId = personId, FirstName = firstname, LastName = lastname, Email = email, Class = class_});
                     _context.SaveChanges();
                 }
+                ViewData["CoinBalance"] = _context.t_People.Where(p => p.PersonId == personId).FirstOrDefaultAsync().Result.Points;
             }
             catch
             {
