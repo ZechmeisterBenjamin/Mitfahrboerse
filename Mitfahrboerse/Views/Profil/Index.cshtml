@@ -25,6 +25,14 @@
             gap: 20px;
         }
 
+        .side-menu form {
+            width: 100%;
+        }
+
+            .side-menu form .side-button.logout {
+                width: 100%;
+            }
+
         .design-options {
             display: flex;
             gap: 30px;
@@ -89,7 +97,7 @@
         }
 
         .statistic-item {
-            font-size: 24px;
+            font-size: 16px;
         }
 
         .create-form-container {
@@ -107,19 +115,19 @@
         .form-group {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            font-size: 20px;
+            justify-content: flex-start; 
+            gap: 30px; 
+            font-size: 18px;
         }
 
-        .form-group label {
-            min-width: 150px;
-            text-align: left;
-        }
+            .form-group label {
+                min-width: 120px;
+                text-align: left;
+            }
 
         .create-form-container input[type="text"] {
             flex-grow: 1;
-            max-width: 450px;
+            max-width: 300px;
             padding: 12px 10px;
             border-radius: 10px;
             border: none;
@@ -127,6 +135,10 @@
             background-color: white;
             box-sizing: border-box;
             color: black;
+        }
+
+        .create-form-container .styled-button {
+            align-self: flex-start !important; 
         }
 
         .ride-list-container {
@@ -142,11 +154,43 @@
             margin-bottom: 40px;
         }
 
-        .ride-list-group h3 {
-            font-size: 24px;
-            text-decoration: underline;
-            margin-bottom: 15px;
-        }
+            .ride-list-group h3 {
+                font-size: 24px;
+                text-decoration: underline;
+                margin-bottom: 15px;
+            }
+
+            .ride-list-group ul {
+                list-style-type: disc;
+                padding-left: 40px;
+            }
+
+            .ride-list-group li {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .ride-list-group a {
+                color: white;
+                text-decoration: underline;
+            }
+    </style>
+</head>
+<body>
+    <main class="main-container">
+        <div class="side-menu" id="sideMenu">
+            <button class="side-button active" data-content="settings">Einstellungen</button>
+            <button class="side-button" data-content="check">Fahrten überprüfen</button>
+            <button class="side-button" data-content="history">Fahrten Historie</button>
+            <button class="side-button" data-content="create">Auto Erstellen</button>
+            <form asp-action="Logout" method="post">
+                <button type="submit" class="side-button logout">Logout</button>
+            </form>
+        </div>
+
+        <div class="content-panel" id="contentPanel">
+        </div>
+    </main>
 
         .ride-list-group ul {
             list-style-type: disc;
@@ -273,7 +317,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="sitze">Anzahl Sitzplätze:</label>
+                    <label for="sitze">Sitzplätze:</label>
                     <input type="text" id="sitze" name="sitze" />
                 </div>
 
