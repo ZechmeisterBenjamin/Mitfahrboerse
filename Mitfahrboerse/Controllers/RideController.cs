@@ -3,8 +3,9 @@
     using Mitfahrboerse.Interfaces;
     using Mitfahrboerse.Models;
     using System;
+    using System.Globalization;
 
-    namespace Mitfahrboerse.Controllers;
+namespace Mitfahrboerse.Controllers;
 
     public class RideController : BaseController
     {
@@ -44,8 +45,8 @@
         
         [HttpPost]
         public IActionResult Create(
-            string startPositionDescription, decimal startLat, decimal startLon,
-            string endPositionDescription, decimal endLat, decimal endLon,
+            string startPositionDescription, string startLat, string startLon,
+            string endPositionDescription, string endLat, string endLon,
             DateTime rideDateTime, double routeLength, int carId)
         {
             try
@@ -55,10 +56,10 @@
                     return Challenge(); 
                 }
 
-                int startPositionId = GetOrCreatePosition(startPositionDescription, startLat, startLon);
-                int endPositionId = GetOrCreatePosition(endPositionDescription, endLat, endLon);
-            
-                var ride = new t_Ride
+                int startPositionId = GetOrCreatePosition(startPositionDescription, decimal.Parse(startLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(startLon.Replace(",", "."), CultureInfo.InvariantCulture));
+                int endPositionId = GetOrCreatePosition(endPositionDescription, decimal.Parse(endLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(endLon.Replace(",", "."), CultureInfo.InvariantCulture));
+
+            var ride = new t_Ride
                 {
                     FK_Driver_PersonId = personId,
                     FK_StartsAt_PositionId = startPositionId, 
