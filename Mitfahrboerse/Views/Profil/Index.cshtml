@@ -5,10 +5,12 @@
 
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>HTL Waidhofen - Profil</title>
-    <link rel="stylesheet" href="~/css/StyleSheet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="~/css/StyleSheet.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
     <style>
         .settings-container {
             display: flex;
@@ -45,9 +47,9 @@
             box-sizing: border-box;
         }
 
-            .design-option.active-design {
-                border: 4px solid #8e6cff;
-            }
+        .design-option.active-design {
+            border: 4px solid #8e6cff;
+        }
 
         .setting-label {
             font-size: 20px;
@@ -82,9 +84,9 @@
             gap: 30px;
         }
 
-            .statistics-container h2 {
-                margin-bottom: 20px;
-            }
+        .statistics-container h2 {
+            margin-bottom: 20px;
+        }
 
         .statistic-item {
             font-size: 24px;
@@ -97,10 +99,10 @@
             gap: 30px;
         }
 
-            .create-form-container h2 {
-                margin-bottom: 20px;
-                text-align: center;
-            }
+        .create-form-container h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
         .form-group {
             display: flex;
@@ -110,10 +112,10 @@
             font-size: 20px;
         }
 
-            .form-group label {
-                min-width: 150px;
-                text-align: left;
-            }
+        .form-group label {
+            min-width: 150px;
+            text-align: left;
+        }
 
         .create-form-container input[type="text"] {
             flex-grow: 1;
@@ -131,59 +133,59 @@
             padding: 20px;
         }
 
-            .ride-list-container h2 {
-                text-align: center;
-            }
+        .ride-list-container h2 {
+            text-align: center;
+        }
 
         .ride-list-group {
             margin-top: 30px;
             margin-bottom: 40px;
         }
 
-            .ride-list-group h3 {
-                font-size: 24px;
-                text-decoration: underline;
-                margin-bottom: 15px;
-            }
+        .ride-list-group h3 {
+            font-size: 24px;
+            text-decoration: underline;
+            margin-bottom: 15px;
+        }
 
-            .ride-list-group ul {
-                list-style-type: disc;
-                padding-left: 40px;
-            }
+        .ride-list-group ul {
+            list-style-type: disc;
+            padding-left: 40px;
+        }
 
-            .ride-list-group li {
-                font-size: 18px;
-                margin-bottom: 10px;
-            }
+        .ride-list-group li {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
 
-            .ride-list-group a {
-                color: white;
-                text-decoration: underline;
-            }
+        .ride-list-group a {
+            color: white;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <main class="main-container">
-        <div class="side-menu" id="sideMenu">
-            <button class="side-button active" data-content="settings">Einstellungen</button>
-            <button class="side-button" data-content="check">Fahrten überprüfen</button>
-            <button class="side-button" data-content="history">Fahrten Historie</button>
-            <button class="side-button" data-content="create">Auto Erstellen</button>
-            <form asp-action="Logout" method="post">
-                <button type="submit" class="side-button logout">Logout</button>
-            </form>
-        </div>
+<main class="main-container">
+    <div class="side-menu" id="sideMenu">
+        <button class="side-button active" data-content="settings">Einstellungen</button>
+        <button class="side-button" data-content="check">Fahrten überprüfen</button>
+        <button class="side-button" data-content="history">Fahrten Historie</button>
+        <button class="side-button" data-content="create">Auto Erstellen</button>
+        <form asp-action="Logout" method="post">
+            <button type="submit" class="side-button logout">Logout</button>
+        </form>
+    </div>
 
-        <div class="content-panel" id="contentPanel">
-        </div>
-    </main>
+    <div class="content-panel" id="contentPanel">
+    </div>
+</main>
 
 
-    <script>
-        const buttons = document.querySelectorAll('.side-button:not(.logout)');
-        const contentPanel = document.getElementById('contentPanel');
+<script>
+    const buttons = document.querySelectorAll('.side-button:not(.logout)');
+    const contentPanel = document.getElementById('contentPanel');
 
-        const settingsHTML = `
+    const settingsHTML = `
             <div class="settings-container">
                 <h2 style="text-align: center;">Einstellungen</h2>
 
@@ -215,7 +217,7 @@
             </div>
         `;
 
-        const statisticsHTML = `
+    const statisticsHTML = `
             <div class="statistics-container">
                 <h2>Fahrten Statistik</h2>
 
@@ -237,7 +239,7 @@
             </div>
         `;
 
-        const checkRidesHTML = `
+    const checkRidesHTML = `
             <div class="ride-list-container">
                 <h2>Fahrten überprüfen</h2>
 
@@ -260,7 +262,8 @@
         `;
 
 
-        const createCarHTML = `
+    const createCarHTML = `
+            <form class="create-form-container" method="post" action="@Url.Action("CreateCar", "Profil")">
             <div class="create-form-container">
                 <h2>Auto erstellen</h2>
 
@@ -289,30 +292,31 @@
                     <input type="text" id="farbe" name="farbe" />
                 </div>
 
-                <button class="styled-button" style="max-width: 450px; margin-top: 20px; align-self: flex-start;">Auto speichern</button>
+                <button type="submit" class="styled-button" style="max-width: 450px; margin-top: 20px; align-self: flex-start;">Auto speichern</button>
             </div>
+            </form>
         `;
 
 
-        const contentData = {
-            settings: settingsHTML,
-            check: checkRidesHTML, 
-            history: statisticsHTML, 
-            create: createCarHTML
-        };
+    const contentData = {
+        settings: settingsHTML,
+        check: checkRidesHTML,
+        history: statisticsHTML,
+        create: createCarHTML
+    };
 
-        contentPanel.innerHTML = contentData.settings;
+    contentPanel.innerHTML = contentData.settings;
 
 
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                buttons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
 
-                const contentKey = button.getAttribute('data-content');
-                contentPanel.innerHTML = contentData[contentKey];
-            });
+            const contentKey = button.getAttribute('data-content');
+            contentPanel.innerHTML = contentData[contentKey];
         });
-    </script>
+    });
+</script>
 </body>
 </html>
