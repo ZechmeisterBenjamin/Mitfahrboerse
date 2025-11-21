@@ -1,6 +1,5 @@
 ﻿@{
     ViewData["Title"] = "Profil";
-    int coinBalance = 100;
 }
 
 <html>
@@ -174,24 +173,6 @@
                 color: white;
                 text-decoration: underline;
             }
-    </style>
-</head>
-<body>
-    <main class="main-container">
-        <div class="side-menu" id="sideMenu">
-            <button class="side-button active" data-content="settings">Einstellungen</button>
-            <button class="side-button" data-content="check">Fahrten überprüfen</button>
-            <button class="side-button" data-content="history">Fahrten Historie</button>
-            <button class="side-button" data-content="create">Auto Erstellen</button>
-            <form asp-action="Logout" method="post">
-                <button type="submit" class="side-button logout">Logout</button>
-            </form>
-        </div>
-
-        <div class="content-panel" id="contentPanel">
-        </div>
-    </main>
-
         .ride-list-group ul {
             list-style-type: disc;
             padding-left: 40px;
