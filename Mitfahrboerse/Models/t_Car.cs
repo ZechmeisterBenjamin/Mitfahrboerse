@@ -11,6 +11,18 @@ namespace Mitfahrboerse.Models;
 [Index("FK_Owner_PersonId", Name = "IX_Car_Owner")]
 public partial class t_Car
 {
+    public t_Car() { }
+
+    public t_Car(string licensePlate, short seats, string brand, string model, string colour, string personId)
+    {
+        LicensePlate = licensePlate;
+        Seats = seats;
+        Brand = brand;
+        Model = model;
+        Colour = colour;
+        FK_Owner_PersonId = personId;
+    }
+
     [Key]
     public int CarId { get; set; }
 

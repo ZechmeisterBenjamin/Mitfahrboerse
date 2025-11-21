@@ -1,11 +1,5 @@
 ﻿@{
-    int coinBalance = 100;
-
-    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
-
-    Func<string, string, string> GetActive = (controller, action) =>
-        (currentController == controller && currentAction == action) ? "active" : "";
+    int coinBalance = (int)(ViewData["CoinBalance"] ?? 0);
 }
 <!DOCTYPE html>
 <html lang="de">

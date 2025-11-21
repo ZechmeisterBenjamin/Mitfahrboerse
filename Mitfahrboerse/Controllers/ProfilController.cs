@@ -19,7 +19,21 @@ public class ProfilController : BaseController
     {
         return View();   
     }
-
+    [HttpPost]
+    public IActionResult CreateCar(string kennzeichen, short sitze, string marke, string modell, string farbe)
+    {
+        var newCar = new t_Car(
+            kennzeichen ?? "", 
+            sitze, 
+            marke ?? "", 
+            modell ?? "", 
+            farbe ?? "", 
+            personId
+        );        _context.t_Cars.Add(newCar);
+        _context.SaveChanges();
+        
+        return RedirectToAction("Index");
+    }
     public IActionResult Logout()
     {
         return SignOut(
