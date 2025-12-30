@@ -21,6 +21,7 @@ namespace Mitfahrboerse.Controllers;
                 .Include(r => r.FK_Driver_Person)
                 .Include(r => r.FK_StartsAt_Position)
                 .Include(r => r.FK_EndsAt_Position)
+                .Include(r => r.FK_Car)
                 .Include(r => r.PersonRides)
                 .ThenInclude(pr => pr.Person)
                 .ToList();
@@ -66,8 +67,8 @@ namespace Mitfahrboerse.Controllers;
                     FK_EndsAt_PositionId = endPositionId,    
                     RideDateTime = rideDateTime,
                     Distance = (int)(routeLength * 1000), 
-                    Status = 0 
-                    // FK_CarId = carId
+                    Status = 0,
+                    FK_CarId = carId
                 };
 
                 _context.t_Rides.Add(ride);

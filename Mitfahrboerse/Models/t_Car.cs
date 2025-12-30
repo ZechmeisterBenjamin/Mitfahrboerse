@@ -51,4 +51,7 @@ public partial class t_Car
     [ForeignKey("FK_Owner_PersonId")]
     [InverseProperty("t_Cars")]
     public virtual t_Person FK_Owner_Person { get; set; } = null!;
+    
+    [InverseProperty("FK_Car")]
+    public virtual ICollection<t_Ride> t_Rides { get; set; } = new List<t_Ride>();
 }
