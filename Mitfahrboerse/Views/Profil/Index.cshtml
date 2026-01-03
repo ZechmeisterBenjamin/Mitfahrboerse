@@ -1,5 +1,9 @@
 ﻿@{
     ViewData["Title"] = "Profil";
+    int ridesSum = (int)(ViewData["RidesSum"] ?? 0);
+    double distance = (double)(ViewData["Distance"] ?? 0.0);
+    int joinedRidesSum = (int)(ViewData["JoinedRidesSum"] ?? 0);
+    int distinctPassengersSum = (int)(ViewData["DistinctPassengersSum"] ?? 0);
 }
 
 <html>
@@ -247,19 +251,19 @@
                 <h2>Fahrten Statistik</h2>
 
                 <div class="statistic-item">
-                    Fahrten gesamt: 5
+                    Fahrten gesamt: @ridesSum
                 </div>
 
                 <div class="statistic-item">
-                    Gesamt gefahrene Kilometer: 100km
+                    Gesamt gefahrene Kilometer: @distance
                 </div>
 
                 <div class="statistic-item">
-                    So oft mitgefahren: 0
+                    So oft mitgefahren: @joinedRidesSum
                 </div>
 
                 <div class="statistic-item">
-                    Gesamt Anzahl Passagiere: 10
+                    Gesamt Anzahl Passagiere: @distinctPassengersSum
                 </div>
             </div>
         `;
