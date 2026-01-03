@@ -20,16 +20,13 @@ public partial class MitfahrboerseDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<t_Car>(entity =>
-        {
-            entity.HasKey(e => e.CarId).HasName("PK__t_Car__68A0342E0453EE9E");
-        });
+        modelBuilder.Entity<t_Car>(entity => { entity.HasKey(e => e.CarId).HasName("PK__t_Car__68A0342E0453EE9E"); });
 
         modelBuilder.Entity<t_Offer>(entity =>
         {
             entity.HasKey(e => new { e.OfferId, e.ValidUntil }).HasName("PK__t_Offer__9C2DC745C1C27462");
 
-             entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
+            entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
                 .UsingEntity<Dictionary<string, object>>(
                     "t_PersonOffer",
                     r => r.HasOne<t_Person>().WithMany()
@@ -42,14 +39,16 @@ public partial class MitfahrboerseDbContext : DbContext
                         .HasConstraintName("FK__t_PersonOffer__440B1D61"),
                     j =>
                     {
-                        j.HasKey("FK_OfferId", "FK_PersonId", "FK_ValidUntil").HasName("PK__t_Person__A1AB7C96D5059798");
+                        j.HasKey("FK_OfferId", "FK_PersonId", "FK_ValidUntil")
+                            .HasName("PK__t_Person__A1AB7C96D5059798");
                         j.ToTable("t_PersonOffer");
                         j.HasIndex(new[] { "FK_PersonId" }, "IX_PersonOffer_PersonId");
                         j.HasIndex(new[] { "FK_ValidUntil" }, "IX_PersonOffer_ValidUntil");
                         j.IndexerProperty<string>("FK_PersonId")
                             .HasMaxLength(50)
                             .IsUnicode(false);
-                        j.IndexerProperty<DateOnly>("FK_ValidUntil").HasDefaultValueSql("(CONVERT([date],dateadd(year,(1),getdate())))");
+                        j.IndexerProperty<DateOnly>("FK_ValidUntil")
+                            .HasDefaultValueSql("(CONVERT([date],dateadd(year,(1),getdate())))");
                     });
         });
 
@@ -67,10 +66,15 @@ public partial class MitfahrboerseDbContext : DbContext
             entity.HasIndex(e => e.FK_PersonId, "IX_PersonRide_PersonId");
 
             entity.Property(e => e.FK_RideId).HasColumnName("FK_RideId");
+            
             entity.Property(e => e.FK_PersonId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("FK_PersonId");
+
+            entity.Property(e => e.IsProcessed)
+                .IsRequired()
+                .HasDefaultValueSql("0");
 
             entity.HasOne(d => d.Person).WithMany(p => p.PersonRides)
                 .HasForeignKey(d => d.FK_PersonId)
