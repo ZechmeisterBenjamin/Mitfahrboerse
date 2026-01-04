@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
 using Mitfahrboerse.Interfaces;
+using Microsoft.Graph;
 
 var builder = WebApplication.CreateBuilder(args);
 

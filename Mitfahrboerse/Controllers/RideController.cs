@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Interfaces;
 using Mitfahrboerse.Models;
 using System;
+using System.Threading.Tasks;
 
 namespace Mitfahrboerse.Controllers;
 
@@ -39,7 +40,7 @@ public class RideController : BaseController
     }
     
     [HttpPost]
-    public IActionResult Create(t_Ride ride, int startPositionId, int endPositionId)
+    public async Task<IActionResult> Create(t_Ride ride, int startPositionId, int endPositionId)
     {
         if (ModelState.IsValid)
         {
@@ -54,9 +55,11 @@ public class RideController : BaseController
                 
                 _context.t_Rides.Add(ride);
                 _context.SaveChanges();
-                
+
                 TempData["Message"] = "Fahrt erfolgreich erstellt!";
                 return RedirectToAction(nameof(Index));
+
+                
             }
             catch (Exception ex)
             {
