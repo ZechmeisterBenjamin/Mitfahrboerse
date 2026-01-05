@@ -59,7 +59,7 @@ public class ShopController : BaseController
 
             for(int i = 0; i < 4; i++)
             {
-                str.Append(chars[RandomNumberGenerator.GetInt32(0, numbers.Length)]);
+                str.Append(numbers[RandomNumberGenerator.GetInt32(0, numbers.Length)]);
             }
 
             randomstr = str.ToString();
