@@ -23,8 +23,8 @@ public class ProfilController : BaseController
 
     private void LoadRideHistory()
     {
-        List<t_Ride> rides = _context.t_Rides.Where(r => r.Status == 1 && r.IsProcessed == false && r.FK_Driver_PersonId == personId).ToList();
-        List<t_PersonRide> joinedRides = _context.t_PersonRides.Where(r => r.Status == 1 && r.IsProcessed == false && r.FK_PersonId == personId).ToList();
+        List<t_Ride> rides = _context.t_Rides.Where(r => r.Status == 1 && r.FK_Driver_PersonId == personId).ToList();
+        List<t_PersonRide> joinedRides = _context.t_PersonRides.Where(r => r.Status == 1 && r.FK_PersonId == personId).ToList();
         double distance = 0.0;
         foreach (var ride in rides)
         {
@@ -36,7 +36,7 @@ public class ProfilController : BaseController
 
     ViewData["JoinedRidesSum"] = joinedRides.Count();
     ViewData["DistinctPassengersSum"] = _context.t_PersonRides
-        .Where(p => p.Status == 1 && p.IsProcessed == false && p.Ride.Status == 1 && p.Ride.IsProcessed == false && p.Ride.FK_Driver_PersonId == personId)
+        .Where(p => p.Status == 1 && p.Ride.Status == 1 && p.Ride.FK_Driver_PersonId == personId)
         .Select(p => p.FK_PersonId)
         .Distinct()
         .Count();    
