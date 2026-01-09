@@ -27,11 +27,17 @@ public class ShopController : BaseController
     public IActionResult BuyVoucher(string title, int price)
     {
         var user = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
+        
         string rndcode = RandomCodeGenerator();
 
         if (user != null && user.Points >= price)
         {
             user.Points -= price;
+
+            var person_offer = new t_PersonOffer
+            {
+                FK_OfferId = offer
+            };
             _context.SaveChanges();
             return Json(new { success = true, message = $"Erfolgreich gekauft: {title}\nCode zum Einlösen: {rndcode}" });
         }

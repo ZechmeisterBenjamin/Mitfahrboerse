@@ -15,6 +15,7 @@ public partial class MitfahrboerseDbContext : DbContext
     public virtual DbSet<t_Offer> t_Offers { get; set; }
     public virtual DbSet<t_Person> t_People { get; set; }
     public virtual DbSet<t_PersonRide> t_PersonRides { get; set; }
+    public virtual DbSet<t_PersonOffer> t_PersonOffers {  get; set; }
     public virtual DbSet<t_Position> t_Positions { get; set; }
     public virtual DbSet<t_Ride> t_Rides { get; set; }
 
@@ -81,6 +82,27 @@ public partial class MitfahrboerseDbContext : DbContext
                 .HasForeignKey(d => d.FK_RideId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__t_PersonR__FK_Ri__47A6A41B");
+        });
+
+        modelBuilder.Entity<t_PersonOffer>(entity =>
+        {
+            entity.HasKey(e => new { e.FK_OfferId, e.FK_PersonId, e.FK_ValidUntil }).HasName("PK__t_Person__A1AB7C96D5059798");
+
+            entity.ToTable("t_PersonOffer");
+
+            entity.Property(e => e.FK_PersonId)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Person).WithMany(p => p.PersonOffers)
+                .HasForeignKey(d => d.FK_PersonId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__t_PersonO__FK_Pe__44FF419A");
+
+            entity.HasOne(d => d.Offer).WithMany(p => p.PersonOffers)
+                .HasForeignKey(d => d.FK_OfferId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__t_PersonOffer__440B1D61");
         });
 
         modelBuilder.Entity<t_Position>(entity =>
