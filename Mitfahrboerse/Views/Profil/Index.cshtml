@@ -196,6 +196,7 @@
         <button class="side-button" data-content="check">Fahrten überprüfen</button>
         <button class="side-button" data-content="history">Fahrten Historie</button>
         <button class="side-button" data-content="create">Auto Erstellen</button>
+        <button class="side-button" data-content="voucher">Gutscheine</button>
         <form asp-action="Logout" method="post">
             <button type="submit" class="side-button logout">Logout</button>
         </form>
@@ -322,12 +323,35 @@
             </form>
         `;
 
+        const showVoucherHTML = `
+                <div class="voucher-list-container">
+                    <h2>Deine Gutscheine</h2>
+
+                    <div class="ride-list-group">
+                        <h3>Meine Fahrten:</h3>
+                        <ul>
+                            <li><a href="#">1.9.2025 5:00 Uhr von Gresten nach HTL Waidhofen/Ybbs</a></li>
+                            <li><a href="#">1.9.2025 9:00 Uhr von HTL Waidhofen/Ybbs nach Gresten</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="ride-list-group">
+                        <h3>Mitfahren:</h3>
+                        <ul>
+                            <li><a href="#">1.9.2025 5:00 Uhr von Gresten nach HTL Waidhofen/Ybbs</a></li>
+                            <li><a href="#">1.9.2025 9:00 Uhr von HTL Waidhofen/Ybbs nach Gresten</a></li>
+                        </ul>
+                    </div>
+                </div>
+        `;
+
 
     const contentData = {
         settings: settingsHTML,
         check: checkRidesHTML,
         history: statisticsHTML,
-        create: createCarHTML
+        create: createCarHTML,
+        voucher: showVoucherHTML
     };
 
     contentPanel.innerHTML = contentData.settings;
