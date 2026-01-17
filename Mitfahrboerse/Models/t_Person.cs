@@ -51,6 +51,6 @@ public partial class t_Person
     [InverseProperty("FK_People")]
     public virtual ICollection<t_Offer> t_Offers { get; set; } = new List<t_Offer>();
     
-    [InverseProperty("Person")]
+    [InverseProperty("FK_Person")]
     public virtual ICollection<t_PersonOffer> PersonOffers { get; set; } = new List<t_PersonOffer>();
 }

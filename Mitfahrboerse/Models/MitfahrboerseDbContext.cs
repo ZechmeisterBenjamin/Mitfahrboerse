@@ -30,27 +30,20 @@ public partial class MitfahrboerseDbContext : DbContext
         {
             entity.HasKey(e => new { e.OfferId, e.ValidUntil }).HasName("PK__t_Offer__9C2DC745C1C27462");
 
-             entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
-                .UsingEntity<Dictionary<string, object>>(
-                    "t_PersonOffer",
-                    r => r.HasOne<t_Person>().WithMany()
-                        .HasForeignKey("FK_PersonId")
+            entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
+                .UsingEntity<t_PersonOffer>( // <--- Hier stand davor Dictionary<string, object>
+                    r => r.HasOne(d => d.FK_Person).WithMany(p => p.PersonOffers)
+                        .HasForeignKey(d => d.FK_PersonId)
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK__t_PersonO__FK_Pe__44FF419A"),
-                    l => l.HasOne<t_Offer>().WithMany()
-                        .HasForeignKey("FK_OfferId", "FK_ValidUntil")
+                    l => l.HasOne(d => d.FK_Offer).WithMany(p => p.PersonOffers)
+                        .HasForeignKey(d => new { d.FK_OfferId, d.FK_ValidUntil })
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK__t_PersonOffer__440B1D61"),
                     j =>
                     {
-                        j.HasKey("FK_OfferId", "FK_PersonId", "FK_ValidUntil").HasName("PK__t_Person__A1AB7C96D5059798");
+                        j.HasKey(e => new { e.FK_OfferId, e.FK_PersonId, e.FK_ValidUntil }).HasName("PK__t_Person__A1AB7C96D5059798");
                         j.ToTable("t_PersonOffer");
-                        j.HasIndex(new[] { "FK_PersonId" }, "IX_PersonOffer_PersonId");
-                        j.HasIndex(new[] { "FK_ValidUntil" }, "IX_PersonOffer_ValidUntil");
-                        j.IndexerProperty<string>("FK_PersonId")
-                            .HasMaxLength(50)
-                            .IsUnicode(false);
-                        j.IndexerProperty<DateOnly>("FK_ValidUntil").HasDefaultValueSql("(CONVERT([date],dateadd(year,(1),getdate())))");
                     });
         });
 
@@ -84,26 +77,6 @@ public partial class MitfahrboerseDbContext : DbContext
                 .HasConstraintName("FK__t_PersonR__FK_Ri__47A6A41B");
         });
 
-        modelBuilder.Entity<t_PersonOffer>(entity =>
-        {
-            entity.HasKey(e => new { e.FK_OfferId, e.FK_PersonId, e.FK_ValidUntil }).HasName("PK__t_Person__A1AB7C96D5059798");
-
-            entity.ToTable("t_PersonOffer");
-
-            entity.Property(e => e.FK_PersonId)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.Person).WithMany(p => p.PersonOffers)
-                .HasForeignKey(d => d.FK_PersonId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__t_PersonO__FK_Pe__44FF419A");
-
-            entity.HasOne(d => d.Offer).WithMany(p => p.PersonOffers)
-                .HasForeignKey(d => d.FK_OfferId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__t_PersonOffer__440B1D61");
-        });
 
         modelBuilder.Entity<t_Position>(entity =>
         {
