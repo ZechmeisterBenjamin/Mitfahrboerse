@@ -1,0 +1,103 @@
+﻿<style>
+
+    .anfragen-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .anfrage-item {
+        background-color: #666;
+        border-radius: 25px;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+    }
+
+        .anfrage-item.selected {
+            border: 2px solid #b8b8ff;
+        }
+
+    .anfrage-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+        font-size: 16px;
+    }
+
+        .anfrage-info .name {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .anfrage-info .tag {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+    .anfrage-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .accept-btn,
+    .reject-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: none;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .accept-btn {
+        background-color: #4caf50;
+        color: white;
+    }
+
+    .reject-btn {
+        background-color: #e53935;
+        color: white;
+    }
+
+    .accept-btn:hover {
+        background-color: #43a047;
+    }
+
+    .reject-btn:hover {
+        background-color: #d32f2f;
+    }
+
+</style>
+
+<div class="content-panel">
+    <h2>Anfragen</h2>
+
+    <div class="anfragen-container" id="anfragenContainer">
+
+        <div class="anfrage-item"
+             data-request-id="1"
+             data-user-id="42"
+             data-status="open">
+
+            <div class="anfrage-info">
+                <span class="name" data-field="name">Daniel Daurer</span>
+                <span class="tag" data-field="klasse">5AHIT</span>
+                <span><strong>Von:</strong> <span data-field="von">Waidhofen</span></span>
+                <span><strong>Nach:</strong> <span data-field="nach">Gresten</span></span>
+                <span><strong>Um:</strong> <span data-field="zeit">12:40</span></span>
+            </div>
+
+            <div class="anfrage-actions">
+                <button class="accept-btn" data-action="accept">✔</button>
+                <button class="reject-btn" data-action="reject">✖</button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
