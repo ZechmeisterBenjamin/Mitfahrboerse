@@ -31,7 +31,7 @@ public partial class MitfahrboerseDbContext : DbContext
             entity.HasKey(e => new { e.OfferId, e.ValidUntil }).HasName("PK__t_Offer__9C2DC745C1C27462");
 
             entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
-                .UsingEntity<t_PersonOffer>( // <--- Hier stand davor Dictionary<string, object>
+                .UsingEntity<t_PersonOffer>( 
                     r => r.HasOne(d => d.FK_Person).WithMany(p => p.PersonOffers)
                         .HasForeignKey(d => d.FK_PersonId)
                         .OnDelete(DeleteBehavior.ClientSetNull)
@@ -44,6 +44,10 @@ public partial class MitfahrboerseDbContext : DbContext
                     {
                         j.HasKey(e => new { e.FK_OfferId, e.FK_PersonId, e.FK_ValidUntil }).HasName("PK__t_Person__A1AB7C96D5059798");
                         j.ToTable("t_PersonOffer");
+                        j.Property(e => e.Code)
+                            .HasMaxLength(50)
+                            .IsUnicode(false)
+                            .HasColumnName("Code");
                     });
         });
 

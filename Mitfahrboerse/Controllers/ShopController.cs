@@ -28,8 +28,10 @@ public class ShopController : BaseController
     {
         var user = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
         var offer = _context.t_Offers.FirstOrDefault(p => p.Title == title);
+        string username = user.LastName;
+        int offerId = offer.OfferId;
 
-        string rndcode = RandomCodeGenerator();
+        string rndcode = RandomCodeGenerator(username, offerId);
 
         if (user != null && offer != null && user.Points >= price)
         {
@@ -39,7 +41,8 @@ public class ShopController : BaseController
             {
                 FK_OfferId = offer.OfferId,
                 FK_PersonId = user.PersonId,
-                FK_ValidUntil = offer.ValidUntil
+                FK_ValidUntil = offer.ValidUntil,
+                Code = rndcode,
             };
             _context.t_PersonOffers.Add(person_offer);
             _context.SaveChanges();
@@ -49,38 +52,11 @@ public class ShopController : BaseController
         return Json(new { success = false, message = $"Fehler: Nicht genügend Punkte!" });
     }
 
-    public string RandomCodeGenerator()
+    
+
+    public string RandomCodeGenerator(string name, int offerId)
     {
-        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        string numbers = "0123456789";
-        bool exists;
-        string randomstr = "";
-
-        StringBuilder str = new StringBuilder();
-        do
-        {
-            exists = false;
-            str.Clear();
-
-            for(int i = 0; i < 4; i++)
-            {
-                str.Append(chars[RandomNumberGenerator.GetInt32(0, chars.Length)]);
-            }
-
-            for(int i = 0; i < 4; i++)
-            {
-                str.Append(numbers[RandomNumberGenerator.GetInt32(0, numbers.Length)]);
-            }
-
-            randomstr = str.ToString();
-
-            if (codes.Contains(randomstr))
-            {
-                exists = true;
-            }
-        } while (exists);
-
-        codes.Add(randomstr);
-        return randomstr;
+        string randomcode = $"{name}_{offerId}";
+        return randomcode;
     }
 }

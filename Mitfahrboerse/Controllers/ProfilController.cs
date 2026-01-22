@@ -1,10 +1,12 @@
+using Azure.Core;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Mitfahrboerse.Models;
+using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Interfaces;
-using Azure.Core;
+using Mitfahrboerse.Models;
+using System.Security.Claims;
 
 namespace Mitfahrboerse.Controllers;
 
@@ -17,7 +19,17 @@ public class ProfilController : BaseController
     }
     public async Task<IActionResult> Index()
     {
-        return View();   
+        var user = _context.t_People
+            .Include(p => p.PersonOffers)
+                .ThenInclude(po => po.FK_Offer)
+            .FirstOrDefault(p => p.PersonId == personId);
+
+        if (user == null)
+        {
+            user = new t_Person { PersonId = personId, PersonOffers = new List<t_PersonOffer>() };
+        }
+
+        return View(user);
     }
     [HttpPost]
     public IActionResult CreateCar(string kennzeichen, short sitze, string marke, string modell, string farbe)
@@ -34,6 +46,7 @@ public class ProfilController : BaseController
         
         return RedirectToAction("Index");
     }
+
     public IActionResult Logout()
     {
         return SignOut(

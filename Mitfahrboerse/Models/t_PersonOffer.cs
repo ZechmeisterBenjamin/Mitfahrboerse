@@ -14,11 +14,15 @@ namespace Mitfahrboerse.Models
 
         [Key]
         [StringLength(50)]
-        [Unicode(false)]
+        [Unicode(false)]   
         public string FK_PersonId { get; set; } = null!;
 
         [Key]
         public DateOnly FK_ValidUntil { get; set; }
+
+        [StringLength(50)]
+        [Unicode(false)]
+        public string Code { get; set; } = null!;
 
         [ForeignKey("FK_OfferId, FK_ValidUntil")]
         [InverseProperty("PersonOffers")]
@@ -30,11 +34,12 @@ namespace Mitfahrboerse.Models
 
         public t_PersonOffer() { }
 
-        public t_PersonOffer(int fk_offerId, string fk_personId, DateOnly validuntil)
+        public t_PersonOffer(int fk_offerId, string fk_personId, DateOnly validuntil, string code)
         {
             FK_OfferId = fk_offerId;
             FK_PersonId = fk_personId;
             FK_ValidUntil = validuntil;
+            Code = code;
         }
     }
 }
