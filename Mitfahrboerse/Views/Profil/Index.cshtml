@@ -4,6 +4,8 @@
     double distance = (double)(ViewData["Distance"] ?? 0.0);
     int joinedRidesSum = (int)(ViewData["JoinedRidesSum"] ?? 0);
     int distinctPassengersSum = (int)(ViewData["DistinctPassengersSum"] ?? 0);
+    int selectedDesign = (int)(ViewData["SelectedDesign"] ?? 0);
+    int selectedStartseite = (int)(ViewData["SelectedStartseite"] ?? 0);
 }
 
 <html>
@@ -214,6 +216,29 @@
     const buttons = document.querySelectorAll('.side-button:not(.logout)');
     const contentPanel = document.getElementById('contentPanel');
 
+    // Store settings state
+    let currentSettings = {
+        selectedDesign: @selectedDesign,
+        selectedStartseite: @selectedStartseite
+    };
+
+    function updateSettings() {
+        fetch('@Url.Action("UpdateSettings", "Profil")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(currentSettings)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Settings updated:', data);
+        })
+        .catch(error => {
+            console.error('Error updating settings:', error);
+        });
+    }
+
     const settingsHTML = `
             <div class="settings-container">
                 <h2 style="text-align: center;">Einstellungen</h2>
@@ -221,16 +246,16 @@
                 <div style="margin-top: 10px;">
                     <span class="setting-label">Design:</span>
                     <div class="design-options">
-                        <div class="design-option active-design" id="designA">Design A</div>
-                        <div class="design-option" id="designB">Design B</div>
+                        <div class="design-option ${currentSettings.selectedDesign === 0 ? 'active-design' : ''}" id="designA" data-design="0">Design A</div>
+                        <div class="design-option ${currentSettings.selectedDesign === 1 ? 'active-design' : ''}" id="designB" data-design="1">Design B</div>
                     </div>
                 </div>
 
                 <div class="setting-group">
                     <span class="setting-label">Startseite:</span>
                     <select id="startseite">
-                        <option value="#" selected>Mitfahren</option>
-                        <option value="#">Fahrt Erstellen</option>
+                        <option value="0" ${currentSettings.selectedStartseite === 0 ? 'selected' : ''}>Mitfahren</option>
+                        <option value="1" ${currentSettings.selectedStartseite === 1 ? 'selected' : ''}>Fahrt Erstellen</option>
                     </select>
                 </div>
 
@@ -337,6 +362,28 @@
     contentPanel.innerHTML = contentData.settings;
 
 
+    function attachSettingsListeners() {
+        // Design option listeners
+        const designOptions = document.querySelectorAll('.design-option');
+        designOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                designOptions.forEach(opt => opt.classList.remove('active-design'));
+                option.classList.add('active-design');
+                currentSettings.selectedDesign = parseInt(option.getAttribute('data-design'));
+                updateSettings();
+            });
+        });
+
+        // Startseite dropdown listener
+        const startseitSelect = document.getElementById('startseite');
+        if (startseitSelect) {
+            startseitSelect.addEventListener('change', (e) => {
+                currentSettings.selectedStartseite = parseInt(e.target.value);
+                updateSettings();
+            });
+        }
+    }
+
     buttons.forEach(button => {
         button.addEventListener('click', () => {
             buttons.forEach(btn => btn.classList.remove('active'));
@@ -344,8 +391,16 @@
 
             const contentKey = button.getAttribute('data-content');
             contentPanel.innerHTML = contentData[contentKey];
+
+            // Attach listeners if settings page is loaded
+            if (contentKey === 'settings') {
+                attachSettingsListeners();
+            }
         });
     });
+
+    // Attach listeners on initial page load (settings is default)
+    attachSettingsListeners();
 </script>
 </body>
 </html>

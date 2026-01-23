@@ -31,13 +31,10 @@ namespace Mitfahrboerse.Controllers
             return Challenge(
                 new AuthenticationProperties
                 {
-                    RedirectUri =
-                        Url.Action("Index",
-                            "Ride") // Nach erfolgreichem Login wird man auf die Ride Page weitergeleitet
+                    RedirectUri = Url.Action("Start", "Home"),
                 },
                 OpenIdConnectDefaults.AuthenticationScheme);
         }
-
         // Wird vor jeder Action Methode ausgeführt
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
@@ -90,8 +87,7 @@ namespace Mitfahrboerse.Controllers
                 context.Result = Challenge(
                     new AuthenticationProperties
                     {
-                        RedirectUri = Url.Action("Index", "Ride")
-                    },
+                        RedirectUri = Url.Action("Start", "Home")                    },
                     OpenIdConnectDefaults.AuthenticationScheme);
                 return;
             }

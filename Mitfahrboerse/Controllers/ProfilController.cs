@@ -11,52 +11,78 @@ namespace Mitfahrboerse.Controllers;
 public class ProfilController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
-    public ProfilController(MitfahrboerseDbContext context, ILogger<ProfilController> logger, IAccessToken accessToken) : base(logger, accessToken, context)
+
+    public ProfilController(MitfahrboerseDbContext context, ILogger<ProfilController> logger, IAccessToken accessToken)
+        : base(logger, accessToken, context)
     {
         _context = context;
     }
+
     public async Task<IActionResult> Index()
     {
         LoadRideHistory();
-        return View();   
+
+        ViewData["SelectedDesign"] = (int)_context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Design;
+        ViewData["SelectedStartseite"] = (int)_context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Startpage; 
+
+        return View();
     }
 
     private void LoadRideHistory()
     {
         List<t_Ride> rides = _context.t_Rides.Where(r => r.Status == 1 && r.FK_Driver_PersonId == personId).ToList();
-        List<t_PersonRide> joinedRides = _context.t_PersonRides.Where(r => r.Status == 1 && r.FK_PersonId == personId).ToList();
+        List<t_PersonRide> joinedRides =
+            _context.t_PersonRides.Where(r => r.Status == 1 && r.FK_PersonId == personId).ToList();
         double distance = 0.0;
         foreach (var ride in rides)
         {
             distance += ride.Distance;
         }
-        
+
         ViewData["RidesSum"] = rides.Count();
         ViewData["Distance"] = distance;
 
-    ViewData["JoinedRidesSum"] = joinedRides.Count();
-    ViewData["DistinctPassengersSum"] = _context.t_PersonRides
-        .Where(p => p.Status == 1 && p.Ride.Status == 1 && p.Ride.FK_Driver_PersonId == personId)
-        .Select(p => p.FK_PersonId)
-        .Distinct()
-        .Count();    
+        ViewData["JoinedRidesSum"] = joinedRides.Count();
+        ViewData["DistinctPassengersSum"] = _context.t_PersonRides
+            .Where(p => p.Status == 1 && p.Ride.Status == 1 && p.Ride.FK_Driver_PersonId == personId)
+            .Select(p => p.FK_PersonId)
+            .Distinct()
+            .Count();
+    }
+
+    [HttpPost]
+    public IActionResult UpdateSettings([FromBody] SettingsUpdateModel model)
+    {
+        _context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Design = (byte)model.SelectedDesign;
+        _context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Startpage = (byte)model.SelectedStartseite;
+        _context.SaveChanges();
+
+        return Ok(new { success = true });
+    }
+
+    public class SettingsUpdateModel
+    {
+        public int SelectedDesign { get; set; }
+        public int SelectedStartseite { get; set; }
     }
 
     [HttpPost]
     public IActionResult CreateCar(string kennzeichen, short sitze, string marke, string modell, string farbe)
     {
         var newCar = new t_Car(
-            kennzeichen ?? "", 
-            sitze, 
-            marke ?? "", 
-            modell ?? "", 
-            farbe ?? "", 
+            kennzeichen ?? "",
+            sitze,
+            marke ?? "",
+            modell ?? "",
+            farbe ?? "",
             personId
-        );        _context.t_Cars.Add(newCar);
+        );
+        _context.t_Cars.Add(newCar);
         _context.SaveChanges();
-        
+
         return RedirectToAction("Index");
     }
+
     public IActionResult Logout()
     {
         return SignOut(
