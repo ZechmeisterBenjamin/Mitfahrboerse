@@ -1,6 +1,6 @@
 ﻿@{
-    int coinBalance = 100;
-
+    int coinBalance = (int)(ViewData["CoinBalance"] ?? 0);
+    
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 

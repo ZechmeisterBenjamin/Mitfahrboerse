@@ -3,8 +3,9 @@
     using Mitfahrboerse.Interfaces;
     using Mitfahrboerse.Models;
     using System;
+    using System.Globalization;
 
-    namespace Mitfahrboerse.Controllers;
+namespace Mitfahrboerse.Controllers;
 
     public class RideController : BaseController
     {
@@ -20,6 +21,7 @@
                 .Include(r => r.FK_Driver_Person)
                 .Include(r => r.FK_StartsAt_Position)
                 .Include(r => r.FK_EndsAt_Position)
+                .Include(r => r.FK_Car)
                 .Include(r => r.PersonRides)
                 .ThenInclude(pr => pr.Person)
                 .ToList();
@@ -44,8 +46,8 @@
         
         [HttpPost]
         public IActionResult Create(
-            string startPositionDescription, decimal startLat, decimal startLon,
-            string endPositionDescription, decimal endLat, decimal endLon,
+            string startPositionDescription, string startLat, string startLon,
+            string endPositionDescription, string endLat, string endLon,
             DateTime rideDateTime, double routeLength, int carId)
         {
             try
@@ -55,18 +57,18 @@
                     return Challenge(); 
                 }
 
-                int startPositionId = GetOrCreatePosition(startPositionDescription, startLat, startLon);
-                int endPositionId = GetOrCreatePosition(endPositionDescription, endLat, endLon);
-            
-                var ride = new t_Ride
+                int startPositionId = GetOrCreatePosition(startPositionDescription, decimal.Parse(startLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(startLon.Replace(",", "."), CultureInfo.InvariantCulture));
+                int endPositionId = GetOrCreatePosition(endPositionDescription, decimal.Parse(endLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(endLon.Replace(",", "."), CultureInfo.InvariantCulture));
+
+            var ride = new t_Ride
                 {
                     FK_Driver_PersonId = personId,
                     FK_StartsAt_PositionId = startPositionId, 
                     FK_EndsAt_PositionId = endPositionId,    
                     RideDateTime = rideDateTime,
                     Distance = (int)(routeLength * 1000), 
-                    Status = 0 
-                    // FK_CarId = carId
+                    Status = 0,
+                    FK_CarId = carId
                 };
 
                 _context.t_Rides.Add(ride);

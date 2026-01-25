@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
 using Mitfahrboerse.Interfaces;
+using Mitfahrboerse.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +31,7 @@ builder.Services.AddDbContext<MitfahrboerseDbContext>(options =>
     );
 
 builder.Services.AddScoped<IAccessToken, AccessToken>();
-
+builder.Services.AddScoped<IBalanceService, BalanceService>();
 
 var app = builder.Build();
 

@@ -1,7 +1,6 @@
 ﻿@model IEnumerable<Mitfahrboerse.Models.t_Offer>
 @{
     ViewData["Title"] = "Shop";
-    int coinBalance = 0;
     var firstOffer = Model.FirstOrDefault();
     var initialTitle = firstOffer?.Title ?? "Kein Gutschein ausgewählt";
     var initialDate = firstOffer?.ValidUntil.ToString("d. MMMM yyyy") ?? "";
