@@ -4,7 +4,25 @@
     overflow-x: hidden;
 }
 
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
 
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+a {
+    color: #0077cc;
+}
+
+/* ===========================
+   HEADER & NAVIGATION
+   =========================== */
 .header-content-wrapper {
     display: flex;
     align-items: center;
@@ -30,10 +48,10 @@ nav {
     align-items: center;
 }
 
-    .logo img {
-        height: 90px;
-        margin-right: 10px;
-    }
+.logo img {
+    height: 90px;
+    margin-right: 10px;
+}
 
 .menu {
     display: flex;
@@ -50,18 +68,18 @@ nav {
     cursor: pointer;
 }
 
-    .menu-item a {
-        color: black;
-        text-decoration: none;
-        font-size: 18px;
-        padding: 10px;
-        display: block;
-    }
+.menu-item a {
+    color: black;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px;
+    display: block;
+}
 
-        .menu-item a.active {
-            border-bottom: 3px solid #ffd60a;
-            font-weight: bold;
-        }
+.menu-item a.active {
+    border-bottom: 3px solid #ffd60a;
+    font-weight: bold;
+}
 
 .menu-toggle {
     display: none;
@@ -80,11 +98,13 @@ nav {
     margin-left: auto;
 }
 
-    .coin-balance img {
-        height: 50px;
-    }
+.coin-balance img {
+    height: 50px;
+}
 
-
+/* ===========================
+   SUB-NAVIGATION
+   =========================== */
 .sub-navigation {
     display: flex;
     justify-content: space-around;
@@ -94,28 +114,29 @@ nav {
     border-bottom: 1px solid #cce5ff;
 }
 
-    .sub-navigation a {
-        text-decoration: none;
-        color: #333;
-        padding: 10px 15px;
-        font-weight: bold;
-        font-size: 16px;
-        flex-grow: 1;
-        text-align: center;
-        transition: background-color 0.2s;
-    }
+.sub-navigation a {
+    text-decoration: none;
+    color: #333;
+    padding: 10px 15px;
+    font-weight: bold;
+    font-size: 16px;
+    flex-grow: 1;
+    text-align: center;
+    transition: background-color 0.2s;
+}
 
-        .sub-navigation a.active {
-            border-bottom: 3px solid #ffd60a;
-            color: black;
-        }
+.sub-navigation a.active {
+    border-bottom: 3px solid #ffd60a;
+    color: black;
+}
 
-        .sub-navigation a:hover {
-            background-color: #cfe2ff;
-        }
+.sub-navigation a:hover {
+    background-color: #cfe2ff;
+}
 
-
-
+/* ===========================
+   COLUMNS & CONTAINERS
+   =========================== */
 .left-column {
     flex: 1;
     background-color: #666;
@@ -126,19 +147,6 @@ nav {
     gap: 15px;
 }
 
-.fahrt-item {
-    background-color: #4d4d4d;
-    border-radius: 15px;
-    padding: 10px;
-    text-align: center;
-    color: white;
-    cursor: pointer;
-}
-
-    .fahrt-item.selected {
-        border: 2px solid #ffd60a;
-    }
-
 .right-column {
     flex: 2;
     background-color: #4d4d4d;
@@ -148,6 +156,35 @@ nav {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 40px;
+}
+
+.main-container {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* ===========================
+   RIDE/FAHRT COMPONENTS
+   =========================== */
+.fahrt-item {
+    background-color: #4d4d4d;
+    border-radius: 15px;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+}
+
+.fahrt-item.selected {
+    border: 2px solid #ffd60a;
 }
 
 .fahrt-details {
@@ -181,12 +218,13 @@ nav {
     transition: background-color 0.3s;
 }
 
-    .anfrage-button:hover {
-        background-color: #7a7a7a;
-    }
+.anfrage-button:hover {
+    background-color: #7a7a7a;
+}
 
-
-
+/* ===========================
+   MAP & CARD LAYOUT
+   =========================== */
 .main-content-layout {
     display: flex;
     justify-content: center;
@@ -225,6 +263,9 @@ nav {
     padding: 20px;
 }
 
+/* ===========================
+   FORMS & INPUTS
+   =========================== */
 .form-control {
     background-color: #666;
     color: white;
@@ -236,12 +277,58 @@ nav {
     box-sizing: border-box;
 }
 
+/* Default form-group styling für Profil-Seite */
+.form-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 30px;
+    font-size: 18px;
+}
+
 .form-group label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    min-width: 120px;
+    text-align: left;
 }
 
+/* Override für Create-Seite (block layout) */
+.card-body .form-group {
+    display: block;
+}
+
+.card-body .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    min-width: auto;
+    text-align: left;
+}
+
+.btn:focus, 
+.btn:active:focus, 
+.btn-link.nav-link:focus, 
+.form-control:focus, 
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.form-floating > .form-control-plaintext::placeholder, 
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, 
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* ===========================
+   BUTTONS
+   =========================== */
 .styled-button {
     background-color: #cfe2ff;
     color: black;
@@ -260,22 +347,60 @@ nav {
     margin-bottom: 10px;
 }
 
-    .styled-button:hover {
-        background-color: #0056b3;
-        transform: scale(1.03);
-    }
+.styled-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.03);
+}
 
 .primary-button {
     background-color: #ffd60a;
     color: black;
 }
 
-    .primary-button:hover {
-        background-color: #ffc400;
-    }
+.primary-button:hover {
+    background-color: #ffc400;
+}
 
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
 
+.buy-button {
+    background-color: #7a7a7a;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    align-self: center;
+}
 
+.buy-button:hover {
+    background-color: #999;
+}
+
+.remove-button {
+    background-color: #c93b3b;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+/* ===========================
+   SHOP COMPONENTS
+   =========================== */
 .shop-container {
     display: flex;
     padding: 20px;
@@ -303,9 +428,9 @@ nav {
     border: 2px solid transparent;
 }
 
-    .voucher-item.selected {
-        border: 2px solid #b8b8ff;
-    }
+.voucher-item.selected {
+    border: 2px solid #b8b8ff;
+}
 
 .voucher-details {
     background-color: #4d4d4d;
@@ -325,34 +450,201 @@ nav {
     margin-bottom: 30px;
 }
 
-    .voucher-header span {
-        font-size: 1.1em;
-    }
+.voucher-header span {
+    font-size: 1.1em;
+}
 
-.buy-button {
-    background-color: #7a7a7a;
-    padding: 10px 20px;
-    border: none;
+/* ===========================
+   PROFILE/PROFIL COMPONENTS
+   =========================== */
+.side-menu {
+    background-color: #4d4d4d;
     border-radius: 20px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 250px;
+}
+
+.side-menu form {
+    width: 100%; 
+}
+
+.side-button {
+    background-color: #7a7a7a;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    padding: 15px;
     color: white;
     font-weight: bold;
     cursor: pointer;
-    align-self: center;
+    text-align: center;
+    font-size: 16px;
 }
 
-    .buy-button:hover {
-        background-color: #999;
-    }
+.side-button.active {
+    border: 2px solid #ffd966;
+    text-decoration: underline;
+}
 
+.side-button.logout {
+    background-color: #d32f2f;
+    border: none;
+}
 
+.side-menu form .side-button.logout {
+    width: 100%;
+}
 
-.container {
+.content-panel {
+    flex: 1;
+    background-color: #4d4d4d;
+    border-radius: 20px;
+    padding: 20px;
+    color: white;
+}
+
+.content-panel h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    text-decoration: underline;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+
+.setting-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.setting-label {
+    font-size: 20px;
+    text-decoration: underline;
+    margin-right: 10px;
+}
+
+.setting-group select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #ffffff;
+    color: black;
+    font-size: 16px;
+}
+
+.design-options {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.design-option {
+    width: 150px;
+    height: 100px;
+    background-color: #7a7a7a;
+    border-radius: 20px;
     display: flex;
     justify-content: center;
-    gap: 30px;
-    margin: 40px;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    border: 4px solid #cccccc;
+    box-sizing: border-box;
 }
 
+.design-option.active-design {
+    border: 4px solid #8e6cff;
+}
+
+.statistics-container {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.statistics-container h2 {
+    margin-bottom: 20px;
+}
+
+.statistic-item {
+    font-size: 16px;
+}
+
+.create-form-container {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.create-form-container h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.create-form-container input[type="text"] {
+    flex-grow: 1;
+    max-width: 300px;
+    padding: 12px 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 18px;
+    background-color: white;
+    box-sizing: border-box;
+    color: black;
+}
+
+.create-form-container .styled-button {
+    align-self: flex-start !important; 
+}
+
+.ride-list-container {
+    padding: 20px;
+}
+
+.ride-list-container h2 {
+    text-align: center;
+}
+
+.ride-list-group {
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+.ride-list-group h3 {
+    font-size: 24px;
+    text-decoration: underline;
+    margin-bottom: 15px;
+}
+
+.ride-list-group ul {
+    list-style-type: disc;
+    padding-left: 40px;
+}
+
+.ride-list-group li {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.ride-list-group a {
+    color: white;
+    text-decoration: underline;
+}
+
+/* ===========================
+   INFO BOX & MAP BOX
+   =========================== */
 .info-box {
     background-color: #4d4d4d;
     color: #ffffff;
@@ -374,79 +666,81 @@ nav {
     border: 4px solid #cccccc;
 }
 
-    .map-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 30px;
-    }
-
-.main-container {
-    display: flex;
-    padding: 20px;
-    gap: 20px;
-}
-
-.side-menu {
-    background-color: #4d4d4d;
-    border-radius: 20px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 250px;
-}
-
-    .side-menu form {
-        width: 100%; 
-    }
-
-.side-button {
-    background-color: #7a7a7a;
-    border: 2px solid transparent;
-    border-radius: 15px;
-    padding: 15px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: center;
-    font-size: 16px;
-}
-
-    .side-button.active {
-        border: 2px solid #ffd966;
-        text-decoration: underline;
-    }
-
-    .side-button.logout {
-        background-color: #d32f2f;
-        border: none;
-    }
-
-.side-menu form .side-button.logout {
+.map-box img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 30px;
 }
 
-
-.content-panel {
-    flex: 1;
-    background-color: #4d4d4d;
-    border-radius: 20px;
-    padding: 20px;
-    color: white;
+/* ===========================
+   PROFILE PICTURE
+   =========================== */
+.profile-picture {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
 }
 
-    .content-panel h2 {
-        text-align: center;
-        margin-bottom: 30px;
-        text-decoration: underline;
-    }
+/* ===========================
+   ROUTE LENGTH LABEL
+   =========================== */
+.route-length-label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
 
+/* ===========================
+   DESIGN WRAPPER
+   =========================== */
+.design-wrapper {
+    margin-top: 10px;
+}
 
+/* ===========================
+   BUTTON SPECIAL STYLES
+   =========================== */
+.styled-button.create-car-button {
+    max-width: 450px;
+    margin-top: 20px;
+    align-self: flex-start;
+}
 
+/* ===========================
+   BOOTSTRAP & UTILITY CLASSES
+   =========================== */
+.nav-pills .nav-link.active, 
+.nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
 
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+}
+
+/* ===========================
+   RESPONSIVE MEDIA QUERIES
+   =========================== */
 @media (max-width: 768px) {
-
     header {
         flex-direction: row;
         align-items: center;
@@ -483,29 +777,29 @@ nav {
         order: 4;
     }
 
-        .menu.open {
-            display: flex;
-        }
+    .menu.open {
+        display: flex;
+    }
 
     .menu-item {
         width: 100%;
         border-bottom: 1px solid #cfe2ff;
     }
 
-        .menu-item:last-child {
-            border-bottom: none;
-        }
+    .menu-item:last-child {
+        border-bottom: none;
+    }
 
-        .menu-item a {
-            padding: 15px 10px;
-            font-size: 16px;
-            text-align: left;
-        }
+    .menu-item a {
+        padding: 15px 10px;
+        font-size: 16px;
+        text-align: left;
+    }
 
-            .menu-item a.active {
-                border-bottom: none;
-                border-left: 3px solid #ffd60a;
-            }
+    .menu-item a.active {
+        border-bottom: none;
+        border-left: 3px solid #ffd60a;
+    }
 
     .menu-toggle {
         display: block;
@@ -518,22 +812,25 @@ nav {
         font-size: 18px;
     }
 
-        .coin-balance img {
-            height: 35px;
-        }
+    .coin-balance img {
+        height: 35px;
+    }
 
     main {
         padding: 10px;
     }
 
-    .shop-container, .main-container, .container {
+    .shop-container, 
+    .main-container, 
+    .container {
         flex-direction: column;
         padding: 10px;
         margin: 10px;
         gap: 20px;
     }
 
-    .side-menu, .voucher-list {
+    .side-menu, 
+    .voucher-list {
         width: 100%;
         margin-bottom: 10px;
     }
@@ -573,8 +870,8 @@ nav {
         margin-bottom: 10px;
     }
 
-
-    .left-column, .right-column {
+    .left-column, 
+    .right-column {
         flex: auto;
         width: 100%;
         min-width: unset;
@@ -596,8 +893,6 @@ nav {
     .anfrage-button {
         align-self: stretch;
     }
-
-
 
     .main-content-layout {
         flex-direction: column;
@@ -639,7 +934,8 @@ nav {
         margin-bottom: 10px;
     }
 
-    .info-box, .map-box {
+    .info-box, 
+    .map-box {
         width: 100%;
         height: auto;
         min-height: 300px;
