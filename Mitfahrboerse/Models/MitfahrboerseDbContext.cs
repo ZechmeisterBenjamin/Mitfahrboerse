@@ -21,17 +21,14 @@ public partial class MitfahrboerseDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<t_Car>(entity =>
-        {
-            entity.HasKey(e => e.CarId).HasName("PK__t_Car__68A0342E0453EE9E");
-        });
+        modelBuilder.Entity<t_Car>(entity => { entity.HasKey(e => e.CarId).HasName("PK__t_Car__68A0342E0453EE9E"); });
 
         modelBuilder.Entity<t_Offer>(entity =>
         {
             entity.HasKey(e => new { e.OfferId, e.ValidUntil }).HasName("PK__t_Offer__9C2DC745C1C27462");
 
             entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
-                .UsingEntity<t_PersonOffer>( // <--- Hier stand davor Dictionary<string, object>
+                .UsingEntity<t_PersonOffer>(
                     r => r.HasOne(d => d.FK_Person).WithMany(p => p.PersonOffers)
                         .HasForeignKey(d => d.FK_PersonId)
                         .OnDelete(DeleteBehavior.ClientSetNull)
@@ -44,6 +41,9 @@ public partial class MitfahrboerseDbContext : DbContext
                     {
                         j.HasKey(e => new { e.FK_OfferId, e.FK_PersonId, e.FK_ValidUntil }).HasName("PK__t_Person__A1AB7C96D5059798");
                         j.ToTable("t_PersonOffer");
+                            .HasMaxLength(50)
+                            .IsUnicode(false)
+                            .HasColumnName("Code");
                     });
         });
 
@@ -61,10 +61,15 @@ public partial class MitfahrboerseDbContext : DbContext
             entity.HasIndex(e => e.FK_PersonId, "IX_PersonRide_PersonId");
 
             entity.Property(e => e.FK_RideId).HasColumnName("FK_RideId");
+            
             entity.Property(e => e.FK_PersonId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("FK_PersonId");
+
+            entity.Property(e => e.IsProcessed)
+                .IsRequired()
+                .HasDefaultValueSql("0");
 
             entity.HasOne(d => d.Person).WithMany(p => p.PersonRides)
                 .HasForeignKey(d => d.FK_PersonId)
