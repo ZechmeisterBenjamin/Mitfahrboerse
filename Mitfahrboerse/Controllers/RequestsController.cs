@@ -21,15 +21,13 @@ namespace Mitfahrboerse.Controllers
 
         public async Task<IActionResult> Index()
         {
-            string currentUserId = personId;
-
             var anfragen = await _context.t_PersonRides
                 .Include(pr => pr.Person) 
                 .Include(pr => pr.Ride)   
                     .ThenInclude(r => r.FK_StartsAt_Position)
                 .Include(pr => pr.Ride)
                     .ThenInclude(r => r.FK_EndsAt_Position)
-                .Where(pr => pr.Ride.FK_Driver_PersonId == currentUserId && pr.Status == 0)
+                .Where(pr => pr.Ride.FK_Driver_PersonId == personId && pr.Status == 0)
                 .ToListAsync();
 
             return View(anfragen);
