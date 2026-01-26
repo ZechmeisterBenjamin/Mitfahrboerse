@@ -13,8 +13,9 @@ public partial class t_Car
 {
     public t_Car() { }
 
-    public t_Car(string licensePlate, short seats, string brand, string model, string colour, string personId)
+    public t_Car(int carId, string licensePlate, short seats, string brand, string model, string colour, string personId)
     {
+        CarId = carId;
         LicensePlate = licensePlate;
         Seats = seats;
         Brand = brand;
