@@ -45,7 +45,10 @@ public class ProfilController : BaseController
     [HttpPost]
     public IActionResult CreateCar(string kennzeichen, short sitze, string marke, string modell, string farbe)
     {
+        int nextId = _context.t_Cars.Any() ? _context.t_Cars.Max(c => c.CarId) + 1 : 1;
+
         var newCar = new t_Car(
+            nextId,
             kennzeichen ?? "", 
             sitze, 
             marke ?? "", 
