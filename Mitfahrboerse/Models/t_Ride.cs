@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Mitfahrboerse.Interfaces;
 
 namespace Mitfahrboerse.Models;
 
@@ -13,7 +12,7 @@ namespace Mitfahrboerse.Models;
 [Index("RideDateTime", Name = "IX_Ride_RideDateTime")]
 [Index("FK_StartsAt_PositionId", Name = "IX_Ride_StartsAt")]
 [Index("Status", Name = "IX_Ride_Status")]
-public partial class t_Ride : IPointRelevantItem
+public partial class t_Ride
 {
     [Key]
     public int RideId { get; set; }
@@ -44,7 +43,6 @@ public partial class t_Ride : IPointRelevantItem
     [ForeignKey("FK_StartsAt_PositionId")]
     [InverseProperty("t_RideFK_StartsAt_Positions")]
     public virtual t_Position FK_StartsAt_Position { get; set; } = null!;
-    public bool IsProcessed { get; set; }
     
     public int FK_CarId { get; set; }
 

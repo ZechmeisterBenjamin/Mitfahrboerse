@@ -1,10 +1,12 @@
+using Azure.Core;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Mitfahrboerse.Models;
+using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Interfaces;
-using Azure.Core;
+using Mitfahrboerse.Models;
+using System.Security.Claims;
 
 namespace Mitfahrboerse.Controllers;
 
@@ -17,38 +19,22 @@ public class ProfilController : BaseController
     }
     public async Task<IActionResult> Index()
     {
-        LoadRideHistory();
-        return View();   
-    }
+        var user = _context.t_People
+            .Include(p => p.PersonOffers)
+                .ThenInclude(po => po.FK_Offer)
+            .FirstOrDefault(p => p.PersonId == personId);
 
-    private void LoadRideHistory()
-    {
-        List<t_Ride> rides = _context.t_Rides.Where(r => r.Status == 1 && r.FK_Driver_PersonId == personId).ToList();
-        List<t_PersonRide> joinedRides = _context.t_PersonRides.Where(r => r.Status == 1 && r.FK_PersonId == personId).ToList();
-        double distance = 0.0;
-        foreach (var ride in rides)
+        if (user == null)
         {
-            distance += ride.Distance;
+            user = new t_Person { PersonId = personId, PersonOffers = new List<t_PersonOffer>() };
         }
-        
-        ViewData["RidesSum"] = rides.Count();
-        ViewData["Distance"] = distance;
 
-    ViewData["JoinedRidesSum"] = joinedRides.Count();
-    ViewData["DistinctPassengersSum"] = _context.t_PersonRides
-        .Where(p => p.Status == 1 && p.Ride.Status == 1 && p.Ride.FK_Driver_PersonId == personId)
-        .Select(p => p.FK_PersonId)
-        .Distinct()
-        .Count();    
+        return View(user);
     }
-
     [HttpPost]
     public IActionResult CreateCar(string kennzeichen, short sitze, string marke, string modell, string farbe)
     {
-        int nextId = _context.t_Cars.Any() ? _context.t_Cars.Max(c => c.CarId) + 1 : 1;
-
         var newCar = new t_Car(
-            nextId,
             kennzeichen ?? "", 
             sitze, 
             marke ?? "", 
@@ -60,6 +46,7 @@ public class ProfilController : BaseController
         
         return RedirectToAction("Index");
     }
+
     public IActionResult Logout()
     {
         return SignOut(
