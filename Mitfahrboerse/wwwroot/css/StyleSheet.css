@@ -18,6 +18,25 @@ header {
     padding: 10px 30px;
 }
 
+.design-b {
+    background-color: #1f2328;
+    color: #e6edf3;
+}
+
+.design-b header {
+    background-color: #2b3036;
+}
+
+.design-b a {
+    color: #e6edf3;
+}
+
+.design-b .menu-item a {
+    color: #e6edf3;
+}
+.nav-design-b {
+    background-color: #8396a8;
+}
 nav {
     display: flex;
     align-items: center;

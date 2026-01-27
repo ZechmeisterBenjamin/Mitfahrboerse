@@ -16,7 +16,7 @@
 <head>
     <meta charset="utf-8"/>
     <title>HTL Waidhofen - Profil</title>
-    <link rel="stylesheet" href="~/css/StyleSheet.css"/>
+    <link rel="stylesheet" href="~/css/StyleSheet.css" asp-append-version="true" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"></script>
@@ -243,6 +243,10 @@
         });
     }
 
+    function applyDesignClass() {
+        document.body.classList.toggle('design-b', currentSettings.selectedDesign === 1);
+    }
+
     const settingsHTML = `
             <div class="settings-container">
                 <h2 style="text-align: center;">Einstellungen</h2>
@@ -259,8 +263,8 @@
                 <div style="margin-top: 10px;">
                     <span class="setting-label">Design:</span>
                     <div class="design-options">
-                        <div class="design-option ${currentSettings.selectedDesign === 0 ? 'active-design' : ''}" id="designA" data-design="0">Design A</div>
-                        <div class="design-option ${currentSettings.selectedDesign === 1 ? 'active-design' : ''}" id="designB" data-design="1">Design B</div>
+                        <div class="design-option ${currentSettings.selectedDesign === 0 ? 'active-design' : ''}" id="designA" data-design="0">Light Mode</div>
+                        <div class="design-option ${currentSettings.selectedDesign === 1 ? 'active-design' : ''}" id="designB" data-design="1">Dark Mode</div>
                     </div>
                 </div>
 
@@ -394,6 +398,7 @@
                 option.classList.add('active-design');
                 currentSettings.selectedDesign = parseInt(option.getAttribute('data-design'));
                 updateSettings();
+                applyDesignClass();
             });
         });
 
@@ -424,6 +429,7 @@
 
     // Attach listeners on initial page load (settings is default)
     attachSettingsListeners();
+    applyDesignClass();
 </script>
 </body>
 </html>
