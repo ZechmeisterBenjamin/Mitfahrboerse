@@ -24,6 +24,9 @@ public class ProfilController : BaseController
 
         ViewData["SelectedDesign"] = (int)_context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Design;
         ViewData["SelectedStartseite"] = (int)_context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Startpage; 
+        ViewData["Cars"] = _context.t_Cars
+            .Where(c => c.FK_Owner_PersonId == personId)
+            .ToList();
 
         return View();
     }
@@ -69,6 +72,12 @@ public class ProfilController : BaseController
     [HttpPost]
     public IActionResult CreateCar(string kennzeichen, short sitze, string marke, string modell, string farbe)
     {
+        int nextId = 1;
+        if (_context.t_Cars.Any())
+        {
+            nextId = _context.t_Cars.Max(c => c.CarId) + 1;
+        }
+
         var newCar = new t_Car(
             kennzeichen ?? "",
             sitze,
@@ -77,9 +86,33 @@ public class ProfilController : BaseController
             farbe ?? "",
             personId
         );
+        newCar.CarId = nextId;
         _context.t_Cars.Add(newCar);
         _context.SaveChanges();
 
+        return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    public IActionResult DeleteCar(int carId)
+    {
+        var car = _context.t_Cars.FirstOrDefault(c => c.CarId == carId && c.FK_Owner_PersonId == personId);
+        if (car == null)
+        {
+            TempData["CarDeleteError"] = "Auto nicht gefunden.";
+            return RedirectToAction("Index");
+        }
+
+        if (_context.t_Rides.Any(r => r.FK_CarId == car.CarId))
+        {
+            TempData["CarDeleteError"] = "Auto wird in einer Fahrt verwendet.";
+            return RedirectToAction("Index");
+        }
+
+        _context.t_Cars.Remove(car);
+        _context.SaveChanges();
+
+        TempData["CarDeleteSuccess"] = "Auto entfernt.";
         return RedirectToAction("Index");
     }
 

@@ -6,6 +6,10 @@
     int distinctPassengersSum = (int)(ViewData["DistinctPassengersSum"] ?? 0);
     int selectedDesign = (int)(ViewData["SelectedDesign"] ?? 0);
     int selectedStartseite = (int)(ViewData["SelectedStartseite"] ?? 0);
+    var cars = ViewData["Cars"] as List<t_Car> ?? new List<t_Car>();
+    bool hasCars = cars.Count > 0;
+    string carDeleteError = TempData["CarDeleteError"] as string ?? "";
+    string carDeleteSuccess = TempData["CarDeleteSuccess"] as string ?? "";
 }
 
 <html>
@@ -243,6 +247,15 @@
             <div class="settings-container">
                 <h2 style="text-align: center;">Einstellungen</h2>
 
+                @if (!string.IsNullOrEmpty(carDeleteError))
+                {
+                    <div style="color: #c93b3b; font-weight: bold; text-align: center;">@carDeleteError</div>
+                }
+                @if (!string.IsNullOrEmpty(carDeleteSuccess))
+                {
+                    <div style="color: #2b8a3e; font-weight: bold; text-align: center;">@carDeleteSuccess</div>
+                }
+
                 <div style="margin-top: 10px;">
                     <span class="setting-label">Design:</span>
                     <div class="design-options">
@@ -261,12 +274,22 @@
 
                 <div class="setting-group">
                     <span class="setting-label">Autos:</span>
-                    <select id="autos">
-                        <option value="auto1" selected>Auto 1</option>
-                        <option value="auto2">Auto 2</option>
-                        <option value="auto3">Auto 3</option>
-                    </select>
-                    <button class="remove-button">Entfernen</button>
+                    <form method="post" action="@Url.Action("DeleteCar", "Profil")">
+                        <select id="autos" name="carId" @(hasCars ? "" : "disabled")>
+                            @if (hasCars)
+                            {
+                                foreach (var car in cars)
+                                {
+                                    <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="">Keine Autos vorhanden</option>
+                            }
+                        </select>
+                        <button class="remove-button" onclick="return confirm('Auto wirklich entfernen?');" @(hasCars ? "" : "disabled")>Entfernen</button>
+                    </form>
                 </div>
             </div>
         `;
