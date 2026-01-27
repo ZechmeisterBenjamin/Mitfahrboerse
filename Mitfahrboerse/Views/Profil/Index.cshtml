@@ -5,8 +5,8 @@
     double distance = (double)(ViewData["Distance"] ?? 0.0);
     int joinedRidesSum = (int)(ViewData["JoinedRidesSum"] ?? 0);
     int distinctPassengersSum = (int)(ViewData["DistinctPassengersSum"] ?? 0);
-    int selectedDesign = (int)(ViewData["SelectedDesign"] ?? 0);
-    int selectedStartseite = (int)(ViewData["SelectedStartseite"] ?? 0);
+    int selectedDesign = Convert.ToInt32(ViewData["SelectedDesign"] ?? 0);
+    int selectedStartseite = Convert.ToInt32(ViewData["SelectedStartseite"] ?? 0);
     var cars = ViewData["Cars"] as List<t_Car> ?? new List<t_Car>();
     bool hasCars = cars.Count > 0;
     string carDeleteError = TempData["CarDeleteError"] as string ?? "";

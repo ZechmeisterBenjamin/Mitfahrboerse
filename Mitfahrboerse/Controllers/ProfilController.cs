@@ -24,8 +24,9 @@ public class ProfilController : BaseController
     {
         LoadRideHistory();
 
-        ViewData["SelectedDesign"] = (int)_context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Design;
-        ViewData["SelectedStartseite"] = (int)_context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Startpage; 
+        var person = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
+        ViewData["SelectedDesign"] = person?.Design ?? 0;
+        ViewData["SelectedStartseite"] = person?.Startpage ?? 0;
         ViewData["Cars"] = _context.t_Cars
             .Where(c => c.FK_Owner_PersonId == personId)
             .ToList();
@@ -38,24 +39,14 @@ public class ProfilController : BaseController
         List<t_Ride> rides = _context.t_Rides.Where(r => r.Status == 1 && r.FK_Driver_PersonId == personId).ToList();
         List<t_PersonRide> joinedRides =
             _context.t_PersonRides.Where(r => r.Status == 1 && r.FK_PersonId == personId).ToList();
-        double distance = 0.0;
-        foreach (var ride in rides)
-        var user = _context.t_People
-            .Include(p => p.PersonOffers)
-                .ThenInclude(po => po.FK_Offer)
-            .FirstOrDefault(p => p.PersonId == personId);
-
-        if (user == null)
-        {
-            user = new t_Person { PersonId = personId, PersonOffers = new List<t_PersonOffer>() };
-        }
+        double distance = rides.Sum(r => r.Distance);
 
         ViewData["RidesSum"] = rides.Count();
         ViewData["Distance"] = distance;
 
         ViewData["JoinedRidesSum"] = joinedRides.Count();
         ViewData["DistinctPassengersSum"] = _context.t_PersonRides
-            .Where(p => p.Status == 1 && p.Ride.Status == 1 && p.Ride.FK_Driver_PersonId == personId)
+            .Where(p => p.Status == 1 && p.Ride != null && p.Ride.Status == 1 && p.Ride.FK_Driver_PersonId == personId)
             .Select(p => p.FK_PersonId)
             .Distinct()
             .Count();
@@ -64,8 +55,14 @@ public class ProfilController : BaseController
     [HttpPost]
     public IActionResult UpdateSettings([FromBody] SettingsUpdateModel model)
     {
-        _context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Design = (byte)model.SelectedDesign;
-        _context.t_People.Where(p => p.PersonId == personId).FirstOrDefault().Startpage = (byte)model.SelectedStartseite;
+        var person = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
+        if (person == null)
+        {
+            return NotFound();
+        }
+
+        person.Design = (byte)model.SelectedDesign;
+        person.Startpage = (byte)model.SelectedStartseite;
         _context.SaveChanges();
 
         return Ok(new { success = true });
@@ -86,6 +83,7 @@ public class ProfilController : BaseController
         }
 
         var newCar = new t_Car(
+            nextId,
             kennzeichen ?? "",
             sitze,
             marke ?? "",
@@ -93,7 +91,6 @@ public class ProfilController : BaseController
             farbe ?? "",
             personId
         );
-        newCar.CarId = nextId;
         _context.t_Cars.Add(newCar);
         _context.SaveChanges();
 
