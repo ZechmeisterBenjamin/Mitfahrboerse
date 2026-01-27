@@ -200,9 +200,52 @@ nav {
     transition: background-color 0.3s;
 }
 
-    .anfrage-button:hover {
-        background-color: #7a7a7a;
-    }
+.anfrage-button:hover {
+    background-color: #7a7a7a;
+}
+
+.fahrt-item.hidden {
+    display: none;
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background-color: #666;
+    border-radius: 15px;
+    margin: 20px;
+    box-sizing: border-box;
+}
+
+.filter-menu {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.filter-menu input,
+.filter-menu button {
+    padding: 4px 8px;
+    border-radius: 10px;
+    border: 1px solid #7a7a7a;
+    background-color: #4d4d4d;
+    color: white;
+    min-width: 120px;
+}
+
+.filter-menu button {
+    cursor: pointer;
+}
+
+.filter-menu input::placeholder {
+    color: #d9d9d9;
+}
 
 
 
