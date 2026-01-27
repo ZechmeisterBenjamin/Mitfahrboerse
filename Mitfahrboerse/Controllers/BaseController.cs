@@ -31,10 +31,13 @@ namespace Mitfahrboerse.Controllers
             return Challenge(
                 new AuthenticationProperties
                 {
-                    RedirectUri = Url.Action("Start", "Home"),
+                    RedirectUri =
+                        Url.Action("Index",
+                            "Ride") // Nach erfolgreichem Login wird man auf die Ride Page weitergeleitet
                 },
                 OpenIdConnectDefaults.AuthenticationScheme);
         }
+
         // Wird vor jeder Action Methode ausgeführt
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
@@ -79,9 +82,7 @@ namespace Mitfahrboerse.Controllers
                     _context.t_People.Add(new t_Person { PersonId = personId, FirstName = firstname, LastName = lastname, Email = email, Class = class_});
                     _context.SaveChanges();
                 }
-                var person = _context.t_People.Where(p => p.PersonId == personId).FirstOrDefaultAsync().Result;
-                ViewData["CoinBalance"] = person.Points;
-                ViewData["SelectedDesign"] = person.Design;
+                ViewData["CoinBalance"] = _context.t_People.Where(p => p.PersonId == personId).FirstOrDefaultAsync().Result.Points;
             }
             catch
             {
@@ -89,7 +90,8 @@ namespace Mitfahrboerse.Controllers
                 context.Result = Challenge(
                     new AuthenticationProperties
                     {
-                        RedirectUri = Url.Action("Start", "Home")                    },
+                        RedirectUri = Url.Action("Index", "Ride")
+                    },
                     OpenIdConnectDefaults.AuthenticationScheme);
                 return;
             }

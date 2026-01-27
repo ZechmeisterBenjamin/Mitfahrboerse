@@ -1,6 +1,5 @@
 ﻿@{
     int coinBalance = (int)(ViewData["CoinBalance"] ?? 0);
-    int selectedDesign = Convert.ToInt32(ViewData["SelectedDesign"] ?? 0);
     
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
@@ -15,13 +14,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Mitfahrboerse</title>
 
-    <link rel="stylesheet" href="~/css/StyleSheet.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/css/StyleSheet.css" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Mitfahrboerse.styles.css" asp-append-version="true" />
 </head>
-<body class="@(selectedDesign == 1 ? "design-b" : "")">
+<body>
     <header>
         <nav>
             <div class="header-content-wrapper">
