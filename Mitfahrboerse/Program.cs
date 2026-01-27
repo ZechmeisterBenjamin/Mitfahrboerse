@@ -44,17 +44,18 @@ if (!app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Ride}/{action=Index}/")
+        pattern: "{controller=Home}/{action=Start}/")
     .WithStaticAssets();
-app.UseStaticFiles();
 
 
 app.Run();
