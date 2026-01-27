@@ -22,17 +22,22 @@ public class ProfilController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        LoadRideHistory();
-
-        var person = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
-        ViewData["SelectedDesign"] = person?.Design ?? 0;
-        ViewData["SelectedStartseite"] = person?.Startpage ?? 0;
-        ViewData["Cars"] = _context.t_Cars
-            .Where(c => c.FK_Owner_PersonId == personId)
-            .ToList();
-
-        return View();
-    }
+        var user = await _context.t_People
+            .Include(p => p.PersonOffers)
+                .ThenInclude(po => po.FK_Offer)
+            .Include(p => p.t_Rides)
+                .ThenInclude(r => r.FK_StartsAt_Position)
+            .Include(p => p.t_Rides)
+                .ThenInclude(r => r.FK_EndsAt_Position)
+            .Include(p => p.t_Rides)
+                .ThenInclude(r => r.PersonRides)
+            .Include(p => p.PersonRides)
+                .ThenInclude(pr => pr.Ride)
+                    .ThenInclude(r => r.FK_StartsAt_Position)
+            .Include(p => p.PersonRides)
+                .ThenInclude(pr => pr.Ride)
+                    .ThenInclude(r => r.FK_EndsAt_Position)
+            .FirstOrDefaultAsync(p => p.PersonId == personId);
 
     private void LoadRideHistory()
     {
