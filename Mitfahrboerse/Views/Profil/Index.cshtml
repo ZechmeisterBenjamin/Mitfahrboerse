@@ -1,23 +1,13 @@
-@model Mitfahrboerse.Models.t_Person
+﻿@model Mitfahrboerse.Models.t_Person
 @{
     ViewData["Title"] = "Profil";
-    int ridesSum = (int)(ViewData["RidesSum"] ?? 0);
-    double distance = (double)(ViewData["Distance"] ?? 0.0);
-    int joinedRidesSum = (int)(ViewData["JoinedRidesSum"] ?? 0);
-    int distinctPassengersSum = (int)(ViewData["DistinctPassengersSum"] ?? 0);
-    int selectedDesign = (int)(ViewData["SelectedDesign"] ?? 0);
-    int selectedStartseite = (int)(ViewData["SelectedStartseite"] ?? 0);
-    var cars = ViewData["Cars"] as List<t_Car> ?? new List<t_Car>();
-    bool hasCars = cars.Count > 0;
-    string carDeleteError = TempData["CarDeleteError"] as string ?? "";
-    string carDeleteSuccess = TempData["CarDeleteSuccess"] as string ?? "";
 }
 
 <html>
 <head>
     <meta charset="utf-8"/>
     <title>HTL Waidhofen - Profil</title>
-    <link rel="stylesheet" href="~/css/StyleSheet.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/StyleSheet.css"/>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"></script>
@@ -222,80 +212,34 @@
     const buttons = document.querySelectorAll('.side-button:not(.logout)');
     const contentPanel = document.getElementById('contentPanel');
 
-    // Store settings state
-    let currentSettings = {
-        selectedDesign: @selectedDesign,
-        selectedStartseite: @selectedStartseite
-    };
-
-    function updateSettings() {
-        fetch('@Url.Action("UpdateSettings", "Profil")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(currentSettings)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Settings updated:', data);
-        })
-        .catch(error => {
-            console.error('Error updating settings:', error);
-        });
-    }
-
-    function applyDesignClass() {
-        document.body.classList.toggle('design-b', currentSettings.selectedDesign === 1);
-    }
-
     const settingsHTML = `
             <div class="settings-container">
                 <h2 style="text-align: center;">Einstellungen</h2>
 
-                @if (!string.IsNullOrEmpty(carDeleteError))
-                {
-                    <div style="color: #c93b3b; font-weight: bold; text-align: center;">@carDeleteError</div>
-                }
-                @if (!string.IsNullOrEmpty(carDeleteSuccess))
-                {
-                    <div style="color: #2b8a3e; font-weight: bold; text-align: center;">@carDeleteSuccess</div>
-                }
-
                 <div style="margin-top: 10px;">
                     <span class="setting-label">Design:</span>
                     <div class="design-options">
-                        <div class="design-option ${currentSettings.selectedDesign === 0 ? 'active-design' : ''}" id="designA" data-design="0">Light Mode</div>
-                        <div class="design-option ${currentSettings.selectedDesign === 1 ? 'active-design' : ''}" id="designB" data-design="1">Dark Mode</div>
+                        <div class="design-option active-design" id="designA">Design A</div>
+                        <div class="design-option" id="designB">Design B</div>
                     </div>
                 </div>
 
                 <div class="setting-group">
                     <span class="setting-label">Startseite:</span>
                     <select id="startseite">
-                        <option value="0" ${currentSettings.selectedStartseite === 0 ? 'selected' : ''}>Mitfahren</option>
-                        <option value="1" ${currentSettings.selectedStartseite === 1 ? 'selected' : ''}>Fahrt Erstellen</option>
+                        <option value="#" selected>Mitfahren</option>
+                        <option value="#">Fahrt Erstellen</option>
                     </select>
                 </div>
 
                 <div class="setting-group">
                     <span class="setting-label">Autos:</span>
-                    <form method="post" action="@Url.Action("DeleteCar", "Profil")">
-                        <select id="autos" name="carId" @(hasCars ? "" : "disabled")>
-                            @if (hasCars)
-                            {
-                                foreach (var car in cars)
-                                {
-                                    <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
-                                }
-                            }
-                            else
-                            {
-                                <option value="">Keine Autos vorhanden</option>
-                            }
-                        </select>
-                        <button class="remove-button" onclick="return confirm('Auto wirklich entfernen?');" @(hasCars ? "" : "disabled")>Entfernen</button>
-                    </form>
+                    <select id="autos">
+                        <option value="auto1" selected>Auto 1</option>
+                        <option value="auto2">Auto 2</option>
+                        <option value="auto3">Auto 3</option>
+                    </select>
+                    <button class="remove-button">Entfernen</button>
                 </div>
             </div>
         `;
@@ -425,29 +369,6 @@
     contentPanel.innerHTML = contentData.settings;
 
 
-    function attachSettingsListeners() {
-        // Design option listeners
-        const designOptions = document.querySelectorAll('.design-option');
-        designOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                designOptions.forEach(opt => opt.classList.remove('active-design'));
-                option.classList.add('active-design');
-                currentSettings.selectedDesign = parseInt(option.getAttribute('data-design'));
-                updateSettings();
-                applyDesignClass();
-            });
-        });
-
-        // Startseite dropdown listener
-        const startseitSelect = document.getElementById('startseite');
-        if (startseitSelect) {
-            startseitSelect.addEventListener('change', (e) => {
-                currentSettings.selectedStartseite = parseInt(e.target.value);
-                updateSettings();
-            });
-        }
-    }
-
     buttons.forEach(button => {
         button.addEventListener('click', () => {
             buttons.forEach(btn => btn.classList.remove('active'));
@@ -455,17 +376,9 @@
 
             const contentKey = button.getAttribute('data-content');
             contentPanel.innerHTML = contentData[contentKey];
-
-            // Attach listeners if settings page is loaded
-            if (contentKey === 'settings') {
-                attachSettingsListeners();
-            }
         });
     });
 
-    // Attach listeners on initial page load (settings is default)
-    attachSettingsListeners();
-    applyDesignClass();
 
     function showVoucherDetails(code, title, validUntil) {
         const detailPanel = document.getElementById('voucherDetailPanel');

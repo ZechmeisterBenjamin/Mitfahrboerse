@@ -21,7 +21,7 @@ public class HomeController : BaseController
     private readonly MitfahrboerseDbContext _context;
     public HomeController(MitfahrboerseDbContext context, ILogger<HomeController> logger, IAccessToken accessToken) : base(logger, accessToken, context)
     {
-        _context = context;
+        
     }
 
 
@@ -42,23 +42,5 @@ public class HomeController : BaseController
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
-    [Authorize]
-    public IActionResult Start()
-    {
-        var person = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
-
-        if (person == null) 
-        {
-            return RedirectToAction("Index", "Ride");
-        }
-
-        switch (person.Startpage)
-        {
-            case 1:
-                return RedirectToAction("Create", "Ride");
-            default:
-                return RedirectToAction("Index", "Ride");
-        }
     }
 }
