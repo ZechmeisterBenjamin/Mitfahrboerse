@@ -19,14 +19,24 @@ public class ProfilController : BaseController
     }
     public async Task<IActionResult> Index()
     {
-        var user = _context.t_People
+        var user = await _context.t_People
             .Include(p => p.PersonOffers)
                 .ThenInclude(po => po.FK_Offer)
-            .FirstOrDefault(p => p.PersonId == personId);
+            .Include(p => p.t_Rides) 
+                .ThenInclude(r => r.FK_StartsAt_Position)
+            .Include(p => p.t_Rides)
+                .ThenInclude(r => r.FK_EndsAt_Position)
+            .Include(p => p.PersonRides) 
+                .ThenInclude(pr => pr.Ride)
+                    .ThenInclude(r => r.FK_StartsAt_Position)
+            .Include(p => p.PersonRides)
+                .ThenInclude(pr => pr.Ride)
+                    .ThenInclude(r => r.FK_EndsAt_Position)
+            .FirstOrDefaultAsync(p => p.PersonId == personId);
 
         if (user == null)
         {
-            user = new t_Person { PersonId = personId, PersonOffers = new List<t_PersonOffer>() };
+            user = new t_Person { PersonId = personId };
         }
 
         return View(user);
