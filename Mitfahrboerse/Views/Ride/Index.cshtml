@@ -4,6 +4,18 @@
     var firstRide = Model.FirstOrDefault();
 }
 
+<div class="filter-bar">
+    <div id="filter-menu" class="fahrt-filter filter-menu">
+        <input id="filter-driver" type="text" placeholder="Fahrer" />
+        <input id="filter-class" type="text" placeholder="Klasse" />
+        <input id="filter-from" type="text" placeholder="Von" />
+        <input id="filter-to" type="text" placeholder="Nach" />
+        <input id="filter-date" type="date" />
+        <input id="filter-time" type="time" />
+        <button id="filter-reset" type="button">Filter zurücksetzen</button>
+    </div>
+</div>
+
 <main style="display: flex; gap: 20px; padding: 20px;">
     <div class="left-column">
         @foreach (var ride in Model)
@@ -20,6 +32,7 @@
                  data-to="@ride.FK_EndsAt_Position.Description"
                  data-time="@ride.RideDateTime.ToString("HH:mm")"
                  data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
+                 data-date-iso="@ride.RideDateTime.ToString("yyyy-MM-dd")"
                  data-seats="@freeSeats" 
                  data-car-license="@(ride.FK_Car.LicensePlate)"> 
 
@@ -90,6 +103,14 @@
             
             let selectedRideId = @(firstRide?.RideId ?? 0);
 
+            const filterDriver = document.getElementById('filter-driver');
+            const filterClass = document.getElementById('filter-class');
+            const filterFrom = document.getElementById('filter-from');
+            const filterTo = document.getElementById('filter-to');
+            const filterDate = document.getElementById('filter-date');
+            const filterTime = document.getElementById('filter-time');
+            const filterReset = document.getElementById('filter-reset');
+
             rideItems.forEach(item => {
                 item.addEventListener('click', function() {
                     rideItems.forEach(ri => ri.classList.remove('selected'));
@@ -107,28 +128,97 @@
                 });
             });
 
-            requestButton.addEventListener('click', function() {
-                if (selectedRideId) {
-                    // Optional: Echten AJAX Request machen statt nur alert
-                    fetch('@Url.Action("RequestRide", "Ride")', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `rideId=${selectedRideId}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success) {
-                            alert(data.message);
-                            location.reload(); // Seite neu laden um aktualisierte Plätze zu sehen
-                        } else {
-                            alert("Fehler: " + data.message);
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
+            function selectFirstVisibleRide() {
+                const firstVisible = Array.from(rideItems).find(item => !item.classList.contains('hidden'));
+                if (!firstVisible) {
+                    if (requestButton) {
+                        requestButton.disabled = true;
+                    }
+                    return;
                 }
+                if (requestButton) {
+                    requestButton.disabled = false;
+                }
+                firstVisible.click();
+            }
+
+            function applyFilters() {
+                const driverValue = (filterDriver.value || '').toLowerCase();
+                const classValue = (filterClass.value || '').toLowerCase();
+                const fromValue = (filterFrom.value || '').toLowerCase();
+                const toValue = (filterTo.value || '').toLowerCase();
+                const dateValue = filterDate.value || '';
+                const timeValue = filterTime.value || '';
+
+                rideItems.forEach(item => {
+                    const itemDriver = (item.getAttribute('data-driver-name') || '').toLowerCase();
+                    const itemClass = (item.getAttribute('data-driver-class') || '').toLowerCase();
+                    const itemFrom = (item.getAttribute('data-from') || '').toLowerCase();
+                    const itemTo = (item.getAttribute('data-to') || '').toLowerCase();
+                    const itemDateIso = item.getAttribute('data-date-iso') || '';
+                    const itemTime = item.getAttribute('data-time') || '';
+                    const itemSeats = parseInt(item.getAttribute('data-seats') || '0');
+
+                    const matchesDriver = !driverValue || itemDriver.includes(driverValue);
+                    const matchesClass = !classValue || itemClass.includes(classValue);
+                    const matchesFrom = !fromValue || itemFrom.includes(fromValue);
+                    const matchesTo = !toValue || itemTo.includes(toValue);
+                    const matchesDate = !dateValue || itemDateIso === dateValue;
+                    const matchesTime = !timeValue || itemTime === timeValue;
+                    const matchesSeats = itemSeats >= 1;
+
+                    const isMatch = matchesDriver && matchesClass && matchesFrom && matchesTo && matchesDate && matchesTime && matchesSeats;
+                    item.classList.toggle('hidden', !isMatch);
+                });
+
+                const selected = document.querySelector('.fahrt-item.selected');
+                const anyVisible = Array.from(rideItems).some(item => !item.classList.contains('hidden'));
+                if (!anyVisible || !selected || selected.classList.contains('hidden')) {
+                    selectFirstVisibleRide();
+                }
+            }
+
+            [filterDriver, filterClass, filterFrom, filterTo, filterDate, filterTime].forEach(input => {
+                input.addEventListener('input', applyFilters);
+                input.addEventListener('change', applyFilters);
             });
+
+            filterReset.addEventListener('click', function() {
+                filterDriver.value = '';
+                filterClass.value = '';
+                filterFrom.value = '';
+                filterTo.value = '';
+                filterDate.value = '';
+                filterTime.value = '';
+                applyFilters();
+            });
+
+            if (requestButton) {
+                requestButton.addEventListener('click', function() {
+                    if (selectedRideId) {
+                        // Optional: Echten AJAX Request machen statt nur alert
+                        fetch('@Url.Action("RequestRide", "Ride")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `rideId=${selectedRideId}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.success) {
+                                alert(data.message);
+                                location.reload(); // Seite neu laden um aktualisierte Plätze zu sehen
+                            } else {
+                                alert("Fehler: " + data.message);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                });
+            }
+
+            applyFilters();
         });
     </script>
 }
