@@ -1,4 +1,5 @@
-﻿@{
+@model Mitfahrboerse.Models.t_Person
+@{
     ViewData["Title"] = "Profil";
     int ridesSum = (int)(ViewData["RidesSum"] ?? 0);
     double distance = (double)(ViewData["Distance"] ?? 0.0);
@@ -206,6 +207,7 @@
         <button class="side-button" data-content="check">Fahrten überprüfen</button>
         <button class="side-button" data-content="history">Fahrten Historie</button>
         <button class="side-button" data-content="create">Auto Erstellen</button>
+        <button class="side-button" data-content="voucher">Gutscheine</button>
         <form asp-action="Logout" method="post">
             <button type="submit" class="side-button logout">Logout</button>
         </form>
@@ -303,19 +305,19 @@
                 <h2>Fahrten Statistik</h2>
 
                 <div class="statistic-item">
-                    Fahrten gesamt: @ridesSum
+                    Fahrten gesamt: 5
                 </div>
 
                 <div class="statistic-item">
-                    Gesamt gefahrene Kilometer: @distance
+                    Gesamt gefahrene Kilometer: 100km
                 </div>
 
                 <div class="statistic-item">
-                    So oft mitgefahren: @joinedRidesSum
+                    So oft mitgefahren: 0
                 </div>
 
                 <div class="statistic-item">
-                    Gesamt Anzahl Passagiere: @distinctPassengersSum
+                    Gesamt Anzahl Passagiere: 10
                 </div>
             </div>
         `;
@@ -378,12 +380,46 @@
             </form>
         `;
 
+    const showVoucherHTML = `
+            <div style="display: flex; gap: 20px; padding: 20px; height: 100%; color: white;">
+
+                <div style="flex: 1; border-right: 1px solid #555; padding-right: 20px;">
+                    <h2 style="text-decoration: underline; margin-bottom: 20px;">Deine Gutscheine</h2>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        @if (Model != null && Model.PersonOffers != null && Model.PersonOffers.Any())
+                        {
+                            @foreach (var v in Model.PersonOffers)
+                            {
+                                <div onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')"
+                                        style="background-color: #4a4a4a; padding: 15px; border-radius: 12px; cursor: pointer; transition: background 0.3s;"
+                                        onmouseover="this.style.backgroundColor='#5a5a5a'"
+                                        onmouseout="this.style.backgroundColor='#4a4a4a'">
+                                    <label style="font-size: 1.1rem;">@(v.FK_Offer?.Title ?? "Gutschein")</label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p style="color: #ccc;">Noch keine Gutscheine vorhanden.</p>
+                        }
+                    </div>
+                </div>
+
+                <div id="voucherDetailPanel" style="flex: 1.5; padding-left: 20px; display: flex; align-items: flex-start; justify-content: center;">
+                    <div style="color: #888; border: 2px dashed #444; border-radius: 20px; padding: 40px; text-align: center; width: 100%;">
+                        Wähle einen Gutschein aus, um Details anzuzeigen.
+                    </div>
+                </div>
+            </div>
+        `;
+
 
     const contentData = {
         settings: settingsHTML,
         check: checkRidesHTML,
         history: statisticsHTML,
-        create: createCarHTML
+        create: createCarHTML,
+        voucher: showVoucherHTML
     };
 
     contentPanel.innerHTML = contentData.settings;
@@ -430,6 +466,28 @@
     // Attach listeners on initial page load (settings is default)
     attachSettingsListeners();
     applyDesignClass();
+
+    function showVoucherDetails(code, title, validUntil) {
+        const detailPanel = document.getElementById('voucherDetailPanel');
+
+        detailPanel.innerHTML = `
+            <div style="background-color: #4a4a4a; color: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: left;">
+                <h3 style="margin-top: 0; color: #b2b2ff; font-size: 1.5rem; border-bottom: 1px solid #555; padding-bottom: 10px;">
+                    ${title}
+                </h3>
+                <div style="margin: 20px 0;">
+                    <p style="margin-bottom: 5px; color: #ccc; font-size: 0.9rem;">Gutscheincode:</p>
+                    <code style="font-size: 1.4rem; color: #00ff00; background: #222; padding: 5px 10px; border-radius: 8px; display: block; font-family: monospace;">
+                        ${code}
+                    </code>
+                </div>
+                <div style="margin-top: 20px; font-size: 0.9rem; color: #aaa;">
+                    <strong>Gültig bis:</strong><br>
+                    ${validUntil}
+                </div>
+            </div>
+        `;
+    }
 </script>
 </body>
 </html>

@@ -1,10 +1,12 @@
+using Azure.Core;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Mitfahrboerse.Models;
+using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Interfaces;
-using Azure.Core;
+using Mitfahrboerse.Models;
+using System.Security.Claims;
 
 namespace Mitfahrboerse.Controllers;
 
@@ -38,8 +40,14 @@ public class ProfilController : BaseController
             _context.t_PersonRides.Where(r => r.Status == 1 && r.FK_PersonId == personId).ToList();
         double distance = 0.0;
         foreach (var ride in rides)
+        var user = _context.t_People
+            .Include(p => p.PersonOffers)
+                .ThenInclude(po => po.FK_Offer)
+            .FirstOrDefault(p => p.PersonId == personId);
+
+        if (user == null)
         {
-            distance += ride.Distance;
+            user = new t_Person { PersonId = personId, PersonOffers = new List<t_PersonOffer>() };
         }
 
         ViewData["RidesSum"] = rides.Count();
@@ -68,7 +76,6 @@ public class ProfilController : BaseController
         public int SelectedDesign { get; set; }
         public int SelectedStartseite { get; set; }
     }
-
     [HttpPost]
     public IActionResult CreateCar(string kennzeichen, short sitze, string marke, string modell, string farbe)
     {

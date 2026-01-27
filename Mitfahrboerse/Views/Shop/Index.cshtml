@@ -44,18 +44,42 @@
             const voucherTitle = document.getElementById('voucherTitle');
             const voucherDate = document.getElementById('voucherDate');
             const buyButton = document.getElementById('buyButton');
+
+            let selectedTitle = "@initialTitle";
             let selectedPrice = @(firstOffer?.Price ?? 0);
 
             voucherItems.forEach(item => {
                 item.addEventListener('click', function() {
                     voucherItems.forEach(vItem => vItem.classList.remove('selected'));
                     this.classList.add('selected');
-                    
-                    voucherTitle.textContent = this.getAttribute('data-title');
-                    voucherDate.textContent = this.getAttribute('data-date');
+
+                    selectedTitle = this.getAttribute('data-title');
                     selectedPrice = parseInt(this.getAttribute('data-price'));
-                    
+
+                    voucherTitle.textContent = selectedTitle;
+                    voucherDate.textContent = this.getAttribute('data-date');
                     buyButton.textContent = `Gutschein kaufen (${selectedPrice} pkt)`;
+                });
+            });
+
+            buyButton.addEventListener('click', function() {
+                fetch('@Url.Action("BuyVoucher", "Shop")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `title=${encodeURIComponent(selectedTitle)}&price=${selectedPrice}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if(data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Es ist ein technischer Fehler aufgetreten.");
                 });
             });
 

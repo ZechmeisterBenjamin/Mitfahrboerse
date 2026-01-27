@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using Mitfahrboerse.Interfaces;
 
 namespace Mitfahrboerse.Models;
 
 [Table("t_PersonRide")]
-public partial class t_PersonRide : IPointRelevantItem
+public partial class t_PersonRide
 {
     [Key]
     public int FK_RideId { get; set; }
@@ -28,8 +27,6 @@ public partial class t_PersonRide : IPointRelevantItem
     [ForeignKey("FK_RideId")]
     [InverseProperty("PersonRides")]
     public virtual t_Ride Ride { get; set; } = null!;
-    public bool IsProcessed { get; set; }
-
     public t_PersonRide()
     {
     }
