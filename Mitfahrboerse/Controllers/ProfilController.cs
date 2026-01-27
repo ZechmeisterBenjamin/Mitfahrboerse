@@ -39,22 +39,12 @@ public class ProfilController : BaseController
                     .ThenInclude(r => r.FK_EndsAt_Position)
             .FirstOrDefaultAsync(p => p.PersonId == personId);
 
-    private void LoadRideHistory()
-    {
-        List<t_Ride> rides = _context.t_Rides.Where(r => r.Status == 1 && r.FK_Driver_PersonId == personId).ToList();
-        List<t_PersonRide> joinedRides =
-            _context.t_PersonRides.Where(r => r.Status == 1 && r.FK_PersonId == personId).ToList();
-        double distance = rides.Sum(r => r.Distance);
+        if (user == null)
+        {
+            user = new t_Person { PersonId = personId };
+        }
 
-        ViewData["RidesSum"] = rides.Count();
-        ViewData["Distance"] = distance;
-
-        ViewData["JoinedRidesSum"] = joinedRides.Count();
-        ViewData["DistinctPassengersSum"] = _context.t_PersonRides
-            .Where(p => p.Status == 1 && p.Ride != null && p.Ride.Status == 1 && p.Ride.FK_Driver_PersonId == personId)
-            .Select(p => p.FK_PersonId)
-            .Distinct()
-            .Count();
+        return View(user);
     }
 
     [HttpPost]
