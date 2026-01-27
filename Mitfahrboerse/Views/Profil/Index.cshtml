@@ -266,7 +266,7 @@
             </div>
         `;
 
-                    const checkRidesHTML = `
+    const checkRidesHTML = `
             <div class="ride-list-container" style="padding: 20px; color: white;">
                 <h2 style="text-align: center; text-decoration: underline; margin-bottom: 30px;">Fahrten überprüfen</h2>
 
@@ -275,41 +275,40 @@
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         @if (Model?.t_Rides != null && Model.t_Rides.Any())
                         {
-                                @foreach (var ride in Model.t_Rides)
+                            @foreach (var ride in Model.t_Rides)
+                            {
+                                var count = 0;
+                                if (ride.PersonRides != null)
                                 {
-                                        // Wir berechnen die Zahl absolut sicher:
-                                        var count = 0;
-                                        if (ride.PersonRides != null)
-                                        {
-                                                count = ride.PersonRides.Count(x => x.Status == 1);
-                                        }
-
-                                        <div style="background-color: #4a4a4a; padding: 15px; border-radius: 12px; transition: background 0.3s; cursor: default; display: flex; justify-content: space-between; align-items: center;"
-                                             onmouseover="this.style.backgroundColor='#5a5a5a'"
-                                             onmouseout="this.style.backgroundColor='#4a4a4a'">
-
-                                            <div>
-                                                <div style="font-weight: bold; color: #b2b2ff; margin-bottom: 5px;">
-                                                    @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr
-                                                </div>
-                                                <div style="font-size: 1rem;">
-                                                    <span>@(ride.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
-                                                    <span style="margin: 0 10px; color: #888;">➔</span>
-                                                    <span>@(ride.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
-                                                </div>
-                                            </div>
-
-                                            <div style="text-align: right;">
-                                                <span style="font-size: 0.85em; background: rgba(178, 178, 255, 0.2); color: #b2b2ff; padding: 6px 12px; border-radius: 20px; border: 1px solid #b2b2ff;">
-                                                    <strong>@count</strong> Mitfahrer
-                                                </span>
-                                            </div>
-                                        </div>
+                                        count = ride.PersonRides.Count(x => x.Status == 1);
                                 }
+
+                                <div style="background-color: #4a4a4a; padding: 15px; border-radius: 12px; transition: background 0.3s; cursor: default; display: flex; justify-content: space-between; align-items: center;"
+                                        onmouseover="this.style.backgroundColor='#5a5a5a'"
+                                        onmouseout="this.style.backgroundColor='#4a4a4a'">
+
+                                    <div>
+                                        <div style="font-weight: bold; color: #b2b2ff; margin-bottom: 5px;">
+                                            @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr
+                                        </div>
+                                        <div style="font-size: 1rem;">
+                                            <span>@(ride.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
+                                            <span style="margin: 0 10px; color: #888;">➔</span>
+                                            <span>@(ride.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
+                                        </div>
+                                    </div>
+
+                                    <div style="text-align: right;">
+                                        <span style="font-size: 0.85em; background: rgba(178, 178, 255, 0.2); color: #b2b2ff; padding: 6px 12px; border-radius: 20px; border: 1px solid #b2b2ff;">
+                                            <strong>@count</strong> Mitfahrer
+                                        </span>
+                                    </div>
+                                </div>
+                            }
                         }
                         else
                         {
-                                <p style="color: #ccc; font-style: italic;">Du hast noch keine Fahrten erstellt.</p>
+                            <p style="color: #ccc; font-style: italic;">Du hast noch keine Fahrten erstellt.</p>
                         }
                     </div>
                 </div>
@@ -319,32 +318,32 @@
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         @if (Model?.PersonRides != null && Model.PersonRides.Any())
                         {
-                                @foreach (var pr in Model.PersonRides)
-                                {
-                                        <div style="background-color: #4a4a4a; padding: 15px; border-radius: 12px; transition: background 0.3s; cursor: default; display: flex; justify-content: space-between; align-items: center;"
-                                             onmouseover="this.style.backgroundColor='#5a5a5a'"
-                                             onmouseout="this.style.backgroundColor='#4a4a4a'">
+                            @foreach (var pr in Model.PersonRides)
+                            {
+                                <div style="background-color: #4a4a4a; padding: 15px; border-radius: 12px; transition: background 0.3s; cursor: default; display: flex; justify-content: space-between; align-items: center;"
+                                        onmouseover="this.style.backgroundColor='#5a5a5a'"
+                                        onmouseout="this.style.backgroundColor='#4a4a4a'">
 
-                                            <div>
-                                                <div style="font-weight: bold; color: #b2b2ff; margin-bottom: 5px;">
-                                                    @(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy HH:mm") ?? "---") Uhr
-                                                </div>
-                                                <div style="font-size: 1rem;">
-                                                    <span>@(pr.Ride?.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
-                                                    <span style="margin: 0 10px; color: #888;">➔</span>
-                                                    <span>@(pr.Ride?.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
-                                                </div>
-                                            </div>
-
-                                            <span style="font-size: 0.85em; font-weight: bold; padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,0.2); color: @(pr.Status == 1 ? "#00ff00" : (pr.Status == 2 ? "#ff4444" : "#ffff00"))">
-                                                @(pr.Status == 1 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
-                                            </span>
+                                    <div>
+                                        <div style="font-weight: bold; color: #b2b2ff; margin-bottom: 5px;">
+                                            @(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy HH:mm") ?? "---") Uhr
                                         </div>
-                                }
+                                        <div style="font-size: 1rem;">
+                                            <span>@(pr.Ride?.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
+                                            <span style="margin: 0 10px; color: #888;">➔</span>
+                                            <span>@(pr.Ride?.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
+                                        </div>
+                                    </div>
+
+                                    <span style="font-size: 0.85em; font-weight: bold; padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,0.2); color: @(pr.Status == 1 ? "#00ff00" : (pr.Status == 2 ? "#ff4444" : "#ffff00"))">
+                                        @(pr.Status == 1 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
+                                    </span>
+                                </div>
+                            }
                         }
                         else
                         {
-                                <p style="color: #ccc; font-style: italic;">Du nimmst aktuell an keinen Fahrten teil.</p>
+                            <p style="color: #ccc; font-style: italic;">Du nimmst aktuell an keinen Fahrten teil.</p>
                         }
                     </div>
                 </div>
