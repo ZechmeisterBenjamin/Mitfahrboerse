@@ -128,7 +128,19 @@ nav {
     color: #e6edf3;
 }
 
+.design-b .menu {
+    background-color: #1f2328;
+}
+
+.design-b .menu-item {
+    border-bottom: 1px solid #444c56;
+}
+
 .design-b .menu-item a {
+    color: #e6edf3;
+}
+
+.design-b .menu-toggle {
     color: #e6edf3;
 }
 
@@ -774,6 +786,19 @@ nav {
     
     .coin-balance img {
         height: 45px;
+    }
+    
+    /* Dark mode desktop navigation fix */
+    .design-b .menu {
+        background-color: transparent;
+    }
+    
+    .design-b .menu-item {
+        border-bottom: none;
+    }
+    
+    .design-b .menu-item a {
+        color: #e6edf3;
     }
     
     /* Ride Create Page */
