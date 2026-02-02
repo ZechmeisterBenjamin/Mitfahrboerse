@@ -21,191 +21,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"></script>
-    <style>
-        .settings-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .setting-group {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .side-menu form {
-            width: 100%;
-        }
-
-            .side-menu form .side-button.logout {
-                width: 100%;
-            }
-
-        .design-options {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 20px;
-        }
-
-        .design-option {
-            width: 150px;
-            height: 100px;
-            background-color: #7a7a7a;
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-            cursor: pointer;
-            border: 4px solid #cccccc;
-            box-sizing: border-box;
-        }
-
-        .design-option.active-design {
-            border: 4px solid #8e6cff;
-        }
-
-        .setting-label {
-            font-size: 20px;
-            text-decoration: underline;
-            margin-right: 10px;
-        }
-
-        .setting-group select {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #ffffff;
-            color: black;
-            font-size: 16px;
-        }
-
-        .remove-button {
-            background-color: #c93b3b;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .statistics-container {
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .statistics-container h2 {
-            margin-bottom: 20px;
-        }
-
-        .statistic-item {
-            font-size: 18px;
-        }
-
-        .create-form-container {
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .create-form-container h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .form-group {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start; 
-            gap: 30px; 
-            font-size: 16px;
-        }
-
-            .form-group label {
-                min-width: 120px;
-                text-align: left;
-            }
-
-        .create-form-container input[type="text"] {
-            flex-grow: 1;
-            max-width: 300px;
-            padding: 12px 10px;
-            border-radius: 10px;
-            border: none;
-            font-size: 16px;
-            background-color: white;
-            box-sizing: border-box;
-            color: black;
-        }
-
-        .create-form-container .styled-button {
-            align-self: flex-start !important; 
-        }
-
-        .ride-list-container {
-            padding: 20px;
-        }
-
-        .ride-list-container h2 {
-            text-align: center;
-        }
-
-        .ride-list-group {
-            margin-top: 30px;
-            margin-bottom: 40px;
-        }
-
-            .ride-list-group h3 {
-                font-size: 24px;
-                text-decoration: underline;
-                margin-bottom: 15px;
-            }
-
-            .ride-list-group ul {
-                list-style-type: disc;
-                padding-left: 40px;
-            }
-
-            .ride-list-group li {
-                font-size: 16px;
-                margin-bottom: 10px;
-            }
-
-            .ride-list-group a {
-                color: white;
-                text-decoration: underline;
-            }
-        .ride-list-group ul {
-            list-style-type: disc;
-            padding-left: 40px;
-        }
-
-        .ride-list-group li {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .ride-list-group a {
-            color: white;
-            text-decoration: underline;
-        }
-    </style>
 </head>
 <body>
 <main class="main-container">
     <div class="side-menu" id="sideMenu">
         <button class="side-button active" data-content="settings">Einstellungen</button>
         <button class="side-button" data-content="check">Fahrten überprüfen</button>
-        <button class="side-button" data-content="history">Fahrten Historie</button>
+        <button class="side-button" data-content="history">Statistiken</button>
         <button class="side-button" data-content="create">Auto Erstellen</button>
         <button class="side-button" data-content="voucher">Gutscheine</button>
         <form asp-action="Logout" method="post">
@@ -251,27 +73,31 @@
 
     const settingsHTML = `
             <div class="settings-container">
-                <h2 style="text-align: center;">Einstellungen</h2>
+                <h2>Einstellungen</h2>
 
                 @if (!string.IsNullOrEmpty(carDeleteError))
                 {
-                    <div style="color: #c93b3b; font-weight: bold; text-align: center;">@carDeleteError</div>
+                    <div class="alert-message alert-error">@carDeleteError</div>
                 }
                 @if (!string.IsNullOrEmpty(carDeleteSuccess))
                 {
-                    <div style="color: #2b8a3e; font-weight: bold; text-align: center;">@carDeleteSuccess</div>
+                    <div class="alert-message alert-success">@carDeleteSuccess</div>
                 }
 
-                <div style="margin-top: 10px;">
-                    <span class="setting-label">Design:</span>
+                <div class="settings-section">
+                    <span class="settings-section-title">Design-Modus</span>
                     <div class="design-options">
-                        <div class="design-option ${currentSettings.selectedDesign === 0 ? 'active-design' : ''}" id="designA" data-design="0">Light Mode</div>
-                        <div class="design-option ${currentSettings.selectedDesign === 1 ? 'active-design' : ''}" id="designB" data-design="1">Dark Mode</div>
+                        <div class="design-option ${currentSettings.selectedDesign === 0 ? 'active-design' : ''}" id="designA" data-design="0">
+                            Light Mode
+                        </div>
+                        <div class="design-option ${currentSettings.selectedDesign === 1 ? 'active-design' : ''}" id="designB" data-design="1">
+                            Dark Mode
+                        </div>
                     </div>
                 </div>
 
                 <div class="setting-group">
-                    <span class="setting-label">Startseite:</span>
+                    <span class="setting-label">Startseite</span>
                     <select id="startseite">
                         <option value="0" ${currentSettings.selectedStartseite === 0 ? 'selected' : ''}>Mitfahren</option>
                         <option value="1" ${currentSettings.selectedStartseite === 1 ? 'selected' : ''}>Fahrt Erstellen</option>
@@ -279,8 +105,8 @@
                 </div>
 
                 <div class="setting-group">
-                    <span class="setting-label">Autos:</span>
-                    <form method="post" action="@Url.Action("DeleteCar", "Profil")">
+                    <span class="setting-label">Meine Autos</span>
+                    <form method="post" action="@Url.Action("DeleteCar", "Profil")" style="width: 100%; display: flex; flex-direction: column; gap: 15px;">
                         <select id="autos" name="carId" @(hasCars ? "" : "disabled")>
                             @if (hasCars)
                             {
@@ -294,7 +120,9 @@
                                 <option value="">Keine Autos vorhanden</option>
                             }
                         </select>
-                        <button class="remove-button" onclick="return confirm('Auto wirklich entfernen?');" @(hasCars ? "" : "disabled")>Entfernen</button>
+                        <button type="submit" class="remove-button" onclick="return confirm('Auto wirklich entfernen?');" @(hasCars ? "" : "disabled")>
+                            Auto entfernen
+                        </button>
                     </form>
                 </div>
             </div>
@@ -302,106 +130,111 @@
 
     const statisticsHTML = `
             <div class="statistics-container">
-                <h2>Fahrten Statistik</h2>
+                <h2>Fahrten-Statistik</h2>
 
                 <div class="statistic-item">
-                    Fahrten gesamt: 5
+                    <div>
+                        <strong>Fahrten als Fahrer:</strong><br>
+                        @ridesSum Fahrten insgesamt
+                    </div>
                 </div>
 
                 <div class="statistic-item">
-                    Gesamt gefahrene Kilometer: 100km
+                    <div>
+                        <strong>Gefahrene Kilometer:</strong><br>
+                        @distance.ToString("F1") km
+                    </div>
                 </div>
 
                 <div class="statistic-item">
-                    So oft mitgefahren: 0
+                    <div>
+                        <strong>Mitgefahren:</strong><br>
+                        @joinedRidesSum mal als Passagier
+                    </div>
                 </div>
 
                 <div class="statistic-item">
-                    Gesamt Anzahl Passagiere: 10
+                    <div>
+                        <strong>Passagiere befördert:</strong><br>
+                        @distinctPassengersSum verschiedene Personen
+                    </div>
                 </div>
             </div>
         `;
 
     const checkRidesHTML = `
-            <div class="ride-list-container" style="padding: 20px; color: white;">
-                <h2 style="text-align: center; text-decoration: underline; margin-bottom: 30px;">Fahrten überprüfen</h2>
+            <div class="ride-list-container">
+                <h2>Fahrten überprüfen</h2>
 
                 <div class="ride-list-group">
-                    <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Meine Fahrten (als Fahrer):</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        @if (Model?.t_Rides != null && Model.t_Rides.Any())
+                    <h3>Meine Fahrten (als Fahrer)</h3>
+                    @if (Model?.t_Rides != null && Model.t_Rides.Any())
+                    {
+                        @foreach (var ride in Model.t_Rides)
                         {
-                            @foreach (var ride in Model.t_Rides)
+                            var count = 0;
+                            if (ride.PersonRides != null)
                             {
-                                var count = 0;
-                                if (ride.PersonRides != null)
-                                {
-                                        count = ride.PersonRides.Count(x => x.Status == 1);
-                                }
+                                count = ride.PersonRides.Count(x => x.Status == 1);
+                            }
 
-                                <div style="background-color: #4a4a4a; padding: 15px; border-radius: 12px; transition: background 0.3s; cursor: default; display: flex; justify-content: space-between; align-items: center;"
-                                        onmouseover="this.style.backgroundColor='#5a5a5a'"
-                                        onmouseout="this.style.backgroundColor='#4a4a4a'">
-
-                                    <div>
-                                        <div style="font-weight: bold; color: #b2b2ff; margin-bottom: 5px;">
-                                            @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr
-                                        </div>
-                                        <div style="font-size: 1rem;">
-                                            <span>@(ride.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
-                                            <span style="margin: 0 10px; color: #888;">➔</span>
-                                            <span>@(ride.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
-                                        </div>
+                            <div class="ride-item">
+                                <div>
+                                    <div class="ride-item-date">
+                                        @ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr
                                     </div>
-
-                                    <div style="text-align: right;">
-                                        <span style="font-size: 0.85em; background: rgba(178, 178, 255, 0.2); color: #b2b2ff; padding: 6px 12px; border-radius: 20px; border: 1px solid #b2b2ff;">
-                                            <strong>@count</strong> Mitfahrer
-                                        </span>
+                                    <div class="ride-item-route">
+                                        <span>@(ride.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
+                                        <span class="arrow">→</span>
+                                        <span>@(ride.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
                                     </div>
                                 </div>
-                            }
+                                <div class="ride-item-badge">
+                                    @count Mitfahrer
+                                </div>
+                            </div>
                         }
-                        else
-                        {
-                            <p style="color: #ccc; font-style: italic;">Du hast noch keine Fahrten erstellt.</p>
-                        }
-                    </div>
+                    }
+                    else
+                    {
+                        <p style="color: #ccc; font-style: italic; padding: 20px; text-align: center;">
+                            Du hast noch keine Fahrten erstellt.
+                        </p>
+                    }
                 </div>
 
-                <div class="ride-list-group" style="margin-top: 40px;">
-                    <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Mitfahren (als Passagier):</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        @if (Model?.PersonRides != null && Model.PersonRides.Any())
+                <div class="ride-list-group">
+                    <h3>Mitfahrten (als Passagier)</h3>
+                    @if (Model?.PersonRides != null && Model.PersonRides.Any())
+                    {
+                        @foreach (var pr in Model.PersonRides)
                         {
-                            @foreach (var pr in Model.PersonRides)
-                            {
-                                <div style="background-color: #4a4a4a; padding: 15px; border-radius: 12px; transition: background 0.3s; cursor: default; display: flex; justify-content: space-between; align-items: center;"
-                                        onmouseover="this.style.backgroundColor='#5a5a5a'"
-                                        onmouseout="this.style.backgroundColor='#4a4a4a'">
+                            var statusClass = pr.Status == 1 ? "accepted" : (pr.Status == 2 ? "rejected" : "pending");
+                            var statusText = pr.Status == 1 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen");
 
-                                    <div>
-                                        <div style="font-weight: bold; color: #b2b2ff; margin-bottom: 5px;">
-                                            @(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy HH:mm") ?? "---") Uhr
-                                        </div>
-                                        <div style="font-size: 1rem;">
-                                            <span>@(pr.Ride?.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
-                                            <span style="margin: 0 10px; color: #888;">➔</span>
-                                            <span>@(pr.Ride?.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
-                                        </div>
+                            <div class="ride-item">
+                                <div>
+                                    <div class="ride-item-date">
+                                        @(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy HH:mm") ?? "---") Uhr
                                     </div>
-
-                                    <span style="font-size: 0.85em; font-weight: bold; padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,0.2); color: @(pr.Status == 1 ? "#00ff00" : (pr.Status == 2 ? "#ff4444" : "#ffff00"))">
-                                        @(pr.Status == 1 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
-                                    </span>
+                                    <div class="ride-item-route">
+                                        <span>@(pr.Ride?.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
+                                        <span class="arrow">→</span>
+                                        <span>@(pr.Ride?.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
+                                    </div>
                                 </div>
-                            }
+                                <span class="status-badge ${statusClass}">
+                                    ${statusText}
+                                </span>
+                            </div>
                         }
-                        else
-                        {
-                            <p style="color: #ccc; font-style: italic;">Du nimmst aktuell an keinen Fahrten teil.</p>
-                        }
-                    </div>
+                    }
+                    else
+                    {
+                        <p style="color: #ccc; font-style: italic; padding: 20px; text-align: center;">
+                            Du nimmst aktuell an keinen Fahrten teil.
+                        </p>
+                    }
                 </div>
             </div>
         `;
@@ -409,67 +242,64 @@
 
     const createCarHTML = `
             <form class="create-form-container" method="post" action="@Url.Action("CreateCar", "Profil")">
-            <div class="create-form-container">
-                <h2>Auto erstellen</h2>
+                <h2>Neues Auto erstellen</h2>
 
                 <div class="form-group">
                     <label for="kennzeichen">Kennzeichen:</label>
-                    <input type="text" id="kennzeichen" name="kennzeichen" />
+                    <input type="text" id="kennzeichen" name="kennzeichen" placeholder="z.B. W-1234AB" required />
                 </div>
 
                 <div class="form-group">
                     <label for="sitze">Sitzplätze:</label>
-                    <input type="text" id="sitze" name="sitze" />
+                    <input type="number" id="sitze" name="sitze" placeholder="z.B. 4" min="1" max="9" required />
                 </div>
 
                 <div class="form-group">
                     <label for="marke">Marke:</label>
-                    <input type="text" id="marke" name="marke" />
+                    <input type="text" id="marke" name="marke" placeholder="z.B. Volkswagen" required />
                 </div>
 
                 <div class="form-group">
                     <label for="modell">Modell:</label>
-                    <input type="text" id="modell" name="modell" />
+                    <input type="text" id="modell" name="modell" placeholder="z.B. Golf" required />
                 </div>
 
                 <div class="form-group">
                     <label for="farbe">Farbe:</label>
-                    <input type="text" id="farbe" name="farbe" />
+                    <input type="text" id="farbe" name="farbe" placeholder="z.B. Blau" required />
                 </div>
 
-                <button type="submit" class="styled-button" style="max-width: 450px; margin-top: 20px; align-self: flex-start;">Auto speichern</button>
-            </div>
+                <button type="submit" class="styled-button primary-button" style="max-width: 100%; margin-top: 10px;">
+                    Auto speichern
+                </button>
             </form>
         `;
 
     const showVoucherHTML = `
-            <div style="display: flex; gap: 20px; padding: 20px; height: 100%; color: white;">
-
-                <div style="flex: 1; border-right: 1px solid #555; padding-right: 20px;">
-                    <h2 style="text-decoration: underline; margin-bottom: 20px;">Deine Gutscheine</h2>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        @if (Model != null && Model.PersonOffers != null && Model.PersonOffers.Any())
+            <div class="voucher-section">
+                <div class="voucher-list-panel">
+                    <h2>Deine Gutscheine</h2>
+                    @if (Model != null && Model.PersonOffers != null && Model.PersonOffers.Any())
+                    {
+                        @foreach (var v in Model.PersonOffers)
                         {
-                            @foreach (var v in Model.PersonOffers)
-                            {
-                                <div onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')"
-                                        style="background-color: #4a4a4a; padding: 15px; border-radius: 12px; cursor: pointer; transition: background 0.3s;"
-                                        onmouseover="this.style.backgroundColor='#5a5a5a'"
-                                        onmouseout="this.style.backgroundColor='#4a4a4a'">
-                                    <label style="font-size: 1.1rem;">@(v.FK_Offer?.Title ?? "Gutschein")</label>
-                                </div>
-                            }
+                            <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
+                                <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
+                            </div>
                         }
-                        else
-                        {
-                            <p style="color: #ccc;">Noch keine Gutscheine vorhanden.</p>
-                        }
-                    </div>
+                    }
+                    else
+                    {
+                        <p style="color: #ccc; font-style: italic; text-align: center; padding: 20px;">
+                            Noch keine Gutscheine vorhanden.
+                        </p>
+                    }
                 </div>
 
-                <div id="voucherDetailPanel" style="flex: 1.5; padding-left: 20px; display: flex; align-items: flex-start; justify-content: center;">
-                    <div style="color: #888; border: 2px dashed #444; border-radius: 20px; padding: 40px; text-align: center; width: 100%;">
-                        Wähle einen Gutschein aus, um Details anzuzeigen.
+                <div class="voucher-detail-panel" id="voucherDetailPanel">
+                    <div class="empty-voucher-state">
+                        <p style="font-size: 18px; margin-bottom: 10px; font-weight: bold; color: #ffd60a;">Gutschein auswählen</p>
+                        <p>Wähle einen Gutschein aus der Liste aus,<br>um Details anzuzeigen.</p>
                     </div>
                 </div>
             </div>
@@ -533,17 +363,13 @@
         const detailPanel = document.getElementById('voucherDetailPanel');
 
         detailPanel.innerHTML = `
-            <div style="background-color: #4a4a4a; color: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: left;">
-                <h3 style="margin-top: 0; color: #b2b2ff; font-size: 1.5rem; border-bottom: 1px solid #555; padding-bottom: 10px;">
-                    ${title}
-                </h3>
-                <div style="margin: 20px 0;">
-                    <p style="margin-bottom: 5px; color: #ccc; font-size: 0.9rem;">Gutscheincode:</p>
-                    <code style="font-size: 1.4rem; color: #00ff00; background: #222; padding: 5px 10px; border-radius: 8px; display: block; font-family: monospace;">
-                        ${code}
-                    </code>
+            <div class="voucher-detail-card">
+                <h3>${title}</h3>
+                <div class="voucher-code-container">
+                    <p><strong>Gutscheincode:</strong></p>
+                    <code class="voucher-code">${code}</code>
                 </div>
-                <div style="margin-top: 20px; font-size: 0.9rem; color: #aaa;">
+                <div class="voucher-validity">
                     <strong>Gültig bis:</strong><br>
                     ${validUntil}
                 </div>
