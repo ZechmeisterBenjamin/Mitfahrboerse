@@ -7,9 +7,8 @@
     int distinctPassengersSum = (int)(ViewData["DistinctPassengersSum"] ?? 0);
     int selectedDesign = Convert.ToInt32(ViewData["SelectedDesign"] ?? 0);
     int selectedStartseite = Convert.ToInt32(ViewData["SelectedStartseite"] ?? 0);
-    var cars = ViewData["Cars"] as List<t_Car> ?? new List<t_Car>();
-    bool hasCars = cars.Count > 0;
-    string carDeleteError = TempData["CarDeleteError"] as string ?? "";
+    var cars = Model.t_Cars;
+    var hasCars = cars != null && cars.Any(); string carDeleteError = TempData["CarDeleteError"] as string ?? "";
     string carDeleteSuccess = TempData["CarDeleteSuccess"] as string ?? "";
 }
 
@@ -86,24 +85,25 @@
                         </select>
                     </div>
 
-                    <div class="setting-group">
+                <div class="setting-group">
                         <span class="setting-label">Meine Autos</span>
                         <form method="post" action="@Url.Action("DeleteCar", "Profil")" style="width: 100%; display: flex; flex-direction: column; gap: 15px;">
                             <select id="autos" name="carId" @(hasCars ? "" : "disabled")>
                                 @if (hasCars)
                                 {
-                                        foreach (var car in cars)
-                                        {
+                                    @foreach (var car in cars)
+                                    {
                                         <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
                                     }
                                 }
                                 else
                                 {
-
-                                        <option value="">Keine Autos vorhanden</option>
-                                    }
+                                    <option value="">Keine Autos vorhanden</option>
+                                }
                             </select>
-                            <button type="submit" class="remove-button" onclick="return confirm('Auto wirklich entfernen?');" @(hasCars ? "" : "disabled")>Auto entfernen</button>
+                            <button type="submit" class="remove-button" onclick="return confirm('Auto wirklich entfernen?');" @(hasCars ? "" : "disabled")>
+                                Auto entfernen
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -193,17 +193,17 @@
                 <div class="voucher-section">
                     <div class="voucher-list-panel">
                         <h2>Deine Gutscheine</h2>
-                        @if (Model?.PersonOffers != null && Model.PersonOffers.Any())
-                        {
+                            @if (Model?.PersonOffers != null && Model.PersonOffers.Any())
+                            {
                                 @foreach (var v in Model.PersonOffers)
                                 {
-                                        <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
-                                            <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
-                                        </div>
+                                    <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
+                                        <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
+                                    </div>
                                 }
-                        }
-                        else
-                        {
+                            }
+                            else
+                            {
                                 <p>Noch keine Gutscheine vorhanden.</p>
                             }
                     </div>

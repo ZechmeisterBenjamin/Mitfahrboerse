@@ -23,6 +23,7 @@ public class ProfilController : BaseController
     public async Task<IActionResult> Index()
     {
         var user = await _context.t_People
+            .Include(p => p.t_Cars)
             .Include(p => p.PersonOffers)
                 .ThenInclude(po => po.FK_Offer)
             .Include(p => p.t_Rides)
