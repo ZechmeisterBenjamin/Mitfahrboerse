@@ -4,6 +4,7 @@
     var firstOffer = Model.FirstOrDefault();
     var initialTitle = firstOffer?.Title ?? "Kein Gutschein ausgewählt";
     var initialDate = firstOffer?.ValidUntil.ToString("d. MMMM yyyy") ?? "";
+    var initialPrice = firstOffer?.Price ?? 0;
     var currentTime = DateTime.Now.ToString("HH:mm");
 }
 
@@ -17,24 +18,55 @@
 <body>
     <main class="shop-container">
         <div class="voucher-list" id="voucherList">
-            @foreach (var offer in Model)
-            {   
-            <div class="voucher-item @(offer == firstOffer ? "selected" : "")"
-                 data-title="@offer.Title"
-                 data-date="@offer.ValidUntil.ToString("d. MMMM yyyy")"
-                 data-price="@offer.Price">
-                @offer.Title<br>@offer.Price pkt
-            </div>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var offer in Model)
+                {   
+                    <div class="voucher-item @(offer == firstOffer ? "selected" : "")"
+                         data-title="@offer.Title"
+                         data-date="@offer.ValidUntil.ToString("d. MMMM yyyy")"
+                         data-price="@offer.Price">
+                        <div>
+                            <strong>@offer.Title</strong>
+                            <div class="voucher-item-badge">@offer.Price Punkte</div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>Keine Gutscheine verfügbar</p>
+                    <small>Bitte versuchen Sie es später erneut</small>
+                </div>
             }
         </div>
 
         <div class="voucher-details" id="voucherDetails">
-            <div class="voucher-header">
-                <span id="voucherTitle">@initialTitle</span>
-                <span id="voucherTime">@currentTime</span>
-                <span id="voucherDate">@initialDate</span>
-            </div>
-            <button class="buy-button" id="buyButton">Gutschein kaufen</button>
+            @if (firstOffer != null)
+            {
+                <div class="voucher-header">
+                    <span id="voucherTitle">@initialTitle</span>
+                    <div style="margin-top: 10px;">
+                        <span id="voucherTime">@currentTime</span>
+                        <span id="voucherDate">@initialDate</span>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; color: #d9d9d9; line-height: 1.8;">
+                    <p><strong>Gutschein-Details:</strong></p>
+                    <p>✓ Einmalig einlösbar</p>
+                    <p>✓ Gültig bis <span id="voucherDateText">@initialDate</span></p>
+                    <p>✓ Nicht übertragbar</p>
+                </div>
+                <button class="buy-button" id="buyButton">Gutschein kaufen (@initialPrice Punkte)</button>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>Keine Gutscheine verfügbar</p>
+                    <small>Bitte kommen Sie später wieder</small>
+                </div>
+            }
         </div>
     </main>
 
@@ -43,48 +75,74 @@
             const voucherItems = document.querySelectorAll('.voucher-item');
             const voucherTitle = document.getElementById('voucherTitle');
             const voucherDate = document.getElementById('voucherDate');
+            const voucherDateText = document.getElementById('voucherDateText');
             const buyButton = document.getElementById('buyButton');
 
             let selectedTitle = "@initialTitle";
-            let selectedPrice = @(firstOffer?.Price ?? 0);
+            let selectedPrice = @initialPrice;
 
             voucherItems.forEach(item => {
                 item.addEventListener('click', function() {
+                    // Remove selection from all items
                     voucherItems.forEach(vItem => vItem.classList.remove('selected'));
+                    
+                    // Add selection to clicked item
                     this.classList.add('selected');
 
+                    // Update details
                     selectedTitle = this.getAttribute('data-title');
                     selectedPrice = parseInt(this.getAttribute('data-price'));
+                    const selectedDate = this.getAttribute('data-date');
 
-                    voucherTitle.textContent = selectedTitle;
-                    voucherDate.textContent = this.getAttribute('data-date');
-                    buyButton.textContent = `Gutschein kaufen (${selectedPrice} pkt)`;
+                    if (voucherTitle) voucherTitle.textContent = selectedTitle;
+                    if (voucherDate) voucherDate.textContent = selectedDate;
+                    if (voucherDateText) voucherDateText.textContent = selectedDate;
+                    if (buyButton) buyButton.textContent = `Gutschein kaufen (${selectedPrice} Punkte)`;
+
+                    // Visual feedback
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
                 });
             });
 
-            buyButton.addEventListener('click', function() {
-                fetch('@Url.Action("BuyVoucher", "Shop")', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `title=${encodeURIComponent(selectedTitle)}&price=${selectedPrice}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    if(data.success) {
-                        location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("Es ist ein technischer Fehler aufgetreten.");
-                });
-            });
+            if (buyButton) {
+                buyButton.addEventListener('click', function() {
+                    // Disable button during request
+                    this.disabled = true;
+                    this.style.opacity = '0.6';
+                    const originalText = this.textContent;
+                    this.textContent = 'Wird verarbeitet...';
 
-            if (@(firstOffer != null ? "true" : "false")) {
-                buyButton.textContent = `Gutschein kaufen (${selectedPrice} pkt)`;
+                    fetch('@Url.Action("BuyVoucher", "Shop")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `title=${encodeURIComponent(selectedTitle)}&price=${selectedPrice}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if(data.success) {
+                            location.reload();
+                        } else {
+                            // Re-enable button if failed
+                            this.disabled = false;
+                            this.style.opacity = '1';
+                            this.textContent = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("Es ist ein technischer Fehler aufgetreten.");
+                        // Re-enable button
+                        this.disabled = false;
+                        this.style.opacity = '1';
+                        this.textContent = originalText;
+                    });
+                });
             }
         });
     </script>
