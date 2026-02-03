@@ -21,11 +21,15 @@
             @if (Model != null && Model.Any())
             {
                 @foreach (var offer in Model)
-                {   
+                {
                     <div class="voucher-item @(offer == firstOffer ? "selected" : "")"
                          data-title="@offer.Title"
+                         data-price="@offer.Price"
                          data-date="@offer.ValidUntil.ToString("d. MMMM yyyy")"
-                         data-price="@offer.Price">
+                         @* DIESE BEIDEN SIND ENTSCHEIDEND: *@
+                         data-id="@offer.OfferId"
+                         data-date-raw="@offer.ValidUntil.ToString("yyyy-MM-dd")">
+
                         <div>
                             <strong>@offer.Title</strong>
                             <div class="voucher-item-badge">@offer.Price Punkte</div>
@@ -59,6 +63,16 @@
                     <p>✓ Nicht übertragbar</p>
                 </div>
                 <button class="buy-button" id="buyButton">Gutschein kaufen (@initialPrice Punkte)</button>
+                @if (ViewData["IsAdmin"] != null && (bool)ViewData["IsAdmin"])
+                {
+                    <div class="admin-controls" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #444;">
+                        <p style="color: #ffcc00;"><strong>Admin-Optionen:</strong></p>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="buy-button" id="deleteButton" style="background-color: #dc3545;">Löschen</button>
+                            @* Edit könnte man über ein Modal oder eine separate Page lösen *@
+                        </div>
+                    </div>
+                }
             }
             else
             {
@@ -138,6 +152,94 @@
                         console.error('Error:', error);
                         alert("Es ist ein technischer Fehler aufgetreten.");
                         // Re-enable button
+                        this.disabled = false;
+                        this.style.opacity = '1';
+                        this.textContent = originalText;
+                    });
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const voucherItems = document.querySelectorAll('.voucher-item');
+            const voucherTitle = document.getElementById('voucherTitle');
+            const voucherDate = document.getElementById('voucherDate');
+            const voucherDateText = document.getElementById('voucherDateText');
+            const buyButton = document.getElementById('buyButton');
+    
+            const deleteButton = document.getElementById('deleteButton');
+            const editButton = document.getElementById('editButton');
+
+            let selectedId = "@firstOffer?.OfferId";
+            let selectedTitle = "@initialTitle";
+            let selectedPrice = @initialPrice;
+            let selectedDateRaw = "@firstOffer?.ValidUntil.ToString("yyyy-MM-dd")";
+
+            voucherItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    voucherItems.forEach(vItem => vItem.classList.remove('selected'));
+                    this.classList.add('selected');
+
+                    selectedId = this.getAttribute('data-id');
+                    selectedTitle = this.getAttribute('data-title');
+                    selectedPrice = parseInt(this.getAttribute('data-price'));
+                    selectedDateRaw = this.getAttribute('data-date-raw');
+                    const selectedDateFormatted = this.getAttribute('data-date');
+
+                    if (voucherTitle) voucherTitle.textContent = selectedTitle;
+                    if (voucherDate) voucherDate.textContent = selectedDateFormatted;
+                    if (voucherDateText) voucherDateText.textContent = selectedDateFormatted;
+                    if (buyButton) buyButton.textContent = `Gutschein kaufen (${selectedPrice} Punkte)`;
+
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => { this.style.transform = ''; }, 200);
+                });
+            });
+
+            if (deleteButton) {
+                deleteButton.addEventListener('click', function() {
+                    if (!confirm(`Möchtest du den Gutschein "${selectedTitle}" wirklich löschen?`)) return;
+
+                    fetch('@Url.Action("DeleteOffer", "Shop")', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `id=${selectedId}&validUntil=${selectedDateRaw}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) location.reload();
+                    })
+                    .catch(err => alert("Fehler beim Löschen: " + err));
+                });
+            }
+
+            if (buyButton) {
+                buyButton.addEventListener('click', function() {
+                    this.disabled = true;
+                    this.style.opacity = '0.6';
+                    const originalText = this.textContent;
+                    this.textContent = 'Wird verarbeitet...';
+
+                    fetch('@Url.Action("BuyVoucher", "Shop")', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `title=${encodeURIComponent(selectedTitle)}&price=${selectedPrice}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if(data.success) {
+                            location.reload();
+                        } else {
+                            this.disabled = false;
+                            this.style.opacity = '1';
+                            this.textContent = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("Es ist ein technischer Fehler aufgetreten.");
                         this.disabled = false;
                         this.style.opacity = '1';
                         this.textContent = originalText;
