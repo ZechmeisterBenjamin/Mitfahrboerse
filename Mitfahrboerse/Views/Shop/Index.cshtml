@@ -66,10 +66,9 @@
                 @if (ViewData["IsAdmin"] != null && (bool)ViewData["IsAdmin"])
                 {
                     <div class="admin-controls" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #444;">
-                        <p style="color: #ffcc00;"><strong>Admin-Optionen:</strong></p>
                         <div style="display: flex; gap: 10px;">
                             <button class="buy-button" id="deleteButton" style="background-color: #dc3545;">Löschen</button>
-                            @* Edit könnte man über ein Modal oder eine separate Page lösen *@
+                            <button class="buy-button" id="openEditModalBtn" style="background-color: #f39c12;">Bearbeiten</button>
                         </div>
                     </div>
                 }
@@ -82,171 +81,160 @@
                 </div>
             }
         </div>
+        <div id="editModal" class="admin-modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color: rgba(0,0,0,0.8);">
+            <div style="background-color: #2c2c2c; margin: 10% auto; padding: 20px; width: 350px; border-radius: 10px; border: 1px solid #444;">
+                <h3 style="color: #ffcc00;">Gutschein bearbeiten</h3>
+                <hr border="0" height="1" style="background: #444;">
+
+                <label style="color: white; display: block; margin-top: 10px;">Bezeichnung:</label>
+                <input type="text" id="editTitle" style="width: 100%; padding: 8px; margin-top: 5px; background: #1a1a1a; color: white; border: 1px solid #555;">
+
+                <label style="color: white; display: block; margin-top: 10px;">Preis (Punkte):</label>
+                <input type="number" id="editPrice" style="width: 100%; padding: 8px; margin-top: 5px; background: #1a1a1a; color: white; border: 1px solid #555;">
+
+                <label style="color: white; display: block; margin-top: 10px;">Gültig bis:</label>
+                <input type="date" id="editDate" style="width: 100%; padding: 8px; margin-top: 5px; background: #1a1a1a; color: white; border: 1px solid #555;">
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="saveEditBtn" class="buy-button" style="flex: 1;">Speichern</button>
+                    <button onclick="document.getElementById('editModal').style.display='none'" class="buy-button" style="flex: 1; background: #555;">Abbrechen</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const voucherItems = document.querySelectorAll('.voucher-item');
-            const voucherTitle = document.getElementById('voucherTitle');
-            const voucherDate = document.getElementById('voucherDate');
-            const voucherDateText = document.getElementById('voucherDateText');
-            const buyButton = document.getElementById('buyButton');
+    // --- ELEMENTE ---
+    const voucherItems = document.querySelectorAll('.voucher-item');
+    const voucherTitle = document.getElementById('voucherTitle');
+    const voucherDate = document.getElementById('voucherDate');
+    const buyButton = document.getElementById('buyButton');
+    const deleteButton = document.getElementById('deleteButton');
+    const openEditModalBtn = document.getElementById('openEditModalBtn');
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    const editModal = document.getElementById('editModal');
 
-            let selectedTitle = "@initialTitle";
-            let selectedPrice = @initialPrice;
+    // --- STATE ---
+    let selectedId = "@firstOffer?.OfferId";
+    let selectedTitle = "@initialTitle";
+    let selectedPrice = "@initialPrice";
+    let selectedDateRaw = "@firstOffer?.ValidUntil.ToString("yyyy-MM-dd")";
 
-            voucherItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    // Remove selection from all items
-                    voucherItems.forEach(vItem => vItem.classList.remove('selected'));
-                    
-                    // Add selection to clicked item
-                    this.classList.add('selected');
+    // --- KLICK-LOGIK ---
+    voucherItems.forEach(item => {
+        item.addEventListener('click', function() {
+            voucherItems.forEach(vItem => vItem.classList.remove('selected'));
+            this.classList.add('selected');
 
-                    // Update details
-                    selectedTitle = this.getAttribute('data-title');
-                    selectedPrice = parseInt(this.getAttribute('data-price'));
-                    const selectedDate = this.getAttribute('data-date');
+            selectedId = this.getAttribute('data-id');
+            selectedTitle = this.getAttribute('data-title');
+            selectedPrice = this.getAttribute('data-price');
+            selectedDateRaw = this.getAttribute('data-date-raw');
 
-                    if (voucherTitle) voucherTitle.textContent = selectedTitle;
-                    if (voucherDate) voucherDate.textContent = selectedDate;
-                    if (voucherDateText) voucherDateText.textContent = selectedDate;
-                    if (buyButton) buyButton.textContent = `Gutschein kaufen (${selectedPrice} Punkte)`;
+            if (voucherTitle) voucherTitle.textContent = selectedTitle;
+            if (voucherDate) voucherDate.textContent = this.getAttribute('data-date');
+            if (buyButton) buyButton.textContent = `Gutschein kaufen (${selectedPrice} Punkte)`;
+        });
+    });
 
-                    // Visual feedback
-                    this.style.transform = 'scale(1.02)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 200);
+    // --- ADMIN: EDIT MODAL ÖFFNEN ---
+    if (openEditModalBtn) {
+        openEditModalBtn.addEventListener('click', () => {
+            document.getElementById('editTitle').value = selectedTitle;
+            document.getElementById('editPrice').value = selectedPrice;
+            document.getElementById('editDate').value = selectedDateRaw;
+            editModal.style.display = 'block';
+        });
+    }
+
+    // --- ADMIN: SPEICHERN ---
+            // --- ADMIN: IM MODAL SPEICHERN ---
+        if (saveEditBtn) {
+            saveEditBtn.addEventListener('click', function() {
+                const newTitle = document.getElementById('editTitle').value;
+                const newPrice = document.getElementById('editPrice').value;
+                const newValidUntil = document.getElementById('editDate').value;
+
+                // Erstellen des Request-Bodys passend zu deinen Controller-Parametern
+                const params = new URLSearchParams();
+                params.append('id', selectedId);
+                params.append('oldValidUntil', selectedDateRaw); // Das Datum, mit dem das Offer gefunden wird
+                params.append('newTitle', newTitle);
+                params.append('newPrice', newPrice);
+                params.append('newValidUntil', newValidUntil); // Das neue Datum
+
+                fetch('@Url.Action("EditOffer", "Shop")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString()
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        location.reload(); // Seite neu laden, um Änderungen zu sehen
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Fehler beim Senden der Daten.");
                 });
             });
+        }
 
+    // --- ADMIN: LÖSCHEN ---
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function() {
+            if (!confirm(`Möchtest du "${selectedTitle}" wirklich löschen?`)) return;
+
+            fetch('@Url.Action("DeleteOffer", "Shop")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id=${selectedId}&validUntil=${selectedDateRaw}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) location.reload();
+            });
+        });
+    }
+
+    // --- KAUFEN ---
             if (buyButton) {
-                buyButton.addEventListener('click', function() {
-                    // Disable button during request
-                    this.disabled = true;
-                    this.style.opacity = '0.6';
-                    const originalText = this.textContent;
-                    this.textContent = 'Wird verarbeitet...';
+            buyButton.addEventListener('click', function() {
+                this.disabled = true;
+                this.style.opacity = '0.6';
+                const originalText = this.textContent;
+                this.textContent = 'Wird verarbeitet...';
 
-                    fetch('@Url.Action("BuyVoucher", "Shop")', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `title=${encodeURIComponent(selectedTitle)}&price=${selectedPrice}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if(data.success) {
-                            location.reload();
-                        } else {
-                            // Re-enable button if failed
-                            this.disabled = false;
-                            this.style.opacity = '1';
-                            this.textContent = originalText;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert("Es ist ein technischer Fehler aufgetreten.");
-                        // Re-enable button
+                fetch('@Url.Action("BuyVoucher", "Shop")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `title=${encodeURIComponent(selectedTitle)}&price=${selectedPrice}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if(data.success) {
+                        location.reload();
+                    } else {
                         this.disabled = false;
                         this.style.opacity = '1';
                         this.textContent = originalText;
-                    });
-                });
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const voucherItems = document.querySelectorAll('.voucher-item');
-            const voucherTitle = document.getElementById('voucherTitle');
-            const voucherDate = document.getElementById('voucherDate');
-            const voucherDateText = document.getElementById('voucherDateText');
-            const buyButton = document.getElementById('buyButton');
-    
-            const deleteButton = document.getElementById('deleteButton');
-            const editButton = document.getElementById('editButton');
-
-            let selectedId = "@firstOffer?.OfferId";
-            let selectedTitle = "@initialTitle";
-            let selectedPrice = @initialPrice;
-            let selectedDateRaw = "@firstOffer?.ValidUntil.ToString("yyyy-MM-dd")";
-
-            voucherItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    voucherItems.forEach(vItem => vItem.classList.remove('selected'));
-                    this.classList.add('selected');
-
-                    selectedId = this.getAttribute('data-id');
-                    selectedTitle = this.getAttribute('data-title');
-                    selectedPrice = parseInt(this.getAttribute('data-price'));
-                    selectedDateRaw = this.getAttribute('data-date-raw');
-                    const selectedDateFormatted = this.getAttribute('data-date');
-
-                    if (voucherTitle) voucherTitle.textContent = selectedTitle;
-                    if (voucherDate) voucherDate.textContent = selectedDateFormatted;
-                    if (voucherDateText) voucherDateText.textContent = selectedDateFormatted;
-                    if (buyButton) buyButton.textContent = `Gutschein kaufen (${selectedPrice} Punkte)`;
-
-                    this.style.transform = 'scale(1.02)';
-                    setTimeout(() => { this.style.transform = ''; }, 200);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Es ist ein technischer Fehler aufgetreten.");
+                    this.disabled = false;
+                    this.style.opacity = '1';
+                    this.textContent = originalText;
                 });
             });
-
-            if (deleteButton) {
-                deleteButton.addEventListener('click', function() {
-                    if (!confirm(`Möchtest du den Gutschein "${selectedTitle}" wirklich löschen?`)) return;
-
-                    fetch('@Url.Action("DeleteOffer", "Shop")', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `id=${selectedId}&validUntil=${selectedDateRaw}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if (data.success) location.reload();
-                    })
-                    .catch(err => alert("Fehler beim Löschen: " + err));
-                });
-            }
-
-            if (buyButton) {
-                buyButton.addEventListener('click', function() {
-                    this.disabled = true;
-                    this.style.opacity = '0.6';
-                    const originalText = this.textContent;
-                    this.textContent = 'Wird verarbeitet...';
-
-                    fetch('@Url.Action("BuyVoucher", "Shop")', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `title=${encodeURIComponent(selectedTitle)}&price=${selectedPrice}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if(data.success) {
-                            location.reload();
-                        } else {
-                            this.disabled = false;
-                            this.style.opacity = '1';
-                            this.textContent = originalText;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert("Es ist ein technischer Fehler aufgetreten.");
-                        this.disabled = false;
-                        this.style.opacity = '1';
-                        this.textContent = originalText;
-                    });
-                });
-            }
-        });
+        }
+});
     </script>
 </body>
 </html>
