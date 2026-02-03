@@ -82,6 +82,9 @@ namespace Mitfahrboerse.Controllers
                 var person = _context.t_People.Where(p => p.PersonId == personId).FirstOrDefaultAsync().Result;
                 ViewData["CoinBalance"] = person.Points;
                 ViewData["SelectedDesign"] = person.Design;
+
+                bool isAdmin = (firstname == "Daniel" && lastname == "Daurer");
+                ViewData["IsAdmin"] = isAdmin;
             }
             catch
             {
