@@ -1837,6 +1837,10 @@ nav {
     border-left: 4px solid #ffd60a;
 }
 
+.statistics-section {
+    border-left: 4px solid #28a745;
+}
+
 .settings-section-title {
     font-size: 18px;
     font-weight: bold;
@@ -1849,7 +1853,6 @@ nav {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-top: 10px;
 }
 
 .design-option {
@@ -2444,5 +2447,305 @@ nav {
     
     .ride-list-group h3 {
         font-size: 22px;
+    }
+}
+
+/* ==========================================================================
+   ADMIN PAGE STYLES - MOBILE FIRST
+   ========================================================================== */
+
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
+    max-width: 100%;
+}
+
+.admin-section {
+    background-color: #4d4d4d;
+    border-radius: 20px;
+    padding: 20px 15px;
+    color: white;
+}
+
+.admin-section-header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #7a7a7a;
+}
+
+.admin-section-header h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #ffd60a;
+    text-align: center;
+}
+
+.voucher-create-section {
+    border-left: 4px solid #ffd60a;
+}
+
+.statistics-section {
+    border-left: 4px solid #28a745;
+}
+
+.admin-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.admin-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.admin-input {
+    background-color: #666;
+    color: white;
+    border: 2px solid #7a7a7a;
+    padding: 14px 12px;
+    border-radius: 10px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 48px;
+    transition: all 0.3s ease;
+}
+
+.admin-input::placeholder {
+    color: #d9d9d9;
+}
+
+.admin-input:focus {
+    outline: none;
+    border-color: #ffd60a;
+    background-color: #7a7a7a;
+    box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.2);
+}
+
+.admin-input:hover {
+    border-color: #ffd60a;
+}
+
+.admin-button {
+    background: linear-gradient(135deg, #ffd60a 0%, #ffc400 100%);
+    color: #000;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 15px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    min-height: 48px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.admin-button:hover::before {
+    width: 400px;
+    height: 400px;
+}
+
+.admin-button:active {
+    transform: scale(0.98);
+}
+
+.admin-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.statistics-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stat-card {
+    background-color: rgba(122, 122, 122, 0.3);
+    padding: 20px 15px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    min-height: 100px;
+}
+
+.stat-card:hover {
+    background-color: rgba(122, 122, 122, 0.4);
+    border-color: #28a745;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.stat-label {
+    font-size: 15px;
+    color: #d9d9d9;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #28a745;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   TABLET ADMIN STYLES (768px and up)
+   ========================================================================== */
+
+@media (min-width: 768px) {
+    .admin-container {
+        gap: 30px;
+        padding: 25px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .admin-section {
+        padding: 30px 25px;
+    }
+    
+    .admin-section-header h2 {
+        font-size: 26px;
+    }
+    
+    .admin-form-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .admin-label {
+        font-size: 18px;
+        min-width: 150px;
+        margin-bottom: 0;
+    }
+    
+    .admin-input {
+        max-width: 500px;
+        font-size: 17px;
+    }
+    
+    .admin-button {
+        max-width: 400px;
+        align-self: center;
+        font-size: 18px;
+        padding: 18px 32px;
+    }
+    
+    .statistics-grid {
+        flex-direction: row;
+        gap: 20px;
+    }
+    
+    .stat-card {
+        flex: 1;
+        padding: 30px 20px;
+        min-height: 120px;
+    }
+    
+    .stat-label {
+        font-size: 16px;
+    }
+    
+    .stat-value {
+        font-size: 32px;
+    }
+}
+
+/* ==========================================================================
+   DESKTOP ADMIN STYLES (1024px and up)
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+    .admin-container {
+        gap: 40px;
+        padding: 35px;
+    }
+    
+    .admin-section {
+        padding: 35px 30px;
+    }
+    
+    .admin-section-header h2 {
+        font-size: 30px;
+    }
+    
+    .admin-label {
+        font-size: 20px;
+        min-width: 180px;
+    }
+    
+    .admin-input {
+        font-size: 18px;
+    }
+    
+    .admin-button {
+        font-size: 19px;
+        padding: 20px 36px;
+    }
+    
+    .stat-card {
+        padding: 35px 25px;
+        min-height: 140px;
+    }
+    
+    .stat-label {
+        font-size: 17px;
+    }
+    
+    .stat-value {
+        font-size: 36px;
+    }
+}
+
+/* ==========================================================================
+   LARGE DESKTOP ADMIN STYLES (1440px and up)
+   ========================================================================== */
+
+@media (min-width: 1440px) {
+    .admin-container {
+        max-width: 1400px;
+    }
+    
+    .admin-section-header h2 {
+        font-size: 34px;
+    }
+    
+    .stat-card {
+        padding: 40px 30px;
+        min-height: 150px;
+    }
+    
+    .stat-value {
+        font-size: 40px;
     }
 }

@@ -1,5 +1,114 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+<div class="admin-container">
+    <!-- Gutschein erstellen Sektion -->
+    <div class="admin-section voucher-create-section">
+        <div class="admin-section-header">
+            <h2>Neuen Gutschein erstellen</h2>
+        </div>
+        <form id="createVoucherForm" method="post" action="@Url.Action("CreateVoucher", "Admin")">
+            @Html.AntiForgeryToken()
+            
+            <div class="admin-form-group">
+                <label for="voucherDescription" class="admin-label">Bezeichnung</label>
+                <input type="text" id="voucherDescription" name="description" class="admin-input" placeholder="z.B. 5€ Gutschein" required />
+            </div>
+            
+            <div class="admin-form-group">
+                <label for="voucherPrice" class="admin-label">Preis</label>
+                <input type="number" id="voucherPrice" name="price" class="admin-input" placeholder="Preis in Punkten" min="1" required />
+            </div>
+            
+            <div class="admin-form-group">
+                <label for="voucherValidUntil" class="admin-label">Gültig bis:</label>
+                <input type="date" id="voucherValidUntil" name="validUntil" class="admin-input" required />
+            </div>
+            
+            <button type="submit" class="admin-button primary-admin-button">
+                <span>Neuen Gutschein erstellen</span>
+            </button>
+        </form>
+    </div>
+    
+    <!-- Fahrten Statistik Sektion -->
+    <div class="admin-section statistics-section">
+        <div class="admin-section-header">
+            <h2>Fahrten Statistik Gesamt</h2>
+        </div>
+        
+        <div class="statistics-grid">
+            <div class="stat-card">
+                <div class="stat-label">Fahrten gesamt:</div>
+                <div class="stat-value" id="totalRides">5</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Gesamt gefahrene Kilometer:</div>
+                <div class="stat-value" id="totalDistance">100km</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Gesamt Anzahl Passagiere:</div>
+                <div class="stat-value" id="totalPassengers">10</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('createVoucherForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const button = this.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            
+            button.disabled = true;
+            button.innerHTML = '<span>Wird erstellt...</span>';
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert(data.message || 'Gutschein erfolgreich erstellt!');
+                    this.reset();
+                } else {
+                    alert(data.message || 'Fehler beim Erstellen des Gutscheins.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ein technischer Fehler ist aufgetreten.');
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerHTML = originalText;
+            });
+        });
+        
+        // Statistiken laden
+        function loadStatistics() {
+            fetch('@Url.Action("GetStatistics", "Admin")')
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('totalRides').textContent = data.totalRides || '0';
+                        document.getElementById('totalDistance').textContent = (data.totalDistance || '0') + 'km';
+                        document.getElementById('totalPassengers').textContent = data.totalPassengers || '0';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading statistics:', error);
+                });
+        }
+        
+        // Statistiken beim Laden der Seite abrufen
+        document.addEventListener('DOMContentLoaded', loadStatistics);
+    </script>
 }
