@@ -1,82 +1,70 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Mitfahrboerse.Interfaces;
+using Mitfahrboerse.Models;
 
 namespace Mitfahrboerse.Controllers
 {
-    public class AdminController : Controller
+    public class AdminController : BaseController
     {
-        // GET: AdminController
-        public ActionResult Index()
+        private readonly MitfahrboerseDbContext _context;
+
+        public AdminController(ILogger<AdminController> logger, IAccessToken accessToken, MitfahrboerseDbContext context)
+            : base(logger, accessToken, context)
+        {
+            _context = context;
+        }
+
+        public IActionResult Index()
         {
             return View();
         }
 
-        // GET: AdminController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: AdminController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: AdminController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> CreateVoucher(string description, short price, DateTime validUntil)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var newOffer = new t_Offer
+                {
+                    Title = description, 
+                    Price = price,
+                    ValidUntil = DateOnly.FromDateTime(validUntil)
+                };
+
+                _context.t_Offers.Add(newOffer);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Gutschein erfolgreich erstellt!" });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return Json(new { success = false, message = "Fehler: " + ex.Message });
             }
         }
 
-        // GET: AdminController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: AdminController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: AdminController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: AdminController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        [HttpGet]
+        public async Task<IActionResult> GetStatistics()
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var totalRides = await _context.t_Rides.CountAsync();
+                var totalDistance = await _context.t_Rides.SumAsync(r => r.Distance);
+                var totalPassengers = await _context.t_PersonRides.CountAsync(pr => pr.Status == 1);
+
+                return Json(new
+                {
+                    success = true,
+                    totalRides = totalRides,
+                    totalDistance = totalDistance,
+                    totalPassengers = totalPassengers
+                });
             }
             catch
             {
-                return View();
+                return Json(new { success = false });
             }
         }
     }
