@@ -3,7 +3,9 @@ using Mitfahrboerse.Models;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Identity.Web;
+using Mitfahrboerse.Hubs;
 using Mitfahrboerse.Interfaces;
 using Mitfahrboerse.Services;
 
@@ -14,6 +16,9 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .EnableTokenAcquisitionToCallDownstreamApi(
         new string[] { "User.Read", "profile" })
     .AddInMemoryTokenCaches();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, Mitfahrboerse.Services.AzureAdUserIdProvider>();
 
 // Add services to the container.
 
@@ -57,5 +62,5 @@ app.MapControllerRoute(
         pattern: "{controller=Home}/{action=Start}/")
     .WithStaticAssets();
 
-
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();
