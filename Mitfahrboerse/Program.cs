@@ -3,6 +3,7 @@ using Mitfahrboerse.Models;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Identity.Web;
 using Mitfahrboerse.Hubs;
 using Mitfahrboerse.Interfaces;
@@ -17,6 +18,8 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddInMemoryTokenCaches();
 
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, Mitfahrboerse.Services.AzureAdUserIdProvider>();
+
 // Add services to the container.
 
 
