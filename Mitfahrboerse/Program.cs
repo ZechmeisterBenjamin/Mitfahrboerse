@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
+using Mitfahrboerse.Hubs;
 using Mitfahrboerse.Interfaces;
 using Mitfahrboerse.Services;
 
@@ -15,6 +16,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         new string[] { "User.Read", "profile" })
     .AddInMemoryTokenCaches();
 
+builder.Services.AddSignalR();
 // Add services to the container.
 
 
@@ -57,5 +59,5 @@ app.MapControllerRoute(
         pattern: "{controller=Home}/{action=Start}/")
     .WithStaticAssets();
 
-
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();
