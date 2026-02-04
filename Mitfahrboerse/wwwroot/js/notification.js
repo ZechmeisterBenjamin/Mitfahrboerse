@@ -37,7 +37,6 @@ function showNativeNotification(title, bodyText) {
         notification.onclick = function () {
             window.focus();
             this.close();
-            window.location.href = '/Requests/MyRequests';
         };
     }
 }
