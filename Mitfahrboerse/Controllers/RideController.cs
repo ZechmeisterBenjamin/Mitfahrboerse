@@ -17,13 +17,17 @@ namespace Mitfahrboerse.Controllers;
         
         public IActionResult Index(int? selectedRideId = null)
         {
+            DateTime now = DateTime.Now;
+
             var rides = _context.t_Rides
+                .Where(r => r.RideDateTime >= now || r.RideDateTime == now)
                 .Include(r => r.FK_Driver_Person)
                 .Include(r => r.FK_StartsAt_Position)
                 .Include(r => r.FK_EndsAt_Position)
                 .Include(r => r.FK_Car)
                 .Include(r => r.PersonRides)
                 .ThenInclude(pr => pr.Person)
+                .OrderBy(r => r.RideDateTime)
                 .ToList();
 
             var selectedRide = selectedRideId.HasValue 

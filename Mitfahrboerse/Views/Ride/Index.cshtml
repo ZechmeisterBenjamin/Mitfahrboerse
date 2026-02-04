@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Mitfahren";
     var firstRide = Model.FirstOrDefault();
+    var nextRide = Model.FirstOrDefault();
+    DateTime? nextDate = nextRide?.RideDateTime;
 }
 
 <div class="filter-bar">
