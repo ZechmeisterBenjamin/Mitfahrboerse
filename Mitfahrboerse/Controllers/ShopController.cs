@@ -99,6 +99,18 @@ public class ShopController : BaseController
         var offer = await _context.t_Offers
             .FirstOrDefaultAsync(o => o.OfferId == id && o.ValidUntil == oldDate);
 
+        bool alreadyPurchased = await _context.t_PersonOffers
+                .AnyAsync(po => po.FK_OfferId == id);
+
+        if (alreadyPurchased)
+        {
+            return Json(new
+            {
+                success = false,
+                message = "Ändern nicht möglich: Dieser Gutschein wurde bereits gekauft!"
+            });
+        }
+
         if (offer != null)
         {
             offer.Title = newTitle;

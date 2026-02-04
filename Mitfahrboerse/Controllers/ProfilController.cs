@@ -116,6 +116,29 @@ public class ProfilController : BaseController
         return RedirectToAction("Index");
     }
 
+    [HttpPost]
+    public async Task<IActionResult> CancelRide(int rideId)
+    {
+        var ride = await _context.t_Rides
+            .Include(r => r.PersonRides)
+            .FirstOrDefaultAsync(r => r.RideId == rideId && r.FK_Driver_PersonId == personId);
+
+        if (ride == null)
+        {
+            return Json(new { success = false, message = "Fahrt nicht gefunden oder keine Berechtigung." });
+        }
+
+        if (ride.PersonRides != null && ride.PersonRides.Any())
+        {
+            _context.t_PersonRides.RemoveRange(ride.PersonRides);
+        }
+
+        _context.t_Rides.Remove(ride);
+
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, message = "Fahrt wurde erfolgreich storniert." });
+    }
     public IActionResult Logout()
     {
         return SignOut(
