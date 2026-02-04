@@ -21,6 +21,7 @@ namespace Mitfahrboerse.Controllers;
 
             var rides = _context.t_Rides
                 .Where(r => r.RideDateTime >= now || r.RideDateTime == now)
+                .Where(r => r.FK_Driver_PersonId != personId)
                 .Include(r => r.FK_Driver_Person)
                 .Include(r => r.FK_StartsAt_Position)
                 .Include(r => r.FK_EndsAt_Position)
