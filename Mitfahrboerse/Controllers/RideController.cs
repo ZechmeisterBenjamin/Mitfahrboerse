@@ -21,23 +21,30 @@
             
             public IActionResult Index(int? selectedRideId = null)
             {
-                var rides = _context.t_Rides
-                    .Include(r => r.FK_Driver_Person)
-                    .Include(r => r.FK_StartsAt_Position)
-                    .Include(r => r.FK_EndsAt_Position)
-                    .Include(r => r.FK_Car)
-                    .Include(r => r.PersonRides)
-                    .ThenInclude(pr => pr.Person)
-                    .ToList();
+                 public IActionResult Index(int? selectedRideId = null)
+        {
+            DateTime now = DateTime.Now;
 
-                var selectedRide = selectedRideId.HasValue 
-                    ? rides.FirstOrDefault(r => r.RideId == selectedRideId.Value)
-                    : rides.FirstOrDefault();
+            var rides = _context.t_Rides
+                .Where(r => r.RideDateTime >= now || r.RideDateTime == now)
+                .Where(r => r.FK_Driver_PersonId != personId)
+                .Include(r => r.FK_Driver_Person)
+                .Include(r => r.FK_StartsAt_Position)
+                .Include(r => r.FK_EndsAt_Position)
+                .Include(r => r.FK_Car)
+                .Include(r => r.PersonRides)
+                .ThenInclude(pr => pr.Person)
+                .OrderBy(r => r.RideDateTime)
+                .ToList();
 
-                ViewBag.SelectedRide = selectedRide;
-                
-                return View(rides);
-            }
+            var selectedRide = selectedRideId.HasValue 
+                ? rides.FirstOrDefault(r => r.RideId == selectedRideId.Value)
+                : rides.FirstOrDefault();
+
+            ViewBag.SelectedRide = selectedRide;
+            
+            return View(rides);
+        }
 
             public IActionResult Create()
             {

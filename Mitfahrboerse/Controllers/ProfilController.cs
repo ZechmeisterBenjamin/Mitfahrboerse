@@ -23,6 +23,7 @@ public class ProfilController : BaseController
     public async Task<IActionResult> Index()
     {
         var user = await _context.t_People
+            .Include(p => p.t_Cars)
             .Include(p => p.PersonOffers)
                 .ThenInclude(po => po.FK_Offer)
             .Include(p => p.t_Rides)
@@ -113,6 +114,48 @@ public class ProfilController : BaseController
 
         TempData["CarDeleteSuccess"] = "Auto entfernt.";
         return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CancelRide(int rideId)
+    {
+        var ride = await _context.t_Rides
+            .Include(r => r.PersonRides)
+            .FirstOrDefaultAsync(r => r.RideId == rideId && r.FK_Driver_PersonId == personId);
+
+        if (ride == null)
+        {
+            return Json(new { success = false, message = "Fahrt nicht gefunden oder keine Berechtigung." });
+        }
+
+        if (ride.PersonRides != null && ride.PersonRides.Any())
+        {
+            _context.t_PersonRides.RemoveRange(ride.PersonRides);
+        }
+
+        _context.t_Rides.Remove(ride);
+
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, message = "Fahrt wurde erfolgreich storniert." });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> LeaveRide(int rideId)
+    {
+        var personRide = await _context.t_PersonRides
+            .FirstOrDefaultAsync(pr => pr.FK_RideId == rideId && pr.FK_PersonId == personId);
+
+        if (personRide == null)
+        {
+            return Json(new { success = false, message = "Teilnahme nicht gefunden." });
+        }
+
+        _context.t_PersonRides.Remove(personRide);
+
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, message = "Du hast deine Teilnahme erfolgreich abgesagt." });
     }
 
     public IActionResult Logout()
