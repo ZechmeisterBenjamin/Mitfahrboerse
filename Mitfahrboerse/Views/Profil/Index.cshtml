@@ -173,7 +173,7 @@
                     {
                         @foreach (var pr in Model.PersonRides)
                         {
-                            <div class="ride-item" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                            <div class="ride-item" id="passenger-ride-@(pr.Ride?.RideId)" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
                                 <div style="flex-grow: 1;">
                                     <div class="ride-item-date" style="color: #ffcc00; font-weight: bold; font-size: 0.9em;">@(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy HH:mm") ?? "---") Uhr</div>
                                     <div class="ride-item-route" style="margin-top: 5px; font-size: 1em;">
@@ -182,9 +182,20 @@
                                         <span>@(pr.Ride?.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
                                     </div>
                                 </div>
-                                <span class="status-badge @(pr.Status == 1 ? "accepted" : (pr.Status == 2 ? "rejected" : "pending"))">
-                                    @(pr.Status == 1 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
-                                </span>
+
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 100px;">
+                                    <span class="status-badge @(pr.Status == 1 ? "accepted" : (pr.Status == 2 ? "rejected" : "pending"))" style="font-size: 0.75em;">
+                                        @(pr.Status == 1 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
+                                    </span>
+
+                                    @if (pr.Ride?.RideDateTime >= DateTime.Now) 
+                                    {
+                                        <button class="leave-button" onclick="leaveRide(@pr.FK_RideId)"
+                                                style="background: transparent; color: #aaa; border: 1px solid #555; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7em; transition: all 0.2s;">
+                                            Absagen
+                                        </button>
+                                    }
+                                </div>
                             </div>
                         }
                     }
@@ -282,7 +293,7 @@
                 </div>`;
         }
 
-                function cancelRide(rideId) {
+        function cancelRide(rideId) {
             if (!confirm("Möchtest du diese Fahrt wirklich stornieren? Alle Mitfahrer werden entfernt.")) return;
 
             const params = new URLSearchParams();
@@ -297,6 +308,30 @@
             .then(data => {
                 if (data.success) {
                     const element = document.getElementById(`ride-${rideId}`);
+                    if (element) element.style.display = 'none';
+                    alert(data.message);
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function leaveRide(rideId) {
+            if (!confirm("Möchtest du deine Teilnahme an dieser Fahrt wirklich absagen?")) return;
+
+            const params = new URLSearchParams();
+            params.append('rideId', rideId);
+
+            fetch('@Url.Action("LeaveRide", "Profil")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const element = document.getElementById(`passenger-ride-${rideId}`);
                     if (element) element.style.display = 'none';
                     alert(data.message);
                 } else {

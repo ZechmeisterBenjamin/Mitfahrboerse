@@ -139,6 +139,25 @@ public class ProfilController : BaseController
 
         return Json(new { success = true, message = "Fahrt wurde erfolgreich storniert." });
     }
+
+    [HttpPost]
+    public async Task<IActionResult> LeaveRide(int rideId)
+    {
+        var personRide = await _context.t_PersonRides
+            .FirstOrDefaultAsync(pr => pr.FK_RideId == rideId && pr.FK_PersonId == personId);
+
+        if (personRide == null)
+        {
+            return Json(new { success = false, message = "Teilnahme nicht gefunden." });
+        }
+
+        _context.t_PersonRides.Remove(personRide);
+
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, message = "Du hast deine Teilnahme erfolgreich abgesagt." });
+    }
+
     public IActionResult Logout()
     {
         return SignOut(
