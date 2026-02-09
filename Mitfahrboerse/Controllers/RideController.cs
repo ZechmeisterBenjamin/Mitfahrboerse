@@ -21,8 +21,6 @@
             
             public IActionResult Index(int? selectedRideId = null)
             {
-                 public IActionResult Index(int? selectedRideId = null)
-        {
             DateTime now = DateTime.Now;
 
             var rides = _context.t_Rides
