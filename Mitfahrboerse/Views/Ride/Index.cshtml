@@ -27,7 +27,7 @@
         <div class="rides-list-container">
             @foreach (var ride in Model)
             {
-                var occupied = ride.PersonRides?.Count ?? 0;
+                var occupied = ride.PersonRides?.Count(pr => pr.Status == 0) ?? 0;
                 var capacity = ride.FK_Car != null ? ride.FK_Car.Seats : 0;
                 var freeSeats = capacity - occupied;
 
