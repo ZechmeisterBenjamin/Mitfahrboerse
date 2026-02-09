@@ -138,7 +138,7 @@
                     {
                             @foreach (var ride in Model.t_Rides)
                             {
-                                var count = ride.PersonRides?.Count(x => x.Status == 1) ?? 0;
+                                var count = ride.PersonRides?.Count(x => x.Status == 0) ?? 0;
                                 <div class="ride-item" id="ride-@ride.RideId" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
                                     <div style="flex-grow: 1;">
                                         <div class="ride-item-date" style="color: #ffcc00; font-weight: bold; font-size: 0.9em;">@ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr</div>
@@ -184,8 +184,8 @@
                                 </div>
 
                                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 100px;">
-                                    <span class="status-badge @(pr.Status == 1 ? "accepted" : (pr.Status == 2 ? "rejected" : "pending"))" style="font-size: 0.75em;">
-                                        @(pr.Status == 1 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
+                                    <span class="status-badge @(pr.Status == 0 ? "accepted" : (pr.Status == 2 ? "rejected" : "pending"))" style="font-size: 0.75em;">
+                                        @(pr.Status == 0 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
                                     </span>
 
                                     @if (pr.Ride?.RideDateTime >= DateTime.Now) 
