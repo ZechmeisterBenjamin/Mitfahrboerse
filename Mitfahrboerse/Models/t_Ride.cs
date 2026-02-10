@@ -46,6 +46,10 @@ public partial class t_Ride
     
     public int FK_CarId { get; set; }
 
+    public bool IsProcessed { get; set; } = false;
+
+    public int ExtraDistance { get; set; } = 0;
+
     [InverseProperty("Ride")]
     public virtual ICollection<t_PersonRide> PersonRides { get; set; } = new List<t_PersonRide>();
     
