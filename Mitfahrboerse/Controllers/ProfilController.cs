@@ -184,7 +184,8 @@ public class ProfilController : BaseController
         var voucher = _context.t_PersonOffers.FirstOrDefault(v => v.Code == code);
         if (voucher == null) return NotFound();
 
-        string url = $"https://192.168.178.46:7292/Profil/VerifyVoucher?code={code}"; // dann server url eingeben
+        string domain = $"{Request.Scheme}://{Request.Host}";
+        string url = $"{domain}/Profil/VerifyVoucher?code={code}";
         using (var qrGen = new QRCodeGenerator())
         using (var data = qrGen.CreateQrCode(url, QRCodeGenerator.ECCLevel.M))
         using (var qr = new PngByteQRCode(data))
@@ -212,6 +213,20 @@ public class ProfilController : BaseController
         return Content($"Erfolg! Gutschein: {voucher.FK_Offer?.Title} aktiviert.");
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetRidePassengers(int rideId)
+    {
+        var passengers = await _context.t_PersonRides
+            .Include(pr => pr.Person)
+            .Where(pr => pr.FK_RideId == rideId && pr.Status == 0) 
+            .Select(pr => new {
+                UserName = pr.Person.FirstName + " " + pr.Person.LastName,
+                Klasse = pr.Person.Class 
+            })
+            .ToListAsync();
+
+        return Json(passengers);
+    }
 
     public IActionResult Logout()
     {

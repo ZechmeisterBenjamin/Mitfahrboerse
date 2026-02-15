@@ -136,30 +136,32 @@
                     <h3>Meine Fahrten (als Fahrer)</h3>
                     @if (Model?.t_Rides != null && Model.t_Rides.Any())
                     {
-                            @foreach (var ride in Model.t_Rides)
-                            {
-                                var count = ride.PersonRides?.Count(x => x.Status == 0) ?? 0;
-                                <div class="ride-item" id="ride-@ride.RideId" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-                                    <div style="flex-grow: 1;">
-                                        <div class="ride-item-date" style="color: #ffcc00; font-weight: bold; font-size: 0.9em;">@ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr</div>
-                                        <div class="ride-item-route" style="margin-top: 5px; font-size: 1em;">
-                                            <span>@(ride.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
-                                            <span class="arrow" style="margin: 0 5px; color: #aaa;">→</span>
-                                            <span>@(ride.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
-                                        </div>
-                                    </div>
-
-                                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 100px;">
-                                        <div class="ride-item-badge" style="font-size: 0.75em; padding: 4px 8px; border: 1px solid #ffcc00; color: #ffcc00; border-radius: 12px; white-space: nowrap;">
-                                            @count Mitfahrer
-                                        </div>
-                                        <button class="cancel-button" onclick="cancelRide(@ride.RideId)"
-                                                style="background: transparent; color: #d9534f; border: 1px solid #d9534f; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75em; transition: all 0.2s;">
-                                            Stornieren
-                                        </button>
+                        @foreach (var ride in Model.t_Rides)
+                        {
+                            var count = ride.PersonRides?.Count(x => x.Status == 0) ?? 0;
+                            <div class="ride-item" id="ride-@ride.RideId" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                <div style="flex-grow: 1;">
+                                    <div class="ride-item-date" style="color: #ffcc00; font-weight: bold; font-size: 0.9em;">@ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr</div>
+                                    <div class="ride-item-route" style="margin-top: 5px; font-size: 1em;">
+                                        <span>@(ride.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
+                                        <span class="arrow" style="margin: 0 5px; color: #aaa;">→</span>
+                                        <span>@(ride.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
                                     </div>
                                 </div>
-                            }
+
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 100px;">
+                                    <div class="ride-item-badge"
+                                         onclick="showPassengers(@ride.RideId, '@ride.RideDateTime.ToString("dd.MM.yyyy HH:mm")')"
+                                         style="font-size: 0.75em; padding: 4px 8px; border: 1px solid #ffcc00; color: #ffcc00; border-radius: 12px; white-space: nowrap; cursor: pointer;">
+                                        @count Mitfahrer
+                                    </div>
+                                    <button class="cancel-button" onclick="cancelRide(@ride.RideId)"
+                                            style="background: transparent; color: #d9534f; border: 1px solid #d9534f; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75em; transition: all 0.2s;">
+                                        Stornieren
+                                    </button>
+                                </div>
+                            </div>
+                        }
                     }
                     else
                     {
@@ -255,7 +257,7 @@
                     currentSettings.selectedDesign = parseInt(option.getAttribute('data-design'));
                     updateSettings();
                     applyDesignClass();
-                    contentPanel.innerHTML = settingsHTML; // Refresh to show active class
+                    contentPanel.innerHTML = settingsHTML; 
                     attachSettingsListeners();
                 });
             });
@@ -363,6 +365,42 @@
             })
             .catch(error => console.error('Error:', error));
         }
+
+        function showPassengers(rideId, rideTime) {
+            const modal = document.getElementById('passengersModal');
+            const listContainer = document.getElementById('passengersList');
+            const subtitle = document.getElementById('rideInfoSubtitle');
+
+            subtitle.textContent = "Fahrt am " + rideTime + " Uhr";
+            listContainer.innerHTML = '<div style="text-align:center; padding:20px;">Lade Mitfahrer...</div>';
+            modal.style.display = 'block';
+
+            fetch(`/Profil/GetRidePassengers?rideId=${rideId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        listContainer.innerHTML = "<p style='padding:10px;'>Noch keine Mitfahrer für diese Fahrt.</p>";
+                        return;
+                    }
+
+                    let html = '<table style="width: 100%; border-collapse: collapse;">';
+                    html += '<tr style="color: #aaa; font-size: 0.8em; text-align: left;"><th style="padding: 5px;">Name</th><th>Klasse</th></tr>';
+
+                    data.forEach(p => {
+                        html += `<tr style="border-bottom: 1px solid #444;">
+                                    <td style="padding: 10px 5px;">${p.userName}</td>
+                                    <td style="padding: 10px 5px; color: #ffcc00;">${p.klasse}</td>
+                                 </tr>`;
+                    });
+                    html += '</table>';
+                    listContainer.innerHTML = html;
+                })
+                .catch(err => {
+                    listContainer.innerHTML = "<p style='color: #d9534f; padding:10px;'>Fehler beim Laden der Daten.</p>";
+                    console.error(err);
+                });
+        }
+
     </script>
     <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered text-center">
@@ -371,6 +409,21 @@
                 <div id="qrPlaceholder" style="background:white; padding:10px; margin:15px; display:inline-block;"></div>
                 <p>Nur einmal scannbar!</p>
             </div>
+        </div>
+    </div>
+    <div id="passengersModal" class="admin-modal" style="display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; background-color: rgba(0,0,0,0.8);">
+        <div style="background-color: #2c2c2c; margin: 10% auto; padding: 20px; width: 450px; border-radius: 10px; border: 1px solid #444;">
+            <h3 style="color: #ffcc00; margin-bottom: 5px;">Mitfahrer-Liste</h3>
+            <p id="rideInfoSubtitle" style="color: #888; font-size: 0.85em; margin-bottom: 15px;"></p>
+            <hr style="background: #444; height: 1px; border: none;">
+
+            <div id="passengersList" style="max-height: 300px; overflow-y: auto; color: white; margin-top: 15px;">
+            </div>
+
+            <button onclick="document.getElementById('passengersModal').style.display='none'"
+                    style="width: 100%; margin-top: 20px; background: #555; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">
+                Schließen
+            </button>
         </div>
     </div>
 </body>
