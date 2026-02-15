@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Interfaces;
 using Mitfahrboerse.Models;
@@ -17,25 +17,26 @@ public class ShopController : BaseController
     }
     public IActionResult Index()
     { 
+        DateOnly now = DateOnly.FromDateTime(DateTime.Now);
+
         var offers = _context.t_Offers
+            .Where(o => o.ValidUntil >= now)
             .OrderBy(o => o.ValidUntil)
             .ToList();
         return View(offers);
     }
 
     [HttpPost]
-    public IActionResult BuyVoucher(string title, int price)
+    public IActionResult BuyVoucher(int offerId, int price)
     {
         var user = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
-        var offer = _context.t_Offers.FirstOrDefault(p => p.Title == title);
-        string username = user.LastName;
-        int offerId = offer.OfferId;
+        var offer = _context.t_Offers.FirstOrDefault(p => p.OfferId == offerId);
 
-        string rndcode = RandomCodeGenerator(username, offerId);
+        string rndcode = RandomCodeGenerator(user.LastName, offer);
 
-        if (user != null && offer != null && user.Points >= price)
+        if (user.Points >= offer.Price)
         {
-            user.Points -= price;
+            user.Points -= (int)offer.Price;
 
             var person_offer = new t_PersonOffer
             {
@@ -44,12 +45,14 @@ public class ShopController : BaseController
                 FK_ValidUntil = offer.ValidUntil,
                 Code = rndcode,
             };
+
             _context.t_PersonOffers.Add(person_offer);
             _context.SaveChanges();
-            return Json(new { success = true, message = $"Erfolgreich gekauft: {title}\nCode zum Einlösen: {rndcode}" });
+
+            return Json(new { success = true, message = $"Erfolgreich gekauft: {offer.Title}\nCode zum EinlÃ¶sen: {rndcode}" });
         }
 
-        return Json(new { success = false, message = $"Fehler: Nicht genügend Punkte!" });
+        return Json(new { success = false, message = "Fehler: Nicht genÃ¼gend Punkte!" });
     }
 
     [HttpPost]
@@ -59,7 +62,7 @@ public class ShopController : BaseController
         {
             if (!DateOnly.TryParse(validUntil, out DateOnly dateOnly))
             {
-                return Json(new { success = false, message = "Ungültiges Datumsformat." });
+                return Json(new { success = false, message = "UngÃ¼ltiges Datumsformat." });
             }
 
             bool alreadyPurchased = await _context.t_PersonOffers
@@ -70,7 +73,7 @@ public class ShopController : BaseController
                 return Json(new
                 {
                     success = false,
-                    message = "Löschen nicht möglich: Dieser Gutschein wurde bereits  gekauft!"
+                    message = "LÃ¶schen nicht mÃ¶glich: Dieser Gutschein wurde bereits  gekauft!"
                 });
             }
 
@@ -81,7 +84,7 @@ public class ShopController : BaseController
             {
                 _context.t_Offers.Remove(offer);
                 await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Angebot wurde erfolgreich gelöscht." });
+                return Json(new { success = true, message = "Angebot wurde erfolgreich gelÃ¶scht." });
             }
 
             return Json(new { success = false, message = "Angebot nicht gefunden." });
@@ -107,7 +110,7 @@ public class ShopController : BaseController
             return Json(new
             {
                 success = false,
-                message = "Ändern nicht möglich: Dieser Gutschein wurde bereits gekauft!"
+                message = "Ã„ndern nicht mÃ¶glich: Dieser Gutschein wurde bereits gekauft!"
             });
         }
 
@@ -124,10 +127,27 @@ public class ShopController : BaseController
         return Json(new { success = false, message = "Fehler beim Aktualisieren." });
     }
 
-
-    public string RandomCodeGenerator(string name, int offerId)
+    [HttpGet]
+    public async Task<IActionResult> GetVoucherPurchases(int id)
     {
-        string randomcode = $"{name}_{offerId}";
-        return randomcode;
+        var purchases = await _context.t_PersonOffers
+            .Include(po => po.FK_Person)
+            .Where(po => po.FK_OfferId == id)
+            .Select(po => new {
+                UserName = po.FK_Person.FirstName + " " + po.FK_Person.LastName,
+                Code = po.Code
+            })
+            .ToListAsync();
+
+        return Json(purchases);
+    }
+
+    public string RandomCodeGenerator(string name, t_Offer offer)
+    {
+        string offername = offer.Title.Replace(" ", "");
+
+        string rnd = new Random().Next(1000, 9999).ToString();
+
+        return $"{name}-{offername}-{rnd}";
     }
 }

@@ -34,7 +34,8 @@ namespace Mitfahrboerse.Controllers
                     .ThenInclude(r => r.FK_StartsAt_Position)
                 .Include(pr => pr.Ride)
                     .ThenInclude(r => r.FK_EndsAt_Position)
-                .Where(pr => pr.Ride.FK_Driver_PersonId == personId && pr.Status == 0)
+                .Where(pr => pr.Ride.FK_Driver_PersonId == personId)
+                .Where(pr => pr.Status == 1)
                 .ToListAsync();
 
             return View(anfragen);

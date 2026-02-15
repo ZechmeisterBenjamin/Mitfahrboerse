@@ -24,6 +24,8 @@ namespace Mitfahrboerse.Models
         [Unicode(false)]
         public string Code { get; set; } = null!;
 
+        public bool IsUsed { get; set; } = false;
+
         [ForeignKey("FK_OfferId, FK_ValidUntil")]
         [InverseProperty("PersonOffers")]
         public virtual t_Offer FK_Offer { get; set; } = null!;

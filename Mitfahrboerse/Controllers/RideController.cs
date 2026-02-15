@@ -265,7 +265,7 @@ public class RideController : BaseController
                 return Json(new { success = false, message = "Du hast diese Fahrt bereits angefragt." });
             }
 
-            _context.t_PersonRides.Add(new t_PersonRide(personId, rideId, 0));
+            _context.t_PersonRides.Add(new t_PersonRide(personId, rideId, 1));
             await _context.SaveChangesAsync();
 
             if (!string.IsNullOrEmpty(ride.FK_Driver_PersonId))
