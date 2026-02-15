@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Mitfahrboerse.Interfaces;
+using Mitfahrboerse.Models;
 using Microsoft.Identity.Web;
 using System.Text.Json;
 using Mitfahrboerse.Models;
