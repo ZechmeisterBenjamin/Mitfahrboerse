@@ -11,6 +11,19 @@ namespace Mitfahrboerse.Models;
 [Index("FK_Owner_PersonId", Name = "IX_Car_Owner")]
 public partial class t_Car
 {
+    public t_Car() { }
+
+    public t_Car(int carId, string licensePlate, short seats, string brand, string model, string colour, string personId)
+    {
+        CarId = carId;
+        LicensePlate = licensePlate;
+        Seats = seats;
+        Brand = brand;
+        Model = model;
+        Colour = colour;
+        FK_Owner_PersonId = personId;
+    }
+
     [Key]
     public int CarId { get; set; }
 
@@ -39,4 +52,7 @@ public partial class t_Car
     [ForeignKey("FK_Owner_PersonId")]
     [InverseProperty("t_Cars")]
     public virtual t_Person FK_Owner_Person { get; set; } = null!;
+    
+    [InverseProperty("FK_Car")]
+    public virtual ICollection<t_Ride> t_Rides { get; set; } = new List<t_Ride>();
 }

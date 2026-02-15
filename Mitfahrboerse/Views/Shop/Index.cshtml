@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<Mitfahrboerse.Models.t_Offer>
 @{
     ViewData["Title"] = "Shop";
-    int coinBalance = 0;
     var firstOffer = Model.FirstOrDefault();
     var initialTitle = firstOffer?.Title ?? "Kein Gutschein ausgewählt";
     var initialDate = firstOffer?.ValidUntil.ToString("d. MMMM yyyy") ?? "";
+    var initialPrice = firstOffer?.Price ?? 0;
     var currentTime = DateTime.Now.ToString("HH:mm");
 }
 
@@ -18,24 +18,99 @@
 <body>
     <main class="shop-container">
         <div class="voucher-list" id="voucherList">
-            @foreach (var offer in Model)
-            {   
-            <div class="voucher-item @(offer == firstOffer ? "selected" : "")"
-                 data-title="@offer.Title"
-                 data-date="@offer.ValidUntil.ToString("d. MMMM yyyy")"
-                 data-price="@offer.Price">
-                @offer.Title<br>@offer.Price pkt
-            </div>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var offer in Model)
+                {
+                    <div class="voucher-item @(offer == firstOffer ? "selected" : "")"
+                         data-title="@offer.Title"
+                         data-price="@offer.Price"
+                         data-date="@offer.ValidUntil.ToString("d. MMMM yyyy")"
+                         data-id="@offer.OfferId"
+                         data-date-raw="@offer.ValidUntil.ToString("yyyy-MM-dd")">
+
+                        <div>
+                            <strong>@offer.Title</strong>
+                            <div class="voucher-item-badge">@offer.Price Punkte</div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>Keine Gutscheine verfügbar</p>
+                    <small>Bitte versuchen Sie es später erneut</small>
+                </div>
             }
         </div>
 
         <div class="voucher-details" id="voucherDetails">
-            <div class="voucher-header">
-                <span id="voucherTitle">@initialTitle</span>
-                <span id="voucherTime">@currentTime</span>
-                <span id="voucherDate">@initialDate</span>
+            @if (firstOffer != null)
+            {
+                <div class="voucher-header">
+                    <span id="voucherTitle">@initialTitle</span>
+                    <div style="margin-top: 10px;">
+                        <span id="voucherTime">@currentTime</span>
+                        <span id="voucherDate">@initialDate</span>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; color: #d9d9d9; line-height: 1.8;">
+                    <p><strong>Gutschein-Details:</strong></p>
+                    <p>✓ Einmalig einlösbar</p>
+                    <p>✓ Gültig bis <span id="voucherDateText">@initialDate</span></p>
+                    <p>✓ Nicht übertragbar</p>
+                </div>
+                <button class="buy-button" id="buyButton">Gutschein kaufen (@initialPrice Punkte)</button>
+                @if (ViewData["IsAdmin"] != null && (bool)ViewData["IsAdmin"])
+                {
+                    <div class="admin-controls" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #444;">
+                        <div style="display: flex; gap: 10px;">
+                            <button class="buy-button" id="deleteButton" style="background-color: #dc3545;">Löschen</button>
+                            <button class="buy-button" id="openEditModalBtn" style="background-color: #f39c12;">Bearbeiten</button>
+                            <button class="buy-button" id="viewPurchasesBtn" style="background-color: #3498db;">Käufer anzeigen</button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>Keine Gutscheine verfügbar</p>
+                    <small>Bitte kommen Sie später wieder</small>
+                </div>
+            }
+        </div>
+        <div id="editModal" class="admin-modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color: rgba(0,0,0,0.8);">
+            <div style="background-color: #2c2c2c; margin: 10% auto; padding: 20px; width: 350px; border-radius: 10px; border: 1px solid #444;">
+                <h3 style="color: #ffcc00;">Gutschein bearbeiten</h3>
+                <hr border="0" height="1" style="background: #444;">
+
+                <label style="color: white; display: block; margin-top: 10px;">Bezeichnung:</label>
+                <input type="text" id="editTitle" style="width: 100%; padding: 8px; margin-top: 5px; background: #1a1a1a; color: white; border: 1px solid #555;">
+
+                <label style="color: white; display: block; margin-top: 10px;">Preis (Punkte):</label>
+                <input type="number" id="editPrice" style="width: 100%; padding: 8px; margin-top: 5px; background: #1a1a1a; color: white; border: 1px solid #555;">
+
+                <label style="color: white; display: block; margin-top: 10px;">Gültig bis:</label>
+                <input type="date" id="editDate" style="width: 100%; padding: 8px; margin-top: 5px; background: #1a1a1a; color: white; border: 1px solid #555;">
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button id="saveEditBtn" class="buy-button" style="flex: 1;">Speichern</button>
+                    <button onclick="document.getElementById('editModal').style.display='none'" class="buy-button" style="flex: 1; background: #555;">Abbrechen</button>
+                </div>
             </div>
-            <button class="buy-button" id="buyButton">Gutschein kaufen</button>
+        </div>
+        <div id="purchasesModal" class="admin-modal" style="display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; background-color: rgba(0,0,0,0.8);">
+            <div style="background-color: #2c2c2c; margin: 10% auto; padding: 20px; width: 450px; border-radius: 10px; border: 1px solid #444;">
+                <h3 style="color: #ffcc00;">Käufer von <span id="purchaseVoucherTitle"></span></h3>
+                <hr style="background: #444; height: 1px; border: none;">
+
+                <div id="purchasesList" style="max-height: 300px; overflow-y: auto; color: white; margin-top: 15px;">
+                </div>
+
+                <button onclick="document.getElementById('purchasesModal').style.display='none'" class="buy-button" style="width: 100%; margin-top: 20px; background: #555;">Schließen</button>
+            </div>
         </div>
     </main>
 
@@ -45,23 +120,154 @@
             const voucherTitle = document.getElementById('voucherTitle');
             const voucherDate = document.getElementById('voucherDate');
             const buyButton = document.getElementById('buyButton');
-            let selectedPrice = @(firstOffer?.Price ?? 0);
+            const deleteButton = document.getElementById('deleteButton');
+            const openEditModalBtn = document.getElementById('openEditModalBtn');
+            const saveEditBtn = document.getElementById('saveEditBtn');
+            const editModal = document.getElementById('editModal');
+            const viewPurchasesBtn = document.getElementById('viewPurchasesBtn');
+            const purchasesModal = document.getElementById('purchasesModal');
+            const purchasesList = document.getElementById('purchasesList');
+
+            let firstItem = voucherItems[0];
+            let selectedId = "@firstOffer?.OfferId";
+            let selectedTitle = "@initialTitle";
+            let selectedPrice = "@initialPrice";
+            let selectedDateRaw = "@firstOffer?.ValidUntil.ToString("yyyy-MM-dd")";
 
             voucherItems.forEach(item => {
                 item.addEventListener('click', function() {
                     voucherItems.forEach(vItem => vItem.classList.remove('selected'));
                     this.classList.add('selected');
-                    
-                    voucherTitle.textContent = this.getAttribute('data-title');
-                    voucherDate.textContent = this.getAttribute('data-date');
-                    selectedPrice = parseInt(this.getAttribute('data-price'));
-                    
-                    buyButton.textContent = `Gutschein kaufen (${selectedPrice} pkt)`;
+
+                    selectedId = this.getAttribute('data-id');
+                    selectedTitle = this.getAttribute('data-title');
+                    selectedPrice = this.getAttribute('data-price');
+                    selectedDateRaw = this.getAttribute('data-date-raw');
+
+                    if (voucherTitle) voucherTitle.textContent = selectedTitle;
+                    if (voucherDate) voucherDate.textContent = this.getAttribute('data-date');
+                    if (buyButton) buyButton.textContent = `Gutschein kaufen (${selectedPrice} Punkte)`;
                 });
             });
 
-            if (@(firstOffer != null ? "true" : "false")) {
-                buyButton.textContent = `Gutschein kaufen (${selectedPrice} pkt)`;
+            if (openEditModalBtn) {
+                openEditModalBtn.addEventListener('click', () => {
+                    document.getElementById('editTitle').value = selectedTitle;
+                    document.getElementById('editPrice').value = selectedPrice;
+                    document.getElementById('editDate').value = selectedDateRaw;
+                    editModal.style.display = 'block';
+                });
+            }
+
+            if (saveEditBtn) {
+                saveEditBtn.addEventListener('click', function() {
+                    const newTitle = document.getElementById('editTitle').value;
+                    const newPrice = document.getElementById('editPrice').value;
+                    const newValidUntil = document.getElementById('editDate').value;
+
+                    const params = new URLSearchParams();
+                    params.append('id', selectedId);
+                    params.append('oldValidUntil', selectedDateRaw); 
+                    params.append('newTitle', newTitle);
+                    params.append('newPrice', newPrice);
+                    params.append('newValidUntil', newValidUntil); 
+
+                    fetch('@Url.Action("EditOffer", "Shop")', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params.toString()
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) {
+                            location.reload(); 
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("Fehler beim Senden der Daten.");
+                    });
+                });
+            }
+
+            if (deleteButton) {
+                deleteButton.addEventListener('click', function() {
+                    if (!confirm(`Möchtest du "${selectedTitle}" wirklich löschen?`)) return;
+
+                    fetch('@Url.Action("DeleteOffer", "Shop")', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `id=${selectedId}&validUntil=${selectedDateRaw}`
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) location.reload();
+                    });
+                });
+            }
+
+            if (viewPurchasesBtn) {
+                viewPurchasesBtn.addEventListener('click', function() {
+                    document.getElementById('purchaseVoucherTitle').textContent = selectedTitle;
+                    purchasesList.innerHTML = '<div style="text-align:center; padding:20px;">Lade Käufer für ID: ' + selectedId + '...</div>';
+                    purchasesModal.style.display = 'block';
+
+                    fetch(`/Shop/GetVoucherPurchases?id=${selectedId}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.length === 0) {
+                                purchasesList.innerHTML = "<p style='padding:10px;'>Diesen Gutschein hat noch niemand gekauft.</p>";
+                                return;
+                            }
+
+                            let html = '<table style="width: 100%; border-collapse: collapse;">';
+                            html += '<tr style="color: #aaa; font-size: 0.8em; text-align: left;"><th style="padding: 5px;">Name</th><th>Code</th></tr>';
+
+                            data.forEach(p => {
+                                html += `<tr style="border-bottom: 1px solid #444;">
+                                            <td style="padding: 10px 5px;">${p.userName}</td>
+                                            <td style="padding: 10px 5px; font-family: monospace; color: #ffcc00;">${p.code}</td>
+                                         </tr>`;
+                            });
+                            html += '</table>';
+                            purchasesList.innerHTML = html;
+                        })
+                        .catch(err => {
+                            purchasesList.innerHTML = "Fehler beim Laden.";
+                            console.error(err);
+                        });
+                });
+            }
+
+            if (buyButton) {
+                buyButton.addEventListener('click', function() {
+                    this.disabled = true;
+
+                    const formData = new URLSearchParams();
+                    formData.append('offerId', selectedId);
+                    formData.append('price', selectedPrice);
+
+                    fetch('@Url.Action("BuyVoucher", "Shop")', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData.toString()
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if(data.success) {
+                            location.reload();
+                        } else {
+                            this.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.disabled = false;
+                    });
+                });
             }
         });
     </script>

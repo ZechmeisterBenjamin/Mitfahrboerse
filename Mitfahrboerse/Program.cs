@@ -3,9 +3,11 @@ using Mitfahrboerse.Models;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Identity.Web;
+using Mitfahrboerse.Hubs;
 using Mitfahrboerse.Interfaces;
-using Microsoft.Graph;
+using Mitfahrboerse.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,9 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .EnableTokenAcquisitionToCallDownstreamApi(
         new string[] { "User.Read", "profile" })
     .AddInMemoryTokenCaches();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, Mitfahrboerse.Services.AzureAdUserIdProvider>();
 
 // Add services to the container.
 
@@ -31,7 +36,9 @@ builder.Services.AddDbContext<MitfahrboerseDbContext>(options =>
     );
 
 builder.Services.AddScoped<IAccessToken, AccessToken>();
-
+builder.Services.AddScoped<IBalanceService, BalanceService>();
+builder.Services.AddScoped<IPointService, PointService>();
+builder.Services.AddScoped<IRouteMatchService, RouteMatchService>();
 
 var app = builder.Build();
 
@@ -43,18 +50,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Ride}/{action=Index}/")
+        pattern: "{controller=Home}/{action=Start}/")
     .WithStaticAssets();
-app.UseStaticFiles();
 
-
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();

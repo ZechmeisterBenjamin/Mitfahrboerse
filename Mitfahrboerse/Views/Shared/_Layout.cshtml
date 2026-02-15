@@ -1,5 +1,12 @@
 ﻿@{
-    int coinBalance = 100;
+    int coinBalance = (int)(ViewData["CoinBalance"] ?? 0);
+    int selectedDesign = Convert.ToInt32(ViewData["SelectedDesign"] ?? 0);
+    
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    Func<string, string, string> GetActive = (controller, action) =>
+        (currentController == controller && currentAction == action) ? "active" : "";
 }
 <!DOCTYPE html>
 <html lang="de">
@@ -8,24 +15,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Mitfahrboerse</title>
 
-    <link rel="stylesheet" href="/css/StyleSheet.css" />
+    <link rel="stylesheet" href="~/css/StyleSheet.css" asp-append-version="true" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Mitfahrboerse.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="@(selectedDesign == 1 ? "design-b" : "")">
     <header>
         <nav>
-            <div class="logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fb/HTL_Waidhofen_Ybbs.png" alt="HTL Logo" />
+            <div class="header-content-wrapper">
+                <div class="logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fb/HTL_Waidhofen_Ybbs.png" alt="HTL Logo" />
+                </div>
             </div>
-            <div class="menu">
-                <div class="menu-item"><a class="active" asp-controller="Ride" asp-action="Index">Mitfahren</a></div>
-                <div class="menu-item"><a asp-controller="Ride" asp-action="Create">Fahrt erstellen</a></div>
-                <div class="menu-item"><a asp-controller="Anfragen" asp-action="Index">Anfragen</a></div>
-                <div class="menu-item"><a asp-controller="Shop" asp-action="Index">Shop</a></div>
-                <div class="menu-item"><a asp-controller="Profil" asp-action="Index">Profil</a></div>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Menü öffnen/schließen">
+                &#9776;
+            </button>
+
+            <div class="menu" id="mainMenu">
+                <div class="menu-item">
+                    <a class="@GetActive("Ride", "Index")" asp-controller="Ride" asp-action="Index">Mitfahren</a>
+                </div>
+
+                <div class="menu-item">
+                    <a class="@GetActive("Ride", "Create")" asp-controller="Ride" asp-action="Create">Fahrt erstellen</a>
+                </div>
+
+                <div class="menu-item">
+                    <a class="@GetActive("Requests", "Index")" asp-controller="Requests" asp-action="Index">Anfragen</a>
+                </div>
+
+                <div class="menu-item">
+                    <a class="@GetActive("Shop", "Index")" asp-controller="Shop" asp-action="Index">Shop</a>
+                </div>
+
+                @if (ViewData["IsAdmin"] != null && (bool)ViewData["IsAdmin"])
+                {
+                    <div class="menu-item">
+                        <a class="@GetActive("Admin", "Index")" asp-controller="Admin" asp-action="Index">Admin</a>
+                    </div>
+                }
+
+                <div class="menu-item">
+                    <a class="@GetActive("Profil", "Index")" asp-controller="Profil" asp-action="Index">Profil</a>
+                </div>
             </div>
             <div class="coin-balance">
                 <span>@coinBalance</span>
@@ -42,6 +77,15 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            var menu = document.getElementById('mainMenu');
+            menu.classList.toggle('open');
+        });
+    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="~/js/notification.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
