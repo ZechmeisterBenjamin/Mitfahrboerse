@@ -183,18 +183,15 @@
                                     </div>
                                 </div>
 
-                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 100px;">
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 110px;">
                                     <span class="status-badge @(pr.Status == 0 ? "accepted" : (pr.Status == 2 ? "rejected" : "pending"))" style="font-size: 0.75em;">
                                         @(pr.Status == 0 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
                                     </span>
 
-                                    @if (pr.Ride?.RideDateTime >= DateTime.Now) 
-                                    {
-                                        <button class="leave-button" onclick="leaveRide(@pr.FK_RideId)"
-                                                style="background: transparent; color: #aaa; border: 1px solid #555; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7em; transition: all 0.2s;">
-                                            Absagen
-                                        </button>
-                                    }
+                                    <button class="leave-button" onclick="leaveRide(@pr.FK_RideId)"
+                                                    style="background: transparent; color: #d9534f; border: 1px solid #d9534f; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75em; transition: all 0.2s;">
+                                        Fahrt verlassen
+                                    </button>
                                 </div>
                             </div>
                         }
