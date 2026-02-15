@@ -5,6 +5,7 @@ using Mitfahrboerse.Models;
 using Mitfahrboerse.Services;
 using System;
 using System.Globalization;
+using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using Mitfahrboerse.Hubs;
 
@@ -24,13 +25,46 @@ public class RideController : BaseController
     }
             
             
-    public IActionResult Index(int? selectedRideId = null, string? startLat = null, string? startLon = null, string? endLat = null, string? endLon = null)
+    [HttpGet]
+    public async Task<IActionResult> Geocode(string address)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                return Json(new { success = false, message = "Adresse fehlt." });
+            }
+
+            var url = $"https://nominatim.openstreetmap.org/search?format=json&q={Uri.EscapeDataString(address)}&countrycodes=AT";
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mitfahrboerse Ride-Sharing App");
+
+            var response = await httpClient.GetStringAsync(url);
+            using var doc = JsonDocument.Parse(response);
+            var results = doc.RootElement;
+
+            if (results.GetArrayLength() > 0)
+            {
+                var first = results[0];
+                var lat = first.GetProperty("lat").GetString();
+                var lon = first.GetProperty("lon").GetString();
+                return Json(new { success = true, lat, lon });
+            }
+
+            return Json(new { success = false, message = "Adresse nicht gefunden." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Geocoding-Fehler für Adresse: {Address}", address);
+            return Json(new { success = false, message = "Geocoding-Fehler." });
+        }
+    }
+
+    public async Task<IActionResult> Index(int? selectedRideId = null, string? startLat = null, string? startLon = null, string? endLat = null, string? endLon = null)
     {
         DateTime now = DateTime.Now;
 
         var rides = _context.t_Rides
-            //.Where(r => r.RideDateTime >= now || r.RideDateTime == now)
-            //.Where(r => r.FK_Driver_PersonId != personId)
             .Include(r => r.FK_Driver_Person)
             .Include(r => r.FK_StartsAt_Position)
             .Include(r => r.FK_EndsAt_Position)
@@ -39,19 +73,16 @@ public class RideController : BaseController
             .ThenInclude(pr => pr.Person)
             .ToList();
 
-        // Intelligente Fahrtsuche: Wenn Koordinaten vorhanden, finde Fahrten mit Umweg-Berechnung
         List<RideWithDetourInfo> matchingRides = new();
         
         if (!string.IsNullOrEmpty(startLat) && !string.IsNullOrEmpty(startLon) && 
             !string.IsNullOrEmpty(endLat) && !string.IsNullOrEmpty(endLon))
         {
-            // Parse die Koordinaten
-            if (decimal.TryParse(startLat.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture, out decimal passengerStartLat) &&
-                decimal.TryParse(startLon.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture, out decimal passengerStartLon) &&
-                decimal.TryParse(endLat.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture, out decimal passengerEndLat) &&
-                decimal.TryParse(endLon.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture, out decimal passengerEndLon))
+            if (decimal.TryParse(startLat.Replace(",", "."), CultureInfo.InvariantCulture, out decimal passengerStartLat) &&
+                decimal.TryParse(startLon.Replace(",", "."), CultureInfo.InvariantCulture, out decimal passengerStartLon) &&
+                decimal.TryParse(endLat.Replace(",", "."), CultureInfo.InvariantCulture, out decimal passengerEndLat) &&
+                decimal.TryParse(endLon.Replace(",", "."), CultureInfo.InvariantCulture, out decimal passengerEndLon))
             {
-                // Nutze den Service, um passende Fahrten zu finden
                 matchingRides = _routeMatchService.FindMatchingRides(
                     rides,
                     passengerStartLat,
@@ -60,7 +91,6 @@ public class RideController : BaseController
                     passengerEndLon
                 );
                 
-                // Speichere die Umweg-Informationen in ViewBag für die View
                 ViewBag.MatchingRides = matchingRides;
                 ViewBag.HasSearch = true;
                 rides = matchingRides.Select(m => m.Ride).OrderBy(r => r.RideDateTime).ToList();
@@ -68,7 +98,6 @@ public class RideController : BaseController
         }
         else
         {
-            // Keine Suche aktiv - zeige alle Fahrten sortiert nach Zeit
             rides = rides.OrderBy(r => r.RideDateTime).ToList();
             ViewBag.HasSearch = false;
         }
@@ -105,8 +134,8 @@ public class RideController : BaseController
                 return Challenge(); 
             }
 
-            int startPositionId = GetOrCreatePosition(startPositionDescription, decimal.Parse(startLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(startLon.Replace(",", "."), CultureInfo.InvariantCulture));
-            int endPositionId = GetOrCreatePosition(endPositionDescription, decimal.Parse(endLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(endLon.Replace(",", "."), CultureInfo.InvariantCulture));
+            int startPositionId = await GetOrCreatePositionAsync(startPositionDescription, decimal.Parse(startLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(startLon.Replace(",", "."), CultureInfo.InvariantCulture));
+            int endPositionId = await GetOrCreatePositionAsync(endPositionDescription, decimal.Parse(endLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(endLon.Replace(",", "."), CultureInfo.InvariantCulture));
 
         var ride = new t_Ride
             {
@@ -120,7 +149,7 @@ public class RideController : BaseController
             };
 
             _context.t_Rides.Add(ride);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
                     
                     
             TempData["Message"] = "Fahrt erfolgreich erstellt!";
@@ -136,19 +165,55 @@ public class RideController : BaseController
         ViewBag.Positions = _context.t_Positions.ToList();
         return View();
     }
-    private int GetOrCreatePosition(string description, decimal latitude, decimal longitude)
+    
+    private async Task<string> ReverseGeocodeAsync(decimal latitude, decimal longitude)
     {
-        var position = _context.t_Positions
-            .FirstOrDefault(p => p.Latitude == latitude && p.Longitude == longitude);
+        var latStr = latitude.ToString(CultureInfo.InvariantCulture);
+        var lonStr = longitude.ToString(CultureInfo.InvariantCulture);
+        var url = $"https://nominatim.openstreetmap.org/reverse?format=json&lat={latStr}&lon={lonStr}";
+
+        using var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.Add("User-Agent", "Mitfahrboerse Ride-Sharing App");
+
+        try
+        {
+            var response = await httpClient.GetStringAsync(url);
+            using (JsonDocument doc = JsonDocument.Parse(response))
+            {
+                JsonElement root = doc.RootElement;
+                if (root.TryGetProperty("display_name", out JsonElement displayNameElement))
+                {
+                    return displayNameElement.GetString() ?? "Unbekannter Ort";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Reverse geocoding failed for lat={lat}, lon={lon}", latitude, longitude);
+        }
+
+        return "Unbekannter Ort";
+    }
+
+    private async Task<int> GetOrCreatePositionAsync(string? description, decimal latitude, decimal longitude)
+    {
+        var position = await _context.t_Positions
+            .FirstOrDefaultAsync(p => p.Latitude == latitude && p.Longitude == longitude);
 
         if (position != null)
         {
             return position.PositionId;
         }
-        int nextId = 1;
-        if (_context.t_Positions.Any())
+
+        if (string.IsNullOrEmpty(description))
         {
-            nextId = _context.t_Positions.Max(p => p.PositionId) + 1;
+            description = await ReverseGeocodeAsync(latitude, longitude);
+        }
+    
+        int nextId = 1;
+        if (await _context.t_Positions.AnyAsync())
+        {
+            nextId = await _context.t_Positions.MaxAsync(p => p.PositionId) + 1;
         }
 
         var newPosition = new t_Position
@@ -160,7 +225,7 @@ public class RideController : BaseController
         };
 
         _context.t_Positions.Add(newPosition);
-        _context.SaveChanges(); 
+        await _context.SaveChangesAsync(); 
 
         return newPosition.PositionId;
     }

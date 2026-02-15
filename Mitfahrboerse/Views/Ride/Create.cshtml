@@ -87,20 +87,26 @@
         let debounceTimer = null;
 
         async function geocodeAddress(address) {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT&_=${new Date().getTime()}`;
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'Mitfahrboerse Ride-Sharing App'
+                    }
+                });
                 if (!response.ok) {
                     throw new Error('Netzwerkfehler');
                 }
                 const data = await response.json();
                 if (data && data.length > 0) {
                     return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                } else {
+                    return null;
                 }
             } catch (error) {
-                console.error("Geocoding-Fehler:", error);
+                console.error('Geocoding-Fehler:', error);
+                return null;
             }
-            return null;
         }
 
         async function calculateRoute() {
@@ -179,24 +185,20 @@
                     });
 
                 } else {
-                    // Adressen konnten nicht gefunden werden - label löschen
                     document.getElementById("routeLengthLabel").textContent = '';
                     document.getElementById("routeLength").value = '';
                 }
             }
         }
 
-        // Debounced calculateRoute - wird automatisch aufgerufen, wenn beide Felder gefüllt sind
         function debouncedCalculateRoute() {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(calculateRoute, 800); // 800ms Verzögerung für Geocoding
         }
 
-        // Event Listener für automatische Berechnung
         document.getElementById("startPositionInput").addEventListener("input", debouncedCalculateRoute);
         document.getElementById("endPositionInput").addEventListener("input", debouncedCalculateRoute);
 
-        // Manueller Button sollte nicht mehr benötigt sein, aber als Fallback behalten
         document.getElementById("showRouteBtn").addEventListener("click", calculateRoute);
     </script>
 

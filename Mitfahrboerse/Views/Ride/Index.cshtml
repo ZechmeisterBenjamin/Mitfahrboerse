@@ -168,9 +168,7 @@
             const searchStartInput = document.getElementById('searchStart');
             const searchEndInput = document.getElementById('searchEnd');
             const searchBtn = document.getElementById('searchBtn');
-            const clearSearchBtn = document.getElementById('clearSearchBtn');
 
-            // --- 1. KLASSISCHE FILTER LOGIK (Lokal) ---
             function applyFilters() {
                 const driverValue = (filterDriver.value || '').toLowerCase();
                 const classValue = (filterClass.value || '').toLowerCase();
@@ -220,7 +218,6 @@
                 input.addEventListener('change', applyFilters);
             });
 
-            // --- 2. MAIN BEREICH (KLICKS & ANFRAGEN) ---
             function rebindMainEvents() {
                 const rideItems = document.querySelectorAll('.fahrt-item');
                 const driverName = document.getElementById('driver-name');
@@ -286,7 +283,6 @@
                 }
             }
 
-            // --- 3. AJAX SEITENLADEN (OHNE REFRESH) FÜR INTELLIGENTE SUCHE ---
             async function fetchRidesWithoutReload(url = window.location.href) {
                 try {
                     const response = await fetch(url);
@@ -307,16 +303,20 @@
                 }
             }
 
-            // --- 4. INTELLIGENTE SUCHE (AJAX) ---
             async function geocodeAddress(address) {
-                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT`;
+                const url = `@Url.Action("Geocode", "Ride")?address=${encodeURIComponent(address)}`;
                 try {
                     const response = await fetch(url);
-                    if (!response.ok) throw new Error('Netzwerkfehler');
                     const data = await response.json();
-                    if (data && data.length > 0) return { lat: data[0].lat, lon: data[0].lon };
-                } catch (e) {}
-                return null;
+                    if (data.success) {
+                        return { lat: data.lat, lon: data.lon };
+                    } else {
+                        return null;
+                    }
+                } catch (error) {
+                    console.error('Error in geocodeAddress for', address, ':', error);
+                    return null;
+                }
             }
 
             searchBtn.addEventListener('click', async function() {
@@ -332,44 +332,47 @@
                 searchBtn.innerHTML = '<span>Suche...</span>';
 
                 const startCoords = await geocodeAddress(startInput);
-                const endCoords = await geocodeAddress(endInput);
 
-                if (startCoords && endCoords) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('startLat', startCoords.lat);
-                    url.searchParams.set('startLon', startCoords.lon);
-                    url.searchParams.set('endLat', endCoords.lat);
-                    url.searchParams.set('endLon', endCoords.lon);
-
-                    await fetchRidesWithoutReload(url.toString());
-                    clearSearchBtn.style.display = 'inline-block';
-                } else {
-                    alert('Adressen nicht gefunden.');
+                if (!startCoords) {
+                    alert('Startadresse nicht gefunden. Bitte überprüfen Sie die Eingabe.');
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = 'Suchen';
+                    return;
                 }
 
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const endCoords = await geocodeAddress(endInput);
+
+                if (!endCoords) {
+                    alert('Zieladresse nicht gefunden. Bitte überprüfen Sie die Eingabe.');
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = 'Suchen';
+                    return;
+                }
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('startLat', startCoords.lat);
+                url.searchParams.set('startLon', startCoords.lon);
+                url.searchParams.set('endLat', endCoords.lat);
+                url.searchParams.set('endLon', endCoords.lon);
+
+                await fetchRidesWithoutReload(url.toString());
+
                 searchBtn.disabled = false;
-                searchBtn.innerHTML = '📍 Suchen';
+                searchBtn.innerHTML = 'Suchen';
             });
 
-            // Spezifisches "Zurücksetzen" nur für die intelligente Suche (falls gewünscht)
-            clearSearchBtn.addEventListener('click', function() {
-                window.location.href = '@Url.Action("Index", "Ride")';
-            });
 
-            // --- 5. "FILTER LÖSCHEN" KNOPF FIX (Leitet sofort auf Hauptseite weiter) ---
+
             filterReset.addEventListener('click', function() {
-                // Einfachster und sicherster Weg, um absolut alles zu säubern:
                 window.location.href = '@Url.Action("Index", "Ride")';
             });
 
             searchStartInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchBtn.click(); });
             searchEndInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchBtn.click(); });
 
-            // Sicherstellen, dass der Reset-Button beim Neuladen der Suche richtig initialisiert wird
-            const initialUrl = new URL(window.location.href);
-            if (initialUrl.searchParams.has('startLat')) {
-                clearSearchBtn.style.display = 'inline-block';
-            }
+
 
             rebindMainEvents();
             applyFilters();
