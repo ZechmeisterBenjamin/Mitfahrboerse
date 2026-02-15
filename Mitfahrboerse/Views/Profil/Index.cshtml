@@ -290,7 +290,33 @@
                     <h3>${title}</h3>
                     <p><strong>Code:</strong> <code class="voucher-code">${code}</code></p>
                     <p><strong>Gültig bis:</strong> ${validUntil}</p>
+
+                    <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+                    <div style="text-align: center;">
+                        <button class="styled-button primary-button"
+                                onclick="openQRModal('${code}', '${title}')"
+                                style="width: 100%;">
+                            QR-Code anzeigen
+                        </button>
+                    </div>
                 </div>`;
+        }
+
+        function openQRModal(code, title) {
+            document.getElementById('qrTitle').innerText = title;
+            document.getElementById('qrPlaceholder').innerHTML = '<div class="spinner-border text-warning" role="status"></div>';
+
+            var myModal = new bootstrap.Modal(document.getElementById('qrModal'));
+            myModal.show();
+
+            fetch(`/Profil/GetVoucherQR?code=${encodeURIComponent(code)}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('qrPlaceholder').innerHTML = `<img src="${data.image}" style="width: 200px; height: 200px;" />`;
+                })
+                .catch(err => {
+                    document.getElementById('qrPlaceholder').innerHTML = '<span class="text-danger">Fehler beim Laden</span>';
+                });
         }
 
         function cancelRide(rideId) {
@@ -341,5 +367,14 @@
             .catch(error => console.error('Error:', error));
         }
     </script>
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered text-center">
+            <div class="modal-content" style="background:#222; color:white; padding:20px; border:1px solid #ffcc00;">
+                <h3 id="qrTitle"></h3>
+                <div id="qrPlaceholder" style="background:white; padding:10px; margin:15px; display:inline-block;"></div>
+                <p>Nur einmal scannbar!</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

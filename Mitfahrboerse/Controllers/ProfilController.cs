@@ -1,14 +1,15 @@
-using Azure.Core;
+﻿using Azure.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Mitfahrboerse.Hubs;
 using Mitfahrboerse.Interfaces;
 using Mitfahrboerse.Models;
+using QRCoder;
 using System.Security.Claims;
-using Microsoft.AspNetCore.SignalR;
-using Mitfahrboerse.Hubs;
 
 namespace Mitfahrboerse.Controllers;
 
@@ -176,6 +177,41 @@ public class ProfilController : BaseController
 
         return Json(new { success = true, message = "Du hast deine Teilnahme erfolgreich abgesagt." });
     }
+
+    [HttpGet]
+    public IActionResult GetVoucherQR(string code)
+    {
+        var voucher = _context.t_PersonOffers.FirstOrDefault(v => v.Code == code);
+        if (voucher == null) return NotFound();
+
+        string url = $"https://192.168.178.46:7292/Profil/VerifyVoucher?code={code}"; // dann server url eingeben
+        using (var qrGen = new QRCodeGenerator())
+        using (var data = qrGen.CreateQrCode(url, QRCodeGenerator.ECCLevel.M))
+        using (var qr = new PngByteQRCode(data))
+        {
+            return Json(new { image = $"data:image/png;base64,{Convert.ToBase64String(qr.GetGraphic(20))}" });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> VerifyVoucher(string code)
+    {
+        var voucher = await _context.t_PersonOffers.Include(v => v.FK_Offer)
+                            .FirstOrDefaultAsync(v => v.Code == code);
+
+        if (voucher == null) return Content("Code nicht gefunden.");
+
+        if (voucher.IsUsed)
+        {
+            return Content("Code wurde bereits eingelöst!");
+        }
+
+        voucher.IsUsed = true;
+        await _context.SaveChangesAsync();
+
+        return Content($"Erfolg! Gutschein: {voucher.FK_Offer?.Title} aktiviert.");
+    }
+
 
     public IActionResult Logout()
     {

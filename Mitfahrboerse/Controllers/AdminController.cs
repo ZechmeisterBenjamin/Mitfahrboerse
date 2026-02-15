@@ -27,9 +27,14 @@ namespace Mitfahrboerse.Controllers
         {
             try
             {
+                int nextId = await _context.t_Offers.AnyAsync()
+                     ? await _context.t_Offers.MaxAsync(o => o.OfferId) + 1
+                     : 1;
+
                 var newOffer = new t_Offer
                 {
-                    Title = description, 
+                    OfferId = nextId,
+                    Title = description,
                     Price = price,
                     ValidUntil = DateOnly.FromDateTime(validUntil)
                 };
