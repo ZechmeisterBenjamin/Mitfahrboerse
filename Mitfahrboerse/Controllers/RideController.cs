@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Interfaces;
 using Mitfahrboerse.Models;
+using Mitfahrboerse.Services;
 using System;
 using System.Globalization;
 using Microsoft.AspNetCore.SignalR;
@@ -13,33 +14,71 @@ public class RideController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
     private readonly IHubContext<NotificationHub> _hubContext;
-    public RideController(MitfahrboerseDbContext context, ILogger<RideController> logger, IAccessToken accessToken, IHubContext<NotificationHub> hubContext) : base(logger, accessToken, context)
+    private readonly IRouteMatchService _routeMatchService;
+    
+    public RideController(MitfahrboerseDbContext context, ILogger<RideController> logger, IAccessToken accessToken, IHubContext<NotificationHub> hubContext, IRouteMatchService routeMatchService) : base(logger, accessToken, context)
     {
         _context = context;
         _hubContext = hubContext;
+        _routeMatchService = routeMatchService;
     }
             
-    public IActionResult Index(int? selectedRideId = null)
+            
+    public IActionResult Index(int? selectedRideId = null, string? startLat = null, string? startLon = null, string? endLat = null, string? endLon = null)
     {
         DateTime now = DateTime.Now;
 
         var rides = _context.t_Rides
-            .Where(r => r.RideDateTime >= now || r.RideDateTime == now)
-            .Where(r => r.FK_Driver_PersonId != personId)
+            //.Where(r => r.RideDateTime >= now || r.RideDateTime == now)
+            //.Where(r => r.FK_Driver_PersonId != personId)
             .Include(r => r.FK_Driver_Person)
             .Include(r => r.FK_StartsAt_Position)
             .Include(r => r.FK_EndsAt_Position)
             .Include(r => r.FK_Car)
             .Include(r => r.PersonRides)
             .ThenInclude(pr => pr.Person)
-            .OrderBy(r => r.RideDateTime)
             .ToList();
+
+        // Intelligente Fahrtsuche: Wenn Koordinaten vorhanden, finde Fahrten mit Umweg-Berechnung
+        List<RideWithDetourInfo> matchingRides = new();
+        
+        if (!string.IsNullOrEmpty(startLat) && !string.IsNullOrEmpty(startLon) && 
+            !string.IsNullOrEmpty(endLat) && !string.IsNullOrEmpty(endLon))
+        {
+            // Parse die Koordinaten
+            if (decimal.TryParse(startLat.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture, out decimal passengerStartLat) &&
+                decimal.TryParse(startLon.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture, out decimal passengerStartLon) &&
+                decimal.TryParse(endLat.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture, out decimal passengerEndLat) &&
+                decimal.TryParse(endLon.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture, out decimal passengerEndLon))
+            {
+                // Nutze den Service, um passende Fahrten zu finden
+                matchingRides = _routeMatchService.FindMatchingRides(
+                    rides,
+                    passengerStartLat,
+                    passengerStartLon,
+                    passengerEndLat,
+                    passengerEndLon
+                );
+                
+                // Speichere die Umweg-Informationen in ViewBag für die View
+                ViewBag.MatchingRides = matchingRides;
+                ViewBag.HasSearch = true;
+                rides = matchingRides.Select(m => m.Ride).OrderBy(r => r.RideDateTime).ToList();
+            }
+        }
+        else
+        {
+            // Keine Suche aktiv - zeige alle Fahrten sortiert nach Zeit
+            rides = rides.OrderBy(r => r.RideDateTime).ToList();
+            ViewBag.HasSearch = false;
+        }
 
         var selectedRide = selectedRideId.HasValue 
             ? rides.FirstOrDefault(r => r.RideId == selectedRideId.Value)
             : rides.FirstOrDefault();
 
         ViewBag.SelectedRide = selectedRide;
+        ViewBag.MatchingRidesDict = matchingRides.ToDictionary(m => m.Ride.RideId, m => m);
             
         return View(rides);
     }
@@ -125,6 +164,7 @@ public class RideController : BaseController
 
         return newPosition.PositionId;
     }
+            
             
     [HttpPost]
     public async Task<IActionResult> RequestRide(int rideId)

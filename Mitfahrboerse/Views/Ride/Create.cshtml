@@ -56,7 +56,7 @@
                 </div>
 
                 <div class="form-group text-center mt-4">
-                    <button id="showRouteBtn" type="button" class="styled-button">Route anzeigen</button>
+                    <button id="showRouteBtn" type="button" class="styled-button" style="display:none;">Route anzeigen</button>
 
                     <button type="submit" class="styled-button primary-button">Fahrt erstellen</button>
 
@@ -84,6 +84,7 @@
         let control = null;
         let startMarker = null;
         let endMarker = null;
+        let debounceTimer = null;
 
         async function geocodeAddress(address) {
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT`;
@@ -178,11 +179,24 @@
                     });
 
                 } else {
-                    alert('Eine oder beide Adressen konnten nicht gefunden werden. Bitte überprüfen Sie Ihre Eingaben.');
+                    // Adressen konnten nicht gefunden werden - label löschen
+                    document.getElementById("routeLengthLabel").textContent = '';
+                    document.getElementById("routeLength").value = '';
                 }
             }
         }
 
+        // Debounced calculateRoute - wird automatisch aufgerufen, wenn beide Felder gefüllt sind
+        function debouncedCalculateRoute() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(calculateRoute, 800); // 800ms Verzögerung für Geocoding
+        }
+
+        // Event Listener für automatische Berechnung
+        document.getElementById("startPositionInput").addEventListener("input", debouncedCalculateRoute);
+        document.getElementById("endPositionInput").addEventListener("input", debouncedCalculateRoute);
+
+        // Manueller Button sollte nicht mehr benötigt sein, aber als Fallback behalten
         document.getElementById("showRouteBtn").addEventListener("click", calculateRoute);
     </script>
 

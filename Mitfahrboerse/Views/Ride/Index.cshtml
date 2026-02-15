@@ -2,19 +2,29 @@
 @{
     ViewData["Title"] = "Mitfahren";
     var firstRide = Model.FirstOrDefault();
-    var nextRide = Model.FirstOrDefault();
-    DateTime? nextDate = nextRide?.RideDateTime;
+    var matchingRidesDict = ViewBag.MatchingRidesDict as Dictionary<int, Mitfahrboerse.Services.RideWithDetourInfo>;
 }
 
-<div class="filter-bar">
-    <div id="filter-menu" class="fahrt-filter filter-menu">
-        <input id="filter-driver" type="text" placeholder="Fahrer" />
-        <input id="filter-class" type="text" placeholder="Klasse" />
-        <input id="filter-from" type="text" placeholder="Von" />
-        <input id="filter-to" type="text" placeholder="Nach" />
-        <input id="filter-date" type="date" placeholder="Datum" />
-        <input id="filter-time" type="time" placeholder="Zeit" />
-        <button id="filter-reset" type="button" class="filter-reset-button">Zurücksetzen</button>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<div class="filter-bar" style="display: flex; flex-direction: column; align-items: stretch;">
+    <div id="filter-menu" class="fahrt-filter filter-menu" style="display: flex; flex-wrap: wrap; width: 100%; gap: 10px; justify-content: flex-start; padding: 0;">
+
+        <input id="searchStart" type="text" placeholder="Route: Von (z.B. Ybbsitz)" style="flex: 1; min-width: 180px;" />
+        <input id="searchEnd" type="text" placeholder="Route: Nach (z.B. Waidhofen)" style="flex: 1; min-width: 180px;" />
+        <button id="searchBtn" type="button" class="styled-button primary-button" style="margin: 0; padding: 0 20px; height: 48px; flex-shrink: 0;">Suchen</button>
+
+        <div style="width: 100%; height: 2px; background: #7a7a7a; margin: 5px 0; border-radius: 2px;"></div>
+
+        <input id="filter-from" type="text" placeholder="Start (Text)" style="flex: 1; min-width: 130px;" />
+        <input id="filter-to" type="text" placeholder="Ziel (Text)" style="flex: 1; min-width: 130px;" />
+        <input id="filter-driver" type="text" placeholder="Fahrer" style="flex: 1; min-width: 130px;" />
+        <input id="filter-class" type="text" placeholder="Klasse" style="flex: 1; min-width: 100px;" />
+        <input id="filter-date" type="date" placeholder="Datum" style="flex: 1; min-width: 140px;" />
+        <input id="filter-time" type="time" placeholder="Zeit" style="flex: 1; min-width: 110px;" />
+        <button id="filter-reset" type="button" class="filter-reset-button" style="margin: 0; padding: 0 20px; height: 48px; flex-shrink: 0;">Filter löschen</button>
+
     </div>
 </div>
 
@@ -40,30 +50,42 @@
                      data-time="@ride.RideDateTime.ToString("HH:mm")"
                      data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
                      data-date-iso="@ride.RideDateTime.ToString("yyyy-MM-dd")"
-                     data-seats="@freeSeats" 
-                     data-car-license="@(ride.FK_Car.LicensePlate)"> 
+                     data-seats="@freeSeats"
+                     data-car-license="@(ride.FK_Car?.LicensePlate)">
 
                     <div class="fahrt-item-content">
                         <div class="fahrt-item-header">
                             <strong class="driver-name">@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong>
                             <span class="seats-badge @(freeSeats > 0 ? "available" : "full")">
-                                @freeSeats 
+                                @freeSeats
                                 @if (freeSeats == 1)
                                 {
                                     <span>Platz</span>
                                 }
                                 else
                                 {
+
                                     <span>Plätze</span>
                                 }
                             </span>
                         </div>
-                        <div class="fahrt-item-route">
-                            <strong>@ride.FK_StartsAt_Position.Description</strong> → <strong>@ride.FK_EndsAt_Position.Description</strong>
+                        <div class="fahrt-item-route" style="display: flex; align-items: center; gap: 8px; margin: 10px 0;">
+                            <span style="font-weight: bold;">@ride.FK_StartsAt_Position.Description</span>
+                            <div class="route-divider" style="flex-grow: 1; height: 1px; background: #7a7a7a; position: relative;">
+                                <span style="position: absolute; right: -2px; top: -7px; font-size: 10px; color: #ffd60a;">▶</span>
+                            </div>
+                            <span style="font-weight: bold;">@ride.FK_EndsAt_Position.Description</span>
                         </div>
                         <div class="fahrt-item-time">
                             @ride.RideDateTime.ToString("dd.MM.yyyy") | @ride.RideDateTime.ToString("HH:mm")
                         </div>
+                        @if (matchingRidesDict != null && matchingRidesDict.ContainsKey(ride.RideId))
+                        {
+                            var detourInfo = matchingRidesDict[ride.RideId];
+                            <div class="fahrt-item-detour" style="margin-top: 8px; padding: 5px 10px; border: 1px dashed #ffd60a; color: #ffd60a; border-radius: 6px; display: inline-block; font-size: 12px; background: rgba(255, 214, 10, 0.1);">
+                                📍 Umweg: @Math.Round(detourInfo.DetourKilometers, 1) km (@detourInfo.MatchType)
+                            </div>
+                        }
                     </div>
                 </div>
             }
@@ -83,7 +105,6 @@
 
             <div id="ride-details" class="fahrt-details-compact">
                 <h3 class="details-title">Fahrtdetails</h3>
-                
                 <div class="details-grid">
                     <div class="detail-item">
                         <span class="detail-label">Fahrer:</span>
@@ -134,18 +155,6 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const rideItems = document.querySelectorAll('.fahrt-item');
-            const driverName = document.getElementById('driver-name');
-            const driverClass = document.getElementById('driver-class');
-            const seats = document.getElementById('seats');
-            const route = document.getElementById('route');
-            const time = document.getElementById('time');
-            const date = document.getElementById('date');
-            const carLicense = document.getElementById('car-license');
-            const requestButton = document.getElementById('request-button');
-            const ridesCount = document.getElementById('rides-count');
-            const noRidesMessage = document.getElementById('no-rides-message');
-            
             let selectedRideId = @(firstRide?.RideId ?? 0);
 
             const filterDriver = document.getElementById('filter-driver');
@@ -156,57 +165,12 @@
             const filterTime = document.getElementById('filter-time');
             const filterReset = document.getElementById('filter-reset');
 
-            rideItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    rideItems.forEach(ri => ri.classList.remove('selected'));
-                    this.classList.add('selected');
-                    
-                    driverName.textContent = this.getAttribute('data-driver-name');
-                    driverClass.textContent = this.getAttribute('data-driver-class');
-                    const seatCount = this.getAttribute('data-seats');
-                    seats.textContent = seatCount;
-                    seats.className = 'detail-value seats-highlight';
-                    if (parseInt(seatCount) === 0) {
-                        seats.classList.add('no-seats');
-                    }
-                    route.textContent = `${this.getAttribute('data-from')} → ${this.getAttribute('data-to')}`;
-                    time.textContent = this.getAttribute('data-time');
-                    date.textContent = this.getAttribute('data-date');
-                    carLicense.textContent = this.getAttribute('data-car-license');
-                    selectedRideId = parseInt(this.getAttribute('data-ride-id'));
-                });
-            });
+            const searchStartInput = document.getElementById('searchStart');
+            const searchEndInput = document.getElementById('searchEnd');
+            const searchBtn = document.getElementById('searchBtn');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
 
-            function updateRidesCount() {
-                const visibleRides = Array.from(rideItems).filter(item => !item.classList.contains('hidden'));
-                const count = visibleRides.length;
-                if (ridesCount) {
-                    ridesCount.textContent = count === 1 ? '1 Fahrt' : count + ' Fahrten';
-                }
-                
-                if (noRidesMessage) {
-                    noRidesMessage.style.display = count === 0 ? 'block' : 'none';
-                }
-            }
-
-            function selectFirstVisibleRide() {
-                const firstVisible = Array.from(rideItems).find(item => !item.classList.contains('hidden'));
-                if (!firstVisible) {
-                    if (requestButton) {
-                        requestButton.disabled = true;
-                        requestButton.style.opacity = '0.5';
-                        requestButton.style.cursor = 'not-allowed';
-                    }
-                    return;
-                }
-                if (requestButton) {
-                    requestButton.disabled = false;
-                    requestButton.style.opacity = '1';
-                    requestButton.style.cursor = 'pointer';
-                }
-                firstVisible.click();
-            }
-
+            // --- 1. KLASSISCHE FILTER LOGIK (Lokal) ---
             function applyFilters() {
                 const driverValue = (filterDriver.value || '').toLowerCase();
                 const classValue = (filterClass.value || '').toLowerCase();
@@ -214,6 +178,9 @@
                 const toValue = (filterTo.value || '').toLowerCase();
                 const dateValue = filterDate.value || '';
                 const timeValue = filterTime.value || '';
+
+                const rideItems = document.querySelectorAll('.fahrt-item');
+                let visibleCount = 0;
 
                 rideItems.forEach(item => {
                     const itemDriver = (item.getAttribute('data-driver-name') || '').toLowerCase();
@@ -224,25 +191,28 @@
                     const itemTime = item.getAttribute('data-time') || '';
                     const itemSeats = parseInt(item.getAttribute('data-seats') || '0');
 
-                    const matchesDriver = !driverValue || itemDriver.includes(driverValue);
-                    const matchesClass = !classValue || itemClass.includes(classValue);
-                    const matchesFrom = !fromValue || itemFrom.includes(fromValue);
-                    const matchesTo = !toValue || itemTo.includes(toValue);
-                    const matchesDate = !dateValue || itemDateIso === dateValue;
-                    const matchesTime = !timeValue || itemTime === timeValue;
-                    const matchesSeats = itemSeats >= 1;
+                    const isMatch = (!driverValue || itemDriver.includes(driverValue)) &&
+                                    (!classValue || itemClass.includes(classValue)) &&
+                                    (!fromValue || itemFrom.includes(fromValue)) &&
+                                    (!toValue || itemTo.includes(toValue)) &&
+                                    (!dateValue || itemDateIso === dateValue) &&
+                                    (!timeValue || itemTime === timeValue) &&
+                                    (itemSeats >= 1);
 
-                    const isMatch = matchesDriver && matchesClass && matchesFrom && matchesTo && matchesDate && matchesTime && matchesSeats;
                     item.classList.toggle('hidden', !isMatch);
+                    if (isMatch) visibleCount++;
                 });
 
+                const ridesCount = document.getElementById('rides-count');
+                const noRidesMessage = document.getElementById('no-rides-message');
+                if (ridesCount) ridesCount.textContent = visibleCount === 1 ? '1 Fahrt' : visibleCount + ' Fahrten';
+                if (noRidesMessage) noRidesMessage.style.display = visibleCount === 0 ? 'block' : 'none';
+
                 const selected = document.querySelector('.fahrt-item.selected');
-                const anyVisible = Array.from(rideItems).some(item => !item.classList.contains('hidden'));
-                if (!anyVisible || !selected || selected.classList.contains('hidden')) {
-                    selectFirstVisibleRide();
+                if (visibleCount > 0 && (!selected || selected.classList.contains('hidden'))) {
+                    const firstVisible = Array.from(rideItems).find(item => !item.classList.contains('hidden'));
+                    if (firstVisible) firstVisible.click();
                 }
-                
-                updateRidesCount();
             }
 
             [filterDriver, filterClass, filterFrom, filterTo, filterDate, filterTime].forEach(input => {
@@ -250,51 +220,158 @@
                 input.addEventListener('change', applyFilters);
             });
 
-            filterReset.addEventListener('click', function() {
-                filterDriver.value = '';
-                filterClass.value = '';
-                filterFrom.value = '';
-                filterTo.value = '';
-                filterDate.value = '';
-                filterTime.value = '';
-                applyFilters();
-            });
+            // --- 2. MAIN BEREICH (KLICKS & ANFRAGEN) ---
+            function rebindMainEvents() {
+                const rideItems = document.querySelectorAll('.fahrt-item');
+                const driverName = document.getElementById('driver-name');
+                const driverClass = document.getElementById('driver-class');
+                const seats = document.getElementById('seats');
+                const route = document.getElementById('route');
+                const time = document.getElementById('time');
+                const date = document.getElementById('date');
+                const carLicense = document.getElementById('car-license');
+                const requestButton = document.getElementById('request-button');
 
-            if (requestButton) {
-                requestButton.addEventListener('click', function() {
-                    if (selectedRideId && !this.disabled) {
-                        this.disabled = true;
-                        this.innerHTML = '<span>Wird gesendet...</span>';
-                        
-                        fetch('@Url.Action("RequestRide", "Ride")', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: `rideId=${selectedRideId}`
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if(data.success) {
-                                alert(data.message);
-                                location.reload();
-                            } else {
-                                alert("Fehler: " + data.message);
+                rideItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        rideItems.forEach(ri => ri.classList.remove('selected'));
+                        this.classList.add('selected');
+
+                        if(driverName) driverName.textContent = this.getAttribute('data-driver-name');
+                        if(driverClass) driverClass.textContent = this.getAttribute('data-driver-class');
+                        if(seats) {
+                            const seatCount = this.getAttribute('data-seats');
+                            seats.textContent = seatCount;
+                            seats.className = 'detail-value seats-highlight';
+                            if (parseInt(seatCount) === 0) seats.classList.add('no-seats');
+                        }
+                        if(route) route.textContent = `${this.getAttribute('data-from')} → ${this.getAttribute('data-to')}`;
+                        if(time) time.textContent = this.getAttribute('data-time');
+                        if(date) date.textContent = this.getAttribute('data-date');
+                        if(carLicense) carLicense.textContent = this.getAttribute('data-car-license');
+
+                        selectedRideId = parseInt(this.getAttribute('data-ride-id'));
+                    });
+                });
+
+                if (requestButton) {
+                    requestButton.addEventListener('click', function() {
+                        if (selectedRideId && !this.disabled) {
+                            this.disabled = true;
+                            this.innerHTML = '<span>Wird gesendet...</span>';
+
+                            fetch('@Url.Action("RequestRide", "Ride")', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: `rideId=${selectedRideId}`
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.success) {
+                                    alert(data.message);
+                                    fetchRidesWithoutReload();
+                                } else {
+                                    alert("Fehler: " + data.message);
+                                    requestButton.disabled = false;
+                                    requestButton.innerHTML = '<span>Anfrage schicken</span>';
+                                }
+                            })
+                            .catch(error => {
+                                alert('Ein Fehler ist aufgetreten.');
                                 requestButton.disabled = false;
                                 requestButton.innerHTML = '<span>Anfrage schicken</span>';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
-                            requestButton.disabled = false;
-                            requestButton.innerHTML = '<span>Anfrage schicken</span>';
-                        });
-                    }
-                });
+                            });
+                        }
+                    });
+                }
             }
 
-            updateRidesCount();
+            // --- 3. AJAX SEITENLADEN (OHNE REFRESH) FÜR INTELLIGENTE SUCHE ---
+            async function fetchRidesWithoutReload(url = window.location.href) {
+                try {
+                    const response = await fetch(url);
+                    const html = await response.text();
+
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    document.querySelector('main').innerHTML = doc.querySelector('main').innerHTML;
+                    window.history.pushState({}, '', url);
+
+                    rebindMainEvents();
+                    applyFilters();
+
+                } catch (error) {
+                    console.error('AJAX Fehler:', error);
+                    alert("Konnte Fahrten nicht aktualisieren.");
+                }
+            }
+
+            // --- 4. INTELLIGENTE SUCHE (AJAX) ---
+            async function geocodeAddress(address) {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT`;
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Netzwerkfehler');
+                    const data = await response.json();
+                    if (data && data.length > 0) return { lat: data[0].lat, lon: data[0].lon };
+                } catch (e) {}
+                return null;
+            }
+
+            searchBtn.addEventListener('click', async function() {
+                const startInput = searchStartInput.value.trim();
+                const endInput = searchEndInput.value.trim();
+
+                if (!startInput || !endInput) {
+                    alert('Bitte geben Sie Start- und Zielort ein.');
+                    return;
+                }
+
+                searchBtn.disabled = true;
+                searchBtn.innerHTML = '<span>Suche...</span>';
+
+                const startCoords = await geocodeAddress(startInput);
+                const endCoords = await geocodeAddress(endInput);
+
+                if (startCoords && endCoords) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('startLat', startCoords.lat);
+                    url.searchParams.set('startLon', startCoords.lon);
+                    url.searchParams.set('endLat', endCoords.lat);
+                    url.searchParams.set('endLon', endCoords.lon);
+
+                    await fetchRidesWithoutReload(url.toString());
+                    clearSearchBtn.style.display = 'inline-block';
+                } else {
+                    alert('Adressen nicht gefunden.');
+                }
+
+                searchBtn.disabled = false;
+                searchBtn.innerHTML = '📍 Suchen';
+            });
+
+            // Spezifisches "Zurücksetzen" nur für die intelligente Suche (falls gewünscht)
+            clearSearchBtn.addEventListener('click', function() {
+                window.location.href = '@Url.Action("Index", "Ride")';
+            });
+
+            // --- 5. "FILTER LÖSCHEN" KNOPF FIX (Leitet sofort auf Hauptseite weiter) ---
+            filterReset.addEventListener('click', function() {
+                // Einfachster und sicherster Weg, um absolut alles zu säubern:
+                window.location.href = '@Url.Action("Index", "Ride")';
+            });
+
+            searchStartInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchBtn.click(); });
+            searchEndInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchBtn.click(); });
+
+            // Sicherstellen, dass der Reset-Button beim Neuladen der Suche richtig initialisiert wird
+            const initialUrl = new URL(window.location.href);
+            if (initialUrl.searchParams.has('startLat')) {
+                clearSearchBtn.style.display = 'inline-block';
+            }
+
+            rebindMainEvents();
             applyFilters();
         });
     </script>
