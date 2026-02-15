@@ -17,7 +17,10 @@ public class ShopController : BaseController
     }
     public IActionResult Index()
     { 
+        DateOnly now = DateOnly.FromDateTime(DateTime.Now);
+
         var offers = _context.t_Offers
+            .Where(o => o.ValidUntil >= now)
             .OrderBy(o => o.ValidUntil)
             .ToList();
         return View(offers);
