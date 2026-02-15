@@ -19,6 +19,7 @@ public partial class t_PersonRide
 
     // This is your new property!
     public short Status { get; set; }
+    public string? EventId { get; set; }
 
     [ForeignKey("FK_PersonId")]
     [InverseProperty("PersonRides")]

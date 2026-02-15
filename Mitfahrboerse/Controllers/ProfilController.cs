@@ -143,6 +143,22 @@ public class ProfilController : BaseController
             .Where(pr => pr.Status != 2 && pr.Status != 3)
             .ToList();
 
+        /*
+        var calendarService = new CalendarEvent(_accessToken);
+        if (!string.IsNullOrEmpty(ride.EventId))
+        {
+            await calendarService.DeleteEventAsync(ride.EventId);
+        }
+
+        foreach (var pr in ride.PersonRides)
+        {
+            if (!string.IsNullOrEmpty(pr.EventId))
+            {
+                await calendarService.DeleteEventAsync(pr.EventId);
+            }
+        }
+        */
+
         if (ride.PersonRides != null && ride.PersonRides.Any())
         {
             _context.t_PersonRides.RemoveRange(ride.PersonRides);
@@ -170,6 +186,22 @@ public class ProfilController : BaseController
         {
             return Json(new { success = false, message = "Teilnahme nicht gefunden." });
         }
+
+        /*
+        var calendarService = new CalendarEvent(_accessToken);
+        if (!string.IsNullOrEmpty(ride.EventId))
+        {
+            await calendarService.DeleteEventAsync(ride.EventId);
+        }
+
+        foreach (var pr in ride.PersonRides)
+        {
+            if (!string.IsNullOrEmpty(pr.EventId))
+            {
+                await calendarService.DeleteEventAsync(pr.EventId);
+            }
+        } 
+        */
 
         _context.t_PersonRides.Remove(personRide);
 

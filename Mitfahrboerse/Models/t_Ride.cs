@@ -24,6 +24,8 @@ public partial class t_Ride
 
     public short Status { get; set; }
 
+    public string? EventId { get; set; }
+
     public int FK_StartsAt_PositionId { get; set; }
 
     public int FK_EndsAt_PositionId { get; set; }

@@ -54,6 +54,23 @@ namespace Mitfahrboerse.Controllers
             if (anfrage != null)
             {
                 anfrage.Status = newStatus;
+
+                /*
+                if (newStatus == 0)
+                {
+                    var calendarService = new CalendarEvent(_accessToken);
+                    var ride = anfrage.Ride;
+                    string subject = $"Mitfahrt: {ride.FK_StartsAt_Position.Description} → {ride.FK_EndsAt_Position.Description}";
+                    string eventId = await calendarService.CreateRideEventAsync(
+                        subject,
+                        ride.RideDateTime,
+                        ride.FK_StartsAt_Position.Description,
+                        ride.FK_EndsAt_Position.Description
+                    );
+
+                    anfrage.EventId = eventId;
+                }
+                */
                 await _context.SaveChangesAsync();
             }
             

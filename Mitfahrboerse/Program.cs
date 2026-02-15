@@ -15,6 +15,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
     .EnableTokenAcquisitionToCallDownstreamApi(
         new string[] { "User.Read", "profile" })
+    //new string[] { "User.Read", "profile", "Calendars.ReadWrite" })
     .AddInMemoryTokenCaches();
 
 builder.Services.AddSignalR();

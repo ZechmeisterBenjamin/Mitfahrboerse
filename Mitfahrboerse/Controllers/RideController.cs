@@ -150,8 +150,20 @@ public class RideController : BaseController
 
             _context.t_Rides.Add(ride);
             await _context.SaveChangesAsync();
-                    
-                    
+            
+            /*
+            var calendarService = new CalendarEvent(_accessToken);
+            string subject = $"Fahrt: {startPositionDescription} nach {endPositionDescription}";
+            string eventId = await calendarService.CreateRideEventAsync(
+                subject,
+                rideDateTime,
+                startPositionDescription,
+                endPositionDescription
+            );
+            ride.EventId = eventId;
+            await _context.SaveChangesAsync();
+            */
+
             TempData["Message"] = "Fahrt erfolgreich erstellt!";
             return RedirectToAction(nameof(Index));
         }
