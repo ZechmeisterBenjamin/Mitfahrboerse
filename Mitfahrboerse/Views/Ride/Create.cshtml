@@ -56,7 +56,7 @@
                 </div>
 
                 <div class="form-group text-center mt-4">
-                    <button id="showRouteBtn" type="button" class="styled-button">Route anzeigen</button>
+                    <button id="showRouteBtn" type="button" class="styled-button" style="display:none;">Route anzeigen</button>
 
                     <button type="submit" class="styled-button primary-button">Fahrt erstellen</button>
 
@@ -84,22 +84,29 @@
         let control = null;
         let startMarker = null;
         let endMarker = null;
+        let debounceTimer = null;
 
         async function geocodeAddress(address) {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT&_=${new Date().getTime()}`;
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'Mitfahrboerse Ride-Sharing App'
+                    }
+                });
                 if (!response.ok) {
                     throw new Error('Netzwerkfehler');
                 }
                 const data = await response.json();
                 if (data && data.length > 0) {
                     return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                } else {
+                    return null;
                 }
             } catch (error) {
-                console.error("Geocoding-Fehler:", error);
+                console.error('Geocoding-Fehler:', error);
+                return null;
             }
-            return null;
         }
 
         async function calculateRoute() {
@@ -178,10 +185,19 @@
                     });
 
                 } else {
-                    alert('Eine oder beide Adressen konnten nicht gefunden werden. Bitte überprüfen Sie Ihre Eingaben.');
+                    document.getElementById("routeLengthLabel").textContent = '';
+                    document.getElementById("routeLength").value = '';
                 }
             }
         }
+
+        function debouncedCalculateRoute() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(calculateRoute, 800); // 800ms Verzögerung für Geocoding
+        }
+
+        document.getElementById("startPositionInput").addEventListener("input", debouncedCalculateRoute);
+        document.getElementById("endPositionInput").addEventListener("input", debouncedCalculateRoute);
 
         document.getElementById("showRouteBtn").addEventListener("click", calculateRoute);
     </script>

@@ -105,8 +105,6 @@ public class PointService : IPointService
 
         points += ride.Distance * DistanceWeight;
 
-        points += ride.ExtraDistance * ExtraEffortWeight;
-
         return points;
     }
 }

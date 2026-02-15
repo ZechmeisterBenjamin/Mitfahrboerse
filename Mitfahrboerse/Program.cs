@@ -38,6 +38,7 @@ builder.Services.AddDbContext<MitfahrboerseDbContext>(options =>
 builder.Services.AddScoped<IAccessToken, AccessToken>();
 builder.Services.AddScoped<IBalanceService, BalanceService>();
 builder.Services.AddScoped<IPointService, PointService>();
+builder.Services.AddScoped<IRouteMatchService, RouteMatchService>();
 
 var app = builder.Build();
 
