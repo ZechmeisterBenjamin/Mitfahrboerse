@@ -39,6 +39,15 @@ namespace Mitfahrboerse.Controllers
         // Wird vor jeder Action Methode ausgeführt
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            var isIndexPage = context.RouteData.Values["action"]?.ToString() == "Index";
+            var hasVoucher = context.HttpContext.Request.Query.ContainsKey("vouchercode");
+
+            // Wenn wir einen Gutschein haben, überspringen wir die gesamte Microsoft Graph Logik
+            if (isIndexPage && hasVoucher)
+            {
+                await next(); // Direkt zur Methode im HomeController springen
+                return;
+            }
             try
             {
                 string[] scopes = { "User.Read", "profile" }; // Benötigte Berechtigungen
@@ -84,7 +93,7 @@ namespace Mitfahrboerse.Controllers
                 ViewData["CoinBalance"] = person.Points;
                 ViewData["SelectedDesign"] = person.Design;
 
-                bool isAdmin = (firstname == "Daniel" && lastname == "Daurer");
+                bool isAdmin = (firstname == "Daniel" && lastname == "Daurer") || (class_ == "Lehrer");
                 ViewData["IsAdmin"] = isAdmin;
             }
             catch

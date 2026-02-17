@@ -8,14 +8,15 @@ using Microsoft.Identity.Web;
 using Mitfahrboerse.Hubs;
 using Mitfahrboerse.Interfaces;
 using Mitfahrboerse.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
     .EnableTokenAcquisitionToCallDownstreamApi(
-        new string[] { "User.Read", "profile" })
-    //new string[] { "User.Read", "profile", "Calendars.ReadWrite" })
+       new string[] { "User.Read", "profile" })
+       //new string[] { "User.Read", "profile", "Calendars.ReadWrite" })
     .AddInMemoryTokenCaches();
 
 builder.Services.AddSignalR();
@@ -31,6 +32,8 @@ builder.Services.AddControllersWithViews(options =>
         .Build();
     options.Filters.Add(new AuthorizeFilter(policy));
 });
+
+
 
 builder.Services.AddDbContext<MitfahrboerseDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -55,15 +58,27 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}")
+    .AllowAnonymous();
+
+app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Start}/")
     .WithStaticAssets();
+
+
 
 app.MapHub<NotificationHub>("/notificationHub");
 app.Run();

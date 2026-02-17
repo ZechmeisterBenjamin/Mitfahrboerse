@@ -1,11 +1,103 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Willkommen";
 }
 
-<p>Graph API Result:</p>
-<pre>@ViewData["GraphResult"]</pre>
-<img src="@ViewData["ProfilePicture"]" alt="Profilbild" style="width:50px; height:50px; border-radius:50%;"/>
+@if (ViewBag.VoucherMessage != null)
+{
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                    <div class="card-body text-center p-5">
 
-<a asp-action="Logout" > Abmelden </a>
+                        @if (ViewBag.VoucherStatus == "success")
+                        {
+                            <div class="display-1 text-success mb-3 animate__animated animate__bounceIn">✅</div>
+                            <h2 class="fw-bold text-success">Gutschein aktiviert!</h2>
+                        }
+                        else if (ViewBag.VoucherStatus == "warning")
+                        {
+                            <div class="display-1 text-warning mb-3">🚫</div>
+                            <h2 class="fw-bold text-warning">Bereits genutzt</h2>
+                        }
+                        else
+                        {
+                            <div class="display-1 text-danger mb-3">⚠️</div>
+                            <h2 class="fw-bold text-danger">Fehler</h2>
+                        }
 
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <p class="lead mb-0">@ViewBag.VoucherMessage</p>
+                        </div>
 
+                        <hr class="my-4">
+
+                        <p class="text-muted small">
+                            Die Entwertung wurde erfolgreich im System hinterlegt.
+                            Du kannst dieses Fenster jetzt schließen oder dich anmelden, um die App zu nutzen.
+                        </p>
+
+                        <div class="d-grid gap-2">
+                            <a asp-action="Start" class="btn btn-warning btn-lg shadow-sm fw-bold">
+                                <i class="bi bi-box-arrow-in-right"></i> Zur App anmelden
+                            </a>
+                            <button onclick="window.close();" class="btn btn-outline-secondary btn-sm mt-2">
+                                Fenster schließen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-center text-lg-start">
+                <h1 class="display-4 fw-bold">Deine Mitfahrbörse</h1>
+                <p class="lead text-muted">Schnell, sicher und unkompliziert Fahrten finden oder selbst anbieten. Spare Kosten und schone die Umwelt.</p>
+
+                <div class="mt-4">
+                    <a asp-action="Start" class="btn btn-primary btn-lg px-5 shadow">
+                        Jetzt loslegen
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block text-center">
+                <div class="p-5 bg-light rounded-circle d-inline-block shadow-sm">
+                    <i class="bi bi-car-front text-primary" style="font-size: 8rem;"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 pt-5 text-center">
+            <div class="col-md-4">
+                <i class="bi bi-qr-code-scan text-warning" style="font-size: 2rem;"></i>
+                <h4>Gutscheine</h4>
+                <p class="text-muted">Löse deine Belohnungen direkt per QR-Code Scan ein.</p>
+            </div>
+            <div class="col-md-4">
+                <i class="bi bi-shield-check text-success" style="font-size: 2rem;"></i>
+                <h4>Sicher</h4>
+                <p class="text-muted">Authentifizierung über Azure AD für maximale Sicherheit.</p>
+            </div>
+            <div class="col-md-4">
+                <i class="bi bi-people text-info" style="font-size: 2rem;"></i>
+                <h4>Community</h4>
+                <p class="text-muted">Fahre gemeinsam und lerne neue Leute kennen.</p>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Falls der User in einem In-App Browser ist,
+        // versuchen wir das Schließen des Fensters zu erleichtern.
+        if (window.opener || window.history.length === 1) {
+            // Zeige Schließen-Button deutlicher an
+        }
+    </script>
+}

@@ -1,21 +1,23 @@
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
+using Mitfahrboerse.Interfaces;
+using Mitfahrboerse.Models;
+using Newtonsoft.Json.Linq;
+using RestSharp;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Mitfahrboerse.Models;
-using RestSharp;
-using Microsoft.Identity.Web;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Mitfahrboerse.Interfaces;
 
 namespace Mitfahrboerse.Controllers;
 
+[AllowAnonymous] 
 public class HomeController : BaseController
 {
     private readonly MitfahrboerseDbContext _context;
@@ -25,13 +27,53 @@ public class HomeController : BaseController
     }
 
 
-    [Authorize]
-    public IActionResult Index(string code)
+    [AllowAnonymous] 
+    public async Task<IActionResult> Index(string vouchercode)
     {
+        if (!string.IsNullOrEmpty(vouchercode))
+        {
+            try
+            {
+                var voucher = await _context.t_PersonOffers
+                    .Include(v => v.FK_Offer)
+                    .FirstOrDefaultAsync(v => v.Code == vouchercode);
+
+                if (voucher == null)
+                {
+                    ViewBag.VoucherStatus = "error";
+                    ViewBag.VoucherMessage = "❌ Code nicht gefunden.";
+                }
+                else if (voucher.IsUsed)
+                {
+                    ViewBag.VoucherStatus = "warning";
+                    ViewBag.VoucherMessage = $"🚫 '{voucher.FK_Offer?.Title}' wurde bereits eingelöst.";
+                }
+                else
+                {
+                    voucher.IsUsed = true;
+                    await _context.SaveChangesAsync();
+                    ViewBag.VoucherStatus = "success";
+                    ViewBag.VoucherMessage = $"✅ Erfolg! '{voucher.FK_Offer?.Title}' aktiviert.";
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.VoucherStatus = "error";
+                ViewBag.VoucherMessage = "Datenbankfehler.";
+            }
+
+            return View();
+        }
+
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Start");
+        }
+
         return View();
     }
 
-    
+
 
     public IActionResult Privacy()
     {

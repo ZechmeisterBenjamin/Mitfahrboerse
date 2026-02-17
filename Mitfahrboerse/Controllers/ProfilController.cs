@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -216,8 +217,9 @@ public class ProfilController : BaseController
         var voucher = _context.t_PersonOffers.FirstOrDefault(v => v.Code == code);
         if (voucher == null) return NotFound();
 
-        string domain = $"{Request.Scheme}://{Request.Host}";
-        string url = $"{domain}/Profil/VerifyVoucher?code={code}";
+        string domain = "https://192.168.178.46";
+        string url = $"{domain}/Home/Index?vouchercode={Uri.EscapeDataString(code)}";
+
         using (var qrGen = new QRCodeGenerator())
         using (var data = qrGen.CreateQrCode(url, QRCodeGenerator.ECCLevel.M))
         using (var qr = new PngByteQRCode(data))
@@ -226,25 +228,7 @@ public class ProfilController : BaseController
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> VerifyVoucher(string code)
-    {
-        var voucher = await _context.t_PersonOffers.Include(v => v.FK_Offer)
-                            .FirstOrDefaultAsync(v => v.Code == code);
-
-        if (voucher == null) return Content("Code nicht gefunden.");
-
-        if (voucher.IsUsed)
-        {
-            return Content("Code wurde bereits eingelöst!");
-        }
-
-        voucher.IsUsed = true;
-        await _context.SaveChangesAsync();
-
-        return Content($"Erfolg! Gutschein: {voucher.FK_Offer?.Title} aktiviert.");
-    }
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetRidePassengers(int rideId)
     {
