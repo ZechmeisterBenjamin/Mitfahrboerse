@@ -12,17 +12,14 @@
 
                         @if (ViewBag.VoucherStatus == "success")
                         {
-                            <div class="display-1 text-success mb-3 animate__animated animate__bounceIn">✅</div>
                             <h2 class="fw-bold text-success">Gutschein aktiviert!</h2>
                         }
                         else if (ViewBag.VoucherStatus == "warning")
                         {
-                            <div class="display-1 text-warning mb-3">🚫</div>
                             <h2 class="fw-bold text-warning">Bereits genutzt</h2>
                         }
                         else
                         {
-                            <div class="display-1 text-danger mb-3">⚠️</div>
                             <h2 class="fw-bold text-danger">Fehler</h2>
                         }
 
