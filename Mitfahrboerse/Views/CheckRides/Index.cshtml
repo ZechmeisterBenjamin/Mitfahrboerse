@@ -1,0 +1,209 @@
+﻿@model Mitfahrboerse.Models.t_Person
+@{
+    ViewData["Title"] = "Fahrten überprüfen";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-white">Fahrten verwalten</h2>
+
+    <div class="row">
+
+        @* --- LINKES PANEL: FAHRER --- *@
+        <div class="col-md-6 mb-4">
+            <div class="card bg-dark text-white h-100 shadow-sm" style="border: 1px solid #444;">
+                <div class="card-header border-secondary">
+                    <h4 class="mb-0 text-warning">Geplante Fahrten (Fahrer)</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model?.t_Rides != null && Model.t_Rides.Any())
+                    {
+                        @foreach (var ride in Model.t_Rides)
+                        {
+                            var count = ride.PersonRides?.Count(x => x.Status == 0) ?? 0;
+
+                            <div class="p-3 mb-3 border rounded border-secondary" id="ride-@ride.RideId" style="background-color: rgba(255,255,255,0.05);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0 text-warning">@ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr</h5>
+                                </div>
+
+                                <p class="mb-3 text-light">
+                                    @(ride.FK_StartsAt_Position?.Description ?? "Start") &rarr; @(ride.FK_EndsAt_Position?.Description ?? "Ziel")
+                                </p>
+
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-warning btn-sm" onclick="showPassengers(@ride.RideId, '@ride.RideDateTime.ToString("dd.MM.yyyy HH:mm")')">
+                                        @count Mitfahrer
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="cancelRide(@ride.RideId)">
+                                        Stornieren
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Keine eigenen Fahrten geplant.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* --- RECHTES PANEL: PASSAGIER --- *@
+        <div class="col-md-6 mb-4">
+            <div class="card bg-dark text-white h-100 shadow-sm" style="border: 1px solid #444;">
+                <div class="card-header border-secondary">
+                    <h4 class="mb-0 text-warning">Mitfahrten (Passagier)</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model?.PersonRides != null && Model.PersonRides.Any())
+                    {
+                        @foreach (var pr in Model.PersonRides)
+                        {
+                            <div class="p-3 mb-3 border rounded border-secondary" id="passenger-ride-@pr.FK_RideId" style="background-color: rgba(255,255,255,0.05);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0 text-warning">@(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy HH:mm") ?? "---") Uhr</h5>
+
+                                    @if (pr.Status == 0)
+                                    {
+                                        <span class="badge bg-success">Bestätigt</span>
+                                    }
+                                    else if (pr.Status == 2)
+                                    {
+                                        <span class="badge bg-danger">Abgelehnt</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Angefragt</span>
+                                    }
+                                </div>
+
+                                <p class="mb-3 text-light">
+                                    @(pr.Ride?.FK_StartsAt_Position?.Description ?? "Start") &rarr; @(pr.Ride?.FK_EndsAt_Position?.Description ?? "Ziel")
+                                </p>
+
+                                <div>
+                                    <button class="btn btn-danger btn-sm" onclick="leaveRide(@pr.FK_RideId)">
+                                        Absagen
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Du hast keine Mitfahrten gebucht.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* --- MODAL (Standard Bootstrap Modal) --- *@
+<div class="modal fade" id="passengersModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-warning">Mitfahrer-Liste</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="rideInfoSubtitle" class="text-muted small mb-3"></p>
+                <div id="passengersList">
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Funktion zum Stornieren (Fahrer)
+        function cancelRide(rideId) {
+            if (!confirm("Möchtest du diese Fahrt wirklich stornieren? Alle Mitfahrer werden entfernt.")) return;
+
+            const params = new URLSearchParams();
+            params.append('rideId', rideId);
+
+            fetch('@Url.Action("CancelRide", "CheckRides")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const element = document.getElementById(`ride-${rideId}`);
+                    if(element) element.remove();
+                }
+                alert(data.message);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Funktion zum Verlassen (Passagier)
+        function leaveRide(rideId) {
+            if (!confirm("Möchtest du deine Teilnahme an dieser Fahrt wirklich absagen?")) return;
+
+            const params = new URLSearchParams();
+            params.append('rideId', rideId);
+
+            fetch('@Url.Action("LeaveRide", "CheckRides")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const element = document.getElementById(`passenger-ride-${rideId}`);
+                    if(element) element.remove();
+                }
+                alert(data.message);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Modal öffnen und Daten laden
+        function showPassengers(rideId, rideTime) {
+            // Bootstrap 5 Modal Initialisierung
+            var myModal = new bootstrap.Modal(document.getElementById('passengersModal'));
+
+            const listContainer = document.getElementById('passengersList');
+            const subtitle = document.getElementById('rideInfoSubtitle');
+
+            subtitle.textContent = "Fahrt am " + rideTime + " Uhr";
+            listContainer.innerHTML = '<div class="text-center p-3">Lade Daten...</div>';
+
+            myModal.show();
+
+            fetch(`@Url.Action("GetRidePassengers", "CheckRides")?rideId=${rideId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        listContainer.innerHTML = "<p class='text-center text-muted'>Keine Mitfahrer.</p>";
+                        return;
+                    }
+
+                    let html = '<table class="table table-dark table-striped mb-0">';
+                    html += '<thead><tr><th>Name</th><th class="text-end">Klasse</th></tr></thead><tbody>';
+
+                    data.forEach(p => {
+                        html += `<tr>
+                                    <td>${p.userName}</td>
+                                    <td class="text-end text-warning">${p.klasse}</td>
+                                 </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    listContainer.innerHTML = html;
+                })
+                .catch(err => {
+                    listContainer.innerHTML = "<p class='text-danger text-center'>Fehler beim Laden.</p>";
+                });
+        }
+    </script>
+}
