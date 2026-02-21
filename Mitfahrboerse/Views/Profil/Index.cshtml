@@ -278,14 +278,57 @@
                     <p><strong>Gültig bis:</strong> ${validUntil}</p>
 
                     <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
-                    <div style="text-align: center;">
+
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
                         <button class="styled-button primary-button"
                                 onclick="openQRModal('${code}', '${title}')"
                                 style="width: 100%;">
                             QR-Code anzeigen
                         </button>
+
+                        <button class="styled-button"
+                                onclick="returnVoucher('${code}')"
+                                style="width: 100%; background-color: #dc3545; color: white; border: none;">
+                            Gutschein zurückgeben
+                        </button>
                     </div>
                 </div>`;
+        }
+
+        function returnVoucher(code) {
+            if (!confirm("Möchtest du diesen Gutschein wirklich zurückgeben? Die Punkte werden dir gutgeschrieben.")) {
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.append('code', code);
+
+            fetch('@Url.Action("ReturnVoucher", "Profil")', {
+                method: 'POST',
+                body: params,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('voucherDetailPanel').innerHTML = 
+                        `<div style="color: #28a745; text-align: center; padding: 20px;">
+                            <strong> ${data.message}</strong>
+                         </div>`;
+
+                    setTimeout(() => {
+                        window.location.href = '@Url.Action("Index", "Profil")?tab=voucher';
+                    }, 1500);
+                } else {
+                    alert("Fehler: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Ein Fehler ist aufgetreten.");
+            });
         }
 
         function openQRModal(code, title) {
