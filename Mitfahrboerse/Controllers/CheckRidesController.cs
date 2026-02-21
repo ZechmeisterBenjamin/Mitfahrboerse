@@ -86,14 +86,10 @@ namespace Mitfahrboerse.Controllers
             _context.t_Rides.Remove(ride);
             await _context.SaveChangesAsync();
 
-            foreach (var personRide in recipients)
-            {
-                var message = $"Die Fahrt von {ride.FK_StartsAt_Position.Description} nach {ride.FK_EndsAt_Position.Description} am {ride.RideDateTime.Date} um {ride.RideDateTime.TimeOfDay} wurde von {ride.FK_Driver_Person.FirstName} {ride.FK_Driver_Person.LastName} storniert.";
-                await _hubContext.Clients.User(personRide.FK_PersonId)
-                    .SendAsync("ReceiveNotification", "Fahrt storniert!", message);
-            }
+            // Fahrt-Details für die Erfolgs-Meldung
+            var rideDetails = $"{ride.RideDateTime.ToString("dd.MM.yyyy, HH:mm")} - {ride.FK_StartsAt_Position.Description} → {ride.FK_EndsAt_Position.Description}";
 
-            return Json(new { success = true, message = "Fahrt wurde erfolgreich storniert." });
+            return Json(new { success = true, message = "Fahrt wurde erfolgreich storniert.", rideDetails = rideDetails });
         }
 
         [HttpPost]

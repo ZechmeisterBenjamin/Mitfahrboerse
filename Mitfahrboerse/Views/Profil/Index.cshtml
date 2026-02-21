@@ -43,11 +43,86 @@
 
         <div class="content-panel" id="contentPanel">
         </div>
+
+        @if (!string.IsNullOrEmpty(carDeleteError))
+        {
+            <div id="alertError" style="position: fixed; top: 100px; right: 20px; background-color: #dc3545; color: white; padding: 15px 20px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out;">
+                <strong>❌ Fehler:</strong> @carDeleteError
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(carDeleteSuccess))
+        {
+            <div id="alertSuccess" style="position: fixed; top: 100px; right: 20px; background-color: #28a745; color: white; padding: 15px 20px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out;">
+                <strong>✅ Erfolg:</strong> @carDeleteSuccess
+            </div>
+        }
+
+        <style>
+            @@keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+
+            @@keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+
+            .alert-fade-out {
+                animation: fadeOut 0.5s ease-out forwards !important;
+            }
+        </style>
     </main>
 
     <script>
+        // Alert-Nachrichten nach 5 Sekunden verschwinden lassen
+        function hideAlertAfterDelay(alertId, delayMs = 5000) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                setTimeout(() => {
+                    alert.classList.add('alert-fade-out');
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 500); // Warte auf die Fade-out Animation
+                }, delayMs);
+            }
+        }
+
+        // Beim Laden der Seite die Alerts starten
+        document.addEventListener('DOMContentLoaded', () => {
+            hideAlertAfterDelay('alertError', 5000);
+            hideAlertAfterDelay('alertSuccess', 5000);
+        });
+
         const buttons = document.querySelectorAll('.side-button:not(.logout)');
         const contentPanel = document.getElementById('contentPanel');
+
+        // Wenn tab-Parameter vorhanden ist, öffne diesen Tab automatisch
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+
+        // Klick-Handler für die Buttons
+        function attachButtonHandlers() {
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const contentType = this.getAttribute('data-content');
+                    loadContent(contentType);
+                    buttons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Wenn tab-Parameter gesetzt, automatisch den Tab öffnen
+            if (tabParam) {
+                const targetButton = document.querySelector(`[data-content="${tabParam}"]`);
+                if (targetButton) {
+                    targetButton.click();
+                }
+            }
+        }
+
+        attachButtonHandlers();
 
         let currentSettings = {
             selectedDesign: @selectedDesign,
@@ -71,11 +146,11 @@
                     <h2>Einstellungen</h2>
                     @if (!string.IsNullOrEmpty(carDeleteError))
                     {
-                            <div class="alert-message alert-error">@carDeleteError</div>
+                            <div id="settingsAlertError" class="alert-message alert-error" style="animation: slideIn 0.3s ease-out;">@carDeleteError</div>
                     }
                     @if (!string.IsNullOrEmpty(carDeleteSuccess))
                     {
-                            <div class="alert-message alert-success">@carDeleteSuccess</div>
+                            <div id="settingsAlertSuccess" class="alert-message alert-success" style="animation: slideIn 0.3s ease-out;">@carDeleteSuccess</div>
                     }
 
                     <div class="settings-section">
@@ -174,6 +249,9 @@
         contentPanel.innerHTML = contentData.settings;
 
         function attachSettingsListeners() {
+            hideAlertAfterDelay('settingsAlertError', 5000);
+            hideAlertAfterDelay('settingsAlertSuccess', 5000);
+
             const designOptions = document.querySelectorAll('.design-option');
             designOptions.forEach(option => {
                 option.addEventListener('click', () => {

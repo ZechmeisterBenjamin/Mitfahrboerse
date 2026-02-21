@@ -15,16 +15,32 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
+<style>
+    @@keyframes slideIn {
+        from { transform: translateX(-400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @@keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    .alert-fade-out {
+        animation: fadeOut 0.5s ease-out forwards !important;
+    }
+</style>
+
 <div class="ride-create-container">
     <div class="ride-create-card">
         <div class="card-body">
             @if (TempData["Message"] != null)
             {
-                <div class="alert alert-success">@TempData["Message"]</div>
+                <div id="successMessage" class="alert alert-success" style="animation: slideIn 0.3s ease-out;">@TempData["Message"]</div>
             }
 
             <form asp-action="Create" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div id="validationErrors" asp-validation-summary="ModelOnly" class="text-danger" style="animation: slideIn 0.3s ease-out;"></div>
 
                 <div class="form-group mb-3">
                     <label for="startPositionInput">Von:</label>
@@ -120,6 +136,30 @@
 
 @section Scripts {
     <script>
+        // Erfolgsmeldung nach 5 Sekunden verschwinden lassen
+        function hideMessageAfterDelay(messageId, delayMs = 5000) {
+            const message = document.getElementById(messageId);
+            if (message) {
+                setTimeout(() => {
+                    message.classList.add('alert-fade-out');
+                    setTimeout(() => {
+                        message.style.display = 'none';
+                    }, 500); // Warte auf die Fade-out Animation
+                }, delayMs);
+            }
+        }
+
+        // Beim Laden der Seite die Erfolgsmeldung starten
+        document.addEventListener('DOMContentLoaded', () => {
+            hideMessageAfterDelay('successMessage', 5000);
+
+            // Auch Validierungsfehler nach 5 Sekunden verstecken (wenn vorhanden)
+            const validationDiv = document.getElementById('validationErrors');
+            if (validationDiv && validationDiv.textContent.trim() !== '') {
+                hideMessageAfterDelay('validationErrors', 5000);
+            }
+        });
+
         const map = L.map('map').setView([47.9505574, 14.7842044], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -215,10 +255,8 @@
 
         carSelect.addEventListener('change', function() {
             if (this.value === 'new-car') {
-                document.getElementById('carFormStartPos').value = document.getElementById('startPositionInput').value;
-                document.getElementById('carFormEndPos').value = document.getElementById('endPositionInput').value;
-                document.getElementById('carFormDateTime').value = document.getElementById('rideDateTime').value;
-                carModal.style.display = 'flex';
+                // Navigiere zur Profil-Seite mit dem Auto-Erstellen-Tab
+                window.location.href = '@Url.Action("Index", "Profil")?tab=create';
                 this.value = '';
             }
         });

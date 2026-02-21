@@ -3,7 +3,26 @@
     ViewData["Title"] = "Fahrten verwalten";
 }
 
+<style>
+    @@keyframes slideIn {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @@keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    .alert-fade-out {
+        animation: fadeOut 0.5s ease-out forwards !important;
+    }
+</style>
+
 <main style="display: flex; gap: 20px; padding: 20px; overflow: hidden; max-height: calc(100vh - 100px);">
+    <div id="rideAlert" style="display: none; position: fixed; top: 100px; right: 20px; background-color: #28a745; color: white; padding: 15px 20px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out; max-width: 350px;">
+        <strong>✅ Fahrt storniert:</strong> <span id="rideAlertText"></span>
+    </div>
     <div class="left-column" style="flex: 1; display: flex; flex-direction: column; max-height: 100%;">
         <div class="rides-header">
             <h3 style="color: #ffd60a; margin: 0; text-align: center; width: 100%;">Geplante Fahrten (Fahrer)</h3>
@@ -140,6 +159,21 @@
             if(confirm("Diese Fahrt wirklich löschen?")) {
                 $.post('@Url.Action("CancelRide")', { rideId: id }, function(res) {
                     if(res.success) {
+                        // Zeige die Erfolgs-Meldung
+                        const alertDiv = document.getElementById('rideAlert');
+                        const alertText = document.getElementById('rideAlertText');
+                        alertText.innerHTML = res.rideDetails; // z.B. "22.02.2026, 13:31 - Euratfeld → Waidhofen"
+                        alertDiv.style.display = 'block';
+
+                        // Meldung nach 5 Sekunden verschwinden lassen
+                        setTimeout(() => {
+                            alertDiv.classList.add('alert-fade-out');
+                            setTimeout(() => {
+                                alertDiv.style.display = 'none';
+                                alertDiv.classList.remove('alert-fade-out');
+                            }, 500);
+                        }, 5000);
+
                         $(`#ride-${id}`).fadeOut();
                     } else {
                         alert(res.message);

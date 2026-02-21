@@ -117,10 +117,11 @@ public class ProfilController : BaseController
             return RedirectToAction("Index");
         }
 
+        var carLicensePlate = car.LicensePlate;
         _context.t_Cars.Remove(car);
         _context.SaveChanges();
 
-        TempData["CarDeleteSuccess"] = "Auto entfernt.";
+        TempData["CarDeleteSuccess"] = $"{car.Brand} {car.Model} ({carLicensePlate}) wurde gelöscht.";
         return RedirectToAction("Index");
     }
 
