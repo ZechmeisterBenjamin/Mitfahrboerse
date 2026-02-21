@@ -16,8 +16,28 @@ namespace Mitfahrboerse.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        // Private Hilfsmethode zur Admin-Authentifizierung
+        private async Task<IActionResult> CheckAdminAuthorizationAsync()
         {
+            if (string.IsNullOrEmpty(personId))
+            {
+                return Challenge();
+            }
+
+            var person = await _context.t_People.FirstOrDefaultAsync(p => p.PersonId == personId);
+            if (person == null || !person.IsAdmin)
+            {
+                return Forbid();
+            }
+
+            return null;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var authResult = await CheckAdminAuthorizationAsync();
+            if (authResult != null) return authResult;
+
             return View();
         }
 
@@ -25,8 +45,23 @@ namespace Mitfahrboerse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateVoucher(string description, short price, DateTime validUntil)
         {
+            var authResult = await CheckAdminAuthorizationAsync();
+            if (authResult != null) return authResult;
+
             try
             {
+                // Validierung: Preis muss größer als 0 sein
+                if (price <= 0)
+                {
+                    return Json(new { success = false, message = "Der Preis muss größer als 0 sein." });
+                }
+
+                // Validierung: Datum darf nicht in der Vergangenheit liegen
+                if (validUntil < DateTime.Now)
+                {
+                    return Json(new { success = false, message = "Das Verfallsdatum kann nicht in der Vergangenheit liegen." });
+                }
+
                 int nextId = await _context.t_Offers.AnyAsync()
                      ? await _context.t_Offers.MaxAsync(o => o.OfferId) + 1
                      : 1;
@@ -53,6 +88,9 @@ namespace Mitfahrboerse.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStatistics()
         {
+            var authResult = await CheckAdminAuthorizationAsync();
+            if (authResult != null) return authResult;
+
             try
             {
                 var totalRides = await _context.t_Rides.CountAsync();

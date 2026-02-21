@@ -23,7 +23,7 @@
             
             <div class="admin-form-group">
                 <label for="voucherValidUntil" class="admin-label">Gültig bis:</label>
-                <input type="date" id="voucherValidUntil" name="validUntil" class="admin-input" required />
+                <input type="date" id="voucherValidUntil" name="validUntil" class="admin-input" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
             </div>
             
             <button type="submit" class="admin-button primary-admin-button">

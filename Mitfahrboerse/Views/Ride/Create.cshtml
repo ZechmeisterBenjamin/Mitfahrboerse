@@ -79,7 +79,7 @@
 
                 <div class="form-group mb-4">
                     <label for="rideDateTime">Datum &amp; Uhrzeit</label>
-                    <input id="rideDateTime" name="rideDateTime" class="form-control" type="datetime-local" required value="@savedDateTime"/>
+                    <input id="rideDateTime" name="rideDateTime" class="form-control" type="datetime-local" required value="@savedDateTime" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"/>
                     <span asp-validation-for="RideDateTime" class="text-danger"></span>
                 </div>
 
