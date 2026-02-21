@@ -108,19 +108,52 @@ public class RideController : BaseController
 
         ViewBag.SelectedRide = selectedRide;
         ViewBag.MatchingRidesDict = matchingRides.ToDictionary(m => m.Ride.RideId, m => m);
-            
+
         return View(rides);
     }
 
-    public IActionResult Create()
+    public IActionResult Create(string? startPos = null, string? endPos = null, string? dateTime = null)
     {
         var userCars = _context.t_Cars.Where(c => c.FK_Owner_PersonId == personId).ToList();
-                
+
         ViewBag.UserCars = userCars;
         ViewBag.Positions = _context.t_Positions.ToList();
+
+        ViewBag.SavedStartPos = startPos ?? "";
+        ViewBag.SavedEndPos = endPos ?? "";
+        ViewBag.SavedDateTime = dateTime ?? "";
+
         return View();
     }
-            
+
+    [HttpPost]
+    public IActionResult CreateCarAndReturn(string kennzeichen, short sitze, string marke, string modell, string farbe,
+        string? startPos = null, string? endPos = null, string? dateTime = null)
+    {
+        int nextId = 1;
+        if (_context.t_Cars.Any())
+        {
+            nextId = _context.t_Cars.Max(c => c.CarId) + 1;
+        }
+
+        var newCar = new t_Car(
+            nextId,
+            kennzeichen ?? "",
+            sitze,
+            marke ?? "",
+            modell ?? "",
+            farbe ?? "",
+            personId
+        );
+        _context.t_Cars.Add(newCar);
+        _context.SaveChanges();
+
+        TempData["Message"] = "Auto erfolgreich erstellt!";
+        TempData["NewCarId"] = newCar.CarId;
+
+        return RedirectToAction("Create", new { startPos, endPos, dateTime });
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(
         string startPositionDescription, string startLat, string startLon,

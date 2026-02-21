@@ -52,6 +52,9 @@ public class ProfilController : BaseController
             user = new t_Person { PersonId = personId };
         }
 
+        ViewData["SelectedDesign"] = user.Design;
+        ViewData["SelectedStartseite"] = user.Startpage;
+
         return View(user);
     }
 
