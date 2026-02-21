@@ -32,7 +32,6 @@
                 <div style="font-size: 0.8em; color: #aaa;">Angemeldet</div>
             </div>
             <button class="side-button active" data-content="settings">Einstellungen</button>
-            <button class="side-button" data-content="check">Fahrten überprüfen</button>
             <button class="side-button" data-content="history">Statistiken</button>
             <button class="side-button" data-content="create">Auto Erstellen</button>
             <button class="side-button" data-content="voucher">Gutscheine</button>
@@ -76,7 +75,6 @@
     </main>
 
     <script>
-        // Alert-Nachrichten nach 5 Sekunden verschwinden lassen
         function hideAlertAfterDelay(alertId, delayMs = 5000) {
             const alert = document.getElementById(alertId);
             if (alert) {
@@ -84,12 +82,11 @@
                     alert.classList.add('alert-fade-out');
                     setTimeout(() => {
                         alert.style.display = 'none';
-                    }, 500); // Warte auf die Fade-out Animation
+                    }, 500); 
                 }, delayMs);
             }
         }
 
-        // Beim Laden der Seite die Alerts starten
         document.addEventListener('DOMContentLoaded', () => {
             hideAlertAfterDelay('alertError', 5000);
             hideAlertAfterDelay('alertSuccess', 5000);
@@ -144,14 +141,6 @@
         const settingsHTML = `
                 <div class="settings-container">
                     <h2>Einstellungen</h2>
-                    @if (!string.IsNullOrEmpty(carDeleteError))
-                    {
-                            <div id="settingsAlertError" class="alert-message alert-error" style="animation: slideIn 0.3s ease-out;">@carDeleteError</div>
-                    }
-                    @if (!string.IsNullOrEmpty(carDeleteSuccess))
-                    {
-                            <div id="settingsAlertSuccess" class="alert-message alert-success" style="animation: slideIn 0.3s ease-out;">@carDeleteSuccess</div>
-                    }
 
                     <div class="settings-section">
                         <span class="settings-section-title">Design-Modus</span>
@@ -175,14 +164,14 @@
                             <select id="autos" name="carId" @(hasCars ? "" : "disabled")>
                                 @if (hasCars)
                                 {
-                                        @foreach (var car in cars)
-                                        {
-                                                <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
-                                        }
+                                    @foreach (var car in cars)
+                                    {
+                                        <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
+                                    }
                                 }
                                 else
                                 {
-                                        <option value="">Keine Autos vorhanden</option>
+                                     <option value="">Keine Autos vorhanden</option>
                                 }
                             </select>
                             <button type="submit" class="remove-button" onclick="return confirm('Auto wirklich entfernen?');" @(hasCars ? "" : "disabled")>
@@ -223,16 +212,16 @@
                         <h2>Deine Gutscheine</h2>
                             @if (Model?.PersonOffers != null && Model.PersonOffers.Any())
                             {
-                                    @foreach (var v in Model.PersonOffers)
-                                    {
-                                            <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
-                                                <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
-                                            </div>
-                                    }
+                                @foreach (var v in Model.PersonOffers)
+                                {
+                                        <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
+                                            <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
+                                        </div>
+                                }
                             }
                             else
                             {
-                                    <p>Noch keine Gutscheine vorhanden.</p>
+                                <p>Noch keine Gutscheine vorhanden.</p>
                             }
                     </div>
                     <div class="voucher-detail-panel" id="voucherDetailPanel">Wähle einen Gutschein aus.</div>
@@ -249,9 +238,6 @@
         contentPanel.innerHTML = contentData.settings;
 
         function attachSettingsListeners() {
-            hideAlertAfterDelay('settingsAlertError', 5000);
-            hideAlertAfterDelay('settingsAlertSuccess', 5000);
-
             const designOptions = document.querySelectorAll('.design-option');
             designOptions.forEach(option => {
                 option.addEventListener('click', () => {
