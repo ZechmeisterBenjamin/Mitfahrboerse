@@ -31,6 +31,15 @@ namespace Mitfahrboerse.Controllers
                 .Include(p => p.PersonRides).ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_EndsAt_Position)
                 .FirstOrDefaultAsync(p => p.PersonId == personId);
 
+            if (user?.PersonRides != null)
+            {
+                var rideIds = user.PersonRides.Select(pr => pr.FK_RideId).ToList();
+                await _context.t_Rides
+                    .Include(r => r.FK_Driver_Person)
+                    .Where(r => rideIds.Contains(r.RideId))
+                    .ToListAsync();
+            }
+
             return View(user);
         }
 
@@ -122,14 +131,14 @@ namespace Mitfahrboerse.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetRidePassengers(int rideId)
+        public async Task<IActionResult> GetPassengers(int rideId)
         {
             var passengers = await _context.t_PersonRides
-                .Include(pr => pr.Person)
                 .Where(pr => pr.FK_RideId == rideId && pr.Status == 0)
+                .Include(pr => pr.Person)
                 .Select(pr => new {
-                    UserName = pr.Person.FirstName + " " + pr.Person.LastName,
-                    Klasse = pr.Person.Class
+                    name = pr.Person.FirstName + " " + pr.Person.LastName,
+                    klasse = pr.Person.Class 
                 })
                 .ToListAsync();
 
