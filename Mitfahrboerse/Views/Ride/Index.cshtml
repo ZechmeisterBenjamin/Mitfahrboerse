@@ -38,75 +38,42 @@
         </div>
     </div>
 
-    <div class="rides-content" style="display: flex; gap: 20px;">
-        <div class="left-column">
-            <div class="rides-header">
-                <h3>Verfügbare Fahrten</h3>
-                <span class="rides-count" id="rides-count">@Model.Count() Fahrten</span>
-            </div>
-            <div class="rides-list-container">
-                @foreach (var ride in Model)
-                {
-                    var occupied = ride.PersonRides?.Count(pr => pr.Status == 0) ?? 0;
-                    var capacity = ride.FK_Car != null ? ride.FK_Car.Seats : 0;
-                    var freeSeats = capacity - occupied;
-
-                    <div class="fahrt-item @(firstRide != null && firstRide.RideId == ride.RideId ? "selected" : "")"
-                         data-ride-id="@ride.RideId"
-                         data-driver-name="@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName"
-                         data-driver-class="@ride.FK_Driver_Person.Class"
-                         data-from="@ride.FK_StartsAt_Position.Description"
-                         data-to="@ride.FK_EndsAt_Position.Description"
-                         data-time="@ride.RideDateTime.ToString("HH:mm")"
-                         data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
-                         data-date-iso="@ride.RideDateTime.ToString("yyyy-MM-dd")"
-                         data-seats="@freeSeats"
-                         data-car-license="@(ride.FK_Car?.LicensePlate)">
-
-                        <div class="fahrt-item-content">
-                            <div class="fahrt-item-header">
-                                <strong class="driver-name">@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong>
-                                <span class="seats-badge @(freeSeats > 0 ? "available" : "full")">
-                                    @freeSeats
-                                    @if (freeSeats == 1)
-                                    {
-                                        <span>Platz</span>
-                                    }
-                                    else
-                                    {
-
-                                        <span>Plätze</span>
-                                    }
-                                </span>
-                            </div>
-                            <div class="fahrt-item-route" style="display: flex; align-items: center; gap: 8px; margin: 10px 0;">
-                                <span style="font-weight: bold;">@ride.FK_StartsAt_Position.Description</span>
-                                <div class="route-divider" style="flex-grow: 1; height: 1px; background: #7a7a7a; position: relative;">
-                                    <span style="position: absolute; right: -2px; top: -7px; font-size: 10px; color: #ffd60a;">▶</span>
-                                </div>
-                                <span style="font-weight: bold;">@ride.FK_EndsAt_Position.Description</span>
-                            </div>
-                            <div class="fahrt-item-time">
-                                @ride.RideDateTime.ToString("dd.MM.yyyy") | @ride.RideDateTime.ToString("HH:mm")
-                            </div>
-                            @if (matchingRidesDict != null && matchingRidesDict.ContainsKey(ride.RideId))
-                            {
-                                var detourInfo = matchingRidesDict[ride.RideId];
-                                <div class="fahrt-item-detour" style="margin-top: 8px; padding: 5px 10px; border: 1px dashed #ffd60a; color: #ffd60a; border-radius: 6px; display: inline-block; font-size: 12px; background: rgba(255, 214, 10, 0.1);">
-                                    📍 Umweg: @Math.Round(detourInfo.DetourKilometers, 1) km (@detourInfo.MatchType)
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-                <div id="no-rides-message" class="no-rides-message" style="display: none;">
-                    <div class="empty-state">
-                        <p>Keine Fahrten gefunden</p>
-                        <small>Versuchen Sie, die Filter anzupassen</small>
-                    </div>
-                </div>
-            </div>
+<main style="display: flex; gap: 20px; padding: 20px; overflow: hidden; height: calc(100vh - 300px);">
+    <div class="left-column" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+        <div class="rides-header">
+            <h3>Verfügbare Fahrten</h3>
+            <span class="rides-count" id="rides-count">@Model.Count() Fahrten</span>
         </div>
+        <div class="rides-list-container" style="flex: 1; overflow-y: auto; min-height: 0;">
+            @foreach (var ride in Model)
+            {
+                var occupied = ride.PersonRides?.Count(pr => pr.Status == 0) ?? 0;
+                var capacity = ride.FK_Car != null ? ride.FK_Car.Seats : 0;
+                var freeSeats = capacity - occupied;
+
+                <div class="fahrt-item @(firstRide != null && firstRide.RideId == ride.RideId ? "selected" : "")"
+                     data-ride-id="@ride.RideId"
+                     data-driver-name="@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName"
+                     data-driver-class="@ride.FK_Driver_Person.Class"
+                     data-from="@ride.FK_StartsAt_Position.Description"
+                     data-to="@ride.FK_EndsAt_Position.Description"
+                     data-time="@ride.RideDateTime.ToString("HH:mm")"
+                     data-date="@ride.RideDateTime.ToString("dd.MM.yyyy")"
+                     data-date-iso="@ride.RideDateTime.ToString("yyyy-MM-dd")"
+                     data-seats="@freeSeats"
+                     data-car-license="@(ride.FK_Car?.LicensePlate)">
+
+                    <div class="fahrt-item-content">
+                        <div class="fahrt-item-header">
+                            <strong class="driver-name">@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong>
+                            <span class="seats-badge @(freeSeats > 0 ? "available" : "full")">
+                                @freeSeats
+                                @if (freeSeats == 1)
+                                {
+                                    <span>Platz</span>
+                                }
+                                else
+                                {
 
         <div class="right-column">
             @if (firstRide != null)
@@ -160,6 +127,59 @@
                 </div>
             }
         </div>
+    </div>
+
+    <div class="right-column" style="display: flex; flex-direction: column; max-height: 100%; min-height: 0;">
+        @if (firstRide != null)
+        {
+            var firstFreeSeats = (firstRide.FK_Car?.Seats ?? 0) - (firstRide.PersonRides?.Count ?? 0);
+
+            <div id="ride-details" class="fahrt-details-compact">
+                <h3 class="details-title">Fahrtdetails</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Fahrer:</span>
+                        <span id="driver-name" class="detail-value">@firstRide.FK_Driver_Person.FirstName @firstRide.FK_Driver_Person.LastName</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Klasse:</span>
+                        <span id="driver-class" class="detail-value">@firstRide.FK_Driver_Person.Class</span>
+                    </div>
+                    <div class="detail-item highlight-item">
+                        <span class="detail-label">Freie Plätze:</span>
+                        <span id="seats" class="detail-value seats-highlight">@firstFreeSeats</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Datum:</span>
+                        <span id="date" class="detail-value">@firstRide.RideDateTime.ToString("dd.MM.yyyy")</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Zeit:</span>
+                        <span id="time" class="detail-value">@firstRide.RideDateTime.ToString("HH:mm")</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Fahrzeug:</span>
+                        <span id="car-license" class="detail-value">@firstRide.FK_Car?.LicensePlate</span>
+                    </div>
+                    <div class="detail-item route-item">
+                        <span class="detail-label">Strecke:</span>
+                        <span id="route" class="detail-value route-value">
+                            @firstRide.FK_StartsAt_Position.Description → @firstRide.FK_EndsAt_Position.Description
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button class="anfrage-button" id="request-button">
+                <span>Anfrage schicken</span>
+            </button>
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>Keine Fahrten verfügbar</p>
+                <small>Schauen Sie später wieder vorbei</small>
+            </div>
+        }
     </div>
 </main>
 

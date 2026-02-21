@@ -1,0 +1,197 @@
+﻿@model Mitfahrboerse.Models.t_Person
+@{
+    ViewData["Title"] = "Fahrten verwalten";
+}
+
+<style>
+    @@keyframes slideIn {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @@keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    .alert-fade-out {
+        animation: fadeOut 0.5s ease-out forwards !important;
+    }
+</style>
+
+<main style="display: flex; gap: 20px; padding: 20px; overflow: hidden; max-height: calc(100vh - 100px);">
+    <div id="rideAlert" style="display: none; position: fixed; top: 100px; right: 20px; background-color: #28a745; color: white; padding: 15px 20px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out; max-width: 350px;">
+        <strong>✅ Fahrt storniert:</strong> <span id="rideAlertText"></span>
+    </div>
+    <div class="left-column" style="flex: 1; display: flex; flex-direction: column; max-height: 100%;">
+        <div class="rides-header">
+            <h3 style="color: #ffd60a; margin: 0; text-align: center; width: 100%;">Geplante Fahrten (Fahrer)</h3>
+        </div>
+        <div class="rides-list-container" style="flex: 1; overflow-y: auto;">
+            @if (Model?.t_Rides != null && Model.t_Rides.Any())
+            {
+                @foreach (var ride in Model.t_Rides.OrderBy(r => r.RideDateTime))
+                {
+                    var occupied = ride.PersonRides?.Count(pr => pr.Status == 0) ?? 0;
+                    <div class="fahrt-item" id="ride-@ride.RideId">
+                        <div style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="position: relative; text-align: center;">
+                                <strong style="color: #ffd60a; font-size: 1.1rem;">@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong>
+                                <button class="styled-button" style="background-color: #4caf50; color: white; width: auto; margin: 0; padding: 5px 12px; font-size: 0.8rem; min-height: auto; position: absolute; top: 0; right: 0;" onclick="showPassengers(@ride.RideId, '@ride.RideDateTime.ToString("dd.MM HH:mm")')">
+                                    @occupied Mitfahrer
+                                </button>
+                            </div>
+                            <div class="fahrt-item-route" style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-weight: bold;">@ride.FK_StartsAt_Position?.Description</span>
+                                <div style="flex-grow: 1; height: 1px; background: #7a7a7a; position: relative;">
+                                    <span style="position: absolute; right: -2px; top: -7px; font-size: 10px; color: #4285f4;">▶</span>
+                                </div>
+                                <span style="font-weight: bold;">@ride.FK_EndsAt_Position?.Description</span>
+                            </div>
+                            <div class="fahrt-item-time">@ride.RideDateTime.ToString("dd.MM.yyyy | HH:mm")</div>
+                            <button class="styled-button primary-button" style="margin: 0; width: 100%;" onclick="cancelRide(@ride.RideId)">Fahrt stornieren</button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>Keine geplanten Fahrten</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="left-column" style="flex: 1; display: flex; flex-direction: column; max-height: 100%;">
+        <div class="rides-header">
+            <h3 style="color: #ffd60a; margin: 0; text-align: center; width: 100%;">Meine Mitfahrten (Passagier)</h3>
+        </div>
+        <div class="rides-list-container" style="flex: 1; overflow-y: auto;">
+            @if (Model?.PersonRides != null && Model.PersonRides.Any())
+            {
+                @foreach (var pr in Model.PersonRides.OrderBy(x => x.Ride?.RideDateTime))
+                {
+                    <div class="fahrt-item" id="passenger-ride-@pr.FK_RideId">
+                        <div style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="position: relative; text-align: center;">
+                                <strong style="color: #ffd60a; font-size: 1.1rem;">@(pr.Ride?.FK_Driver_Person?.FirstName) @(pr.Ride?.FK_Driver_Person?.LastName)</strong>
+                                <span class="seats-badge @(pr.Status == 0 ? "available" : "")" style="position: absolute; top: 0; right: 0;">
+                                    @(pr.Status == 0 ? "Bestätigt" : "Offen")
+                                </span>
+                            </div>
+                            <div class="fahrt-item-route" style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-weight: bold;">@pr.Ride?.FK_StartsAt_Position?.Description</span>
+                                <div style="flex-grow: 1; height: 1px; background: #7a7a7a; position: relative;">
+                                    <span style="position: absolute; right: -2px; top: -7px; font-size: 10px; color: #4285f4;">▶</span>
+                                </div>
+                                <span style="font-weight: bold;">@pr.Ride?.FK_EndsAt_Position?.Description</span>
+                            </div>
+                            <div class="fahrt-item-time">@pr.Ride?.RideDateTime.ToString("dd.MM.yyyy | HH:mm")</div>
+                            <button class="styled-button primary-button" style="margin: 0; width: 100%;" onclick="leaveRide(@pr.FK_RideId)">Teilnahme absagen</button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <p>Keine Mitfahrten vorhanden</p>
+                </div>
+            }
+        </div>
+    </div>
+</main>
+<div id="passengersModal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #2c2c2c; border: 1px solid #444; border-radius: 15px;">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title" id="modalTitle" style="color: #ffd60a;">Mitfahrer-Liste</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="passengersList" class="list-group list-group-flush">
+                </ul>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal" style="background: #555; border: none;">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showPassengers(rideId, timeStr) {
+            var modalElement = document.getElementById('passengersModal');
+            var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            var list = document.getElementById('passengersList');
+            var title = document.getElementById('modalTitle');
+
+            title.innerText = "Mitfahrer: " + timeStr;
+            list.innerHTML = '<li class="list-group-item bg-transparent text-white border-0 text-center">Lade...</li>';
+
+            modal.show();
+
+            $.get('/CheckRides/GetPassengers', { rideId: rideId })
+                .done(function(data) {
+                    list.innerHTML = '';
+                    if (!data || data.length === 0) {
+                        list.innerHTML = '<li class="list-group-item bg-transparent text-white border-0 text-center p-4">Keine Mitfahrer gefunden.</li>';
+                    } else {
+                        data.forEach(p => {
+                            list.innerHTML += `
+                                <li class="list-group-item bg-transparent text-white border-bottom border-secondary p-3">
+                                    <div class="d-flex flex-column">
+                                        <span style="font-weight: bold; font-size: 1.15rem; color: #fff;">${p.name}</span>
+                                        <span style="color: #ffd60a; font-size: 0.95rem; opacity: 0.9;">${p.klasse || 'Keine Klasse'}</span>
+                                    </div>
+                                </li>`;
+                        });
+                    }
+                })
+                .fail(function() {
+                    list.innerHTML = '<li class="list-group-item bg-transparent text-danger border-0 text-center p-4">Fehler beim Laden der Daten.</li>';
+                });
+        }
+
+        function cancelRide(id) {
+            if(confirm("Diese Fahrt wirklich löschen?")) {
+                $.post('@Url.Action("CancelRide")', { rideId: id }, function(res) {
+                    if(res.success) {
+                        // Zeige die Erfolgs-Meldung
+                        const alertDiv = document.getElementById('rideAlert');
+                        const alertText = document.getElementById('rideAlertText');
+                        alertText.innerHTML = res.rideDetails; // z.B. "22.02.2026, 13:31 - Euratfeld → Waidhofen"
+                        alertDiv.style.display = 'block';
+
+                        // Meldung nach 5 Sekunden verschwinden lassen
+                        setTimeout(() => {
+                            alertDiv.classList.add('alert-fade-out');
+                            setTimeout(() => {
+                                alertDiv.style.display = 'none';
+                                alertDiv.classList.remove('alert-fade-out');
+                            }, 500);
+                        }, 5000);
+
+                        $(`#ride-${id}`).fadeOut();
+                    } else {
+                        alert(res.message);
+                    }
+                });
+            }
+        }
+
+        function leaveRide(id) {
+            if(confirm("Möchtest du die Mitfahrt wirklich absagen?")) {
+                $.post('@Url.Action("LeaveRide")', { rideId: id }, function(res) {
+                    if(res.success) {
+                        $(`#passenger-ride-${id}`).fadeOut();
+                    } else {
+                        alert(res.message);
+                    }
+                });
+            }
+        }
+    </script>
+}

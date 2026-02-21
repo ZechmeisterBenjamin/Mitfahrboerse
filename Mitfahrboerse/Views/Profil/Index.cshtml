@@ -43,11 +43,86 @@
 
         <div class="content-panel" id="contentPanel">
         </div>
+
+        @if (!string.IsNullOrEmpty(carDeleteError))
+        {
+            <div id="alertError" style="position: fixed; top: 100px; right: 20px; background-color: #dc3545; color: white; padding: 15px 20px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out;">
+                <strong>❌ Fehler:</strong> @carDeleteError
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(carDeleteSuccess))
+        {
+            <div id="alertSuccess" style="position: fixed; top: 100px; right: 20px; background-color: #28a745; color: white; padding: 15px 20px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out;">
+                <strong>✅ Erfolg:</strong> @carDeleteSuccess
+            </div>
+        }
+
+        <style>
+            @@keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+
+            @@keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+
+            .alert-fade-out {
+                animation: fadeOut 0.5s ease-out forwards !important;
+            }
+        </style>
     </main>
 
     <script>
+        // Alert-Nachrichten nach 5 Sekunden verschwinden lassen
+        function hideAlertAfterDelay(alertId, delayMs = 5000) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                setTimeout(() => {
+                    alert.classList.add('alert-fade-out');
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 500); // Warte auf die Fade-out Animation
+                }, delayMs);
+            }
+        }
+
+        // Beim Laden der Seite die Alerts starten
+        document.addEventListener('DOMContentLoaded', () => {
+            hideAlertAfterDelay('alertError', 5000);
+            hideAlertAfterDelay('alertSuccess', 5000);
+        });
+
         const buttons = document.querySelectorAll('.side-button:not(.logout)');
         const contentPanel = document.getElementById('contentPanel');
+
+        // Wenn tab-Parameter vorhanden ist, öffne diesen Tab automatisch
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+
+        // Klick-Handler für die Buttons
+        function attachButtonHandlers() {
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const contentType = this.getAttribute('data-content');
+                    loadContent(contentType);
+                    buttons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Wenn tab-Parameter gesetzt, automatisch den Tab öffnen
+            if (tabParam) {
+                const targetButton = document.querySelector(`[data-content="${tabParam}"]`);
+                if (targetButton) {
+                    targetButton.click();
+                }
+            }
+        }
+
+        attachButtonHandlers();
 
         let currentSettings = {
             selectedDesign: @selectedDesign,
@@ -71,11 +146,11 @@
                     <h2>Einstellungen</h2>
                     @if (!string.IsNullOrEmpty(carDeleteError))
                     {
-                        <div class="alert-message alert-error">@carDeleteError</div>
+                            <div id="settingsAlertError" class="alert-message alert-error" style="animation: slideIn 0.3s ease-out;">@carDeleteError</div>
                     }
                     @if (!string.IsNullOrEmpty(carDeleteSuccess))
                     {
-                        <div class="alert-message alert-success">@carDeleteSuccess</div>
+                            <div id="settingsAlertSuccess" class="alert-message alert-success" style="animation: slideIn 0.3s ease-out;">@carDeleteSuccess</div>
                     }
 
                     <div class="settings-section">
@@ -100,14 +175,14 @@
                             <select id="autos" name="carId" @(hasCars ? "" : "disabled")>
                                 @if (hasCars)
                                 {
-                                    @foreach (var car in cars)
-                                    {
-                                        <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
-                                    }
+                                        @foreach (var car in cars)
+                                        {
+                                                <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
+                                        }
                                 }
                                 else
                                 {
-                                    <option value="">Keine Autos vorhanden</option>
+                                        <option value="">Keine Autos vorhanden</option>
                                 }
                             </select>
                             <button type="submit" class="remove-button" onclick="return confirm('Auto wirklich entfernen?');" @(hasCars ? "" : "disabled")>
@@ -128,83 +203,7 @@
                 </div>
             `;
 
-        const checkRidesHTML = `
-            <div class="ride-list-container">
-                <h2>Fahrten überprüfen</h2>
-
-                <div class="ride-list-group">
-                    <h3>Meine Fahrten (als Fahrer)</h3>
-                    @if (Model?.t_Rides != null && Model.t_Rides.Any())
-                    {
-                        @foreach (var ride in Model.t_Rides)
-                        {
-                            var count = ride.PersonRides?.Count(x => x.Status == 0) ?? 0;
-                            <div class="ride-item" id="ride-@ride.RideId" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-                                <div style="flex-grow: 1;">
-                                    <div class="ride-item-date" style="color: #ffcc00; font-weight: bold; font-size: 0.9em;">@ride.RideDateTime.ToString("dd.MM.yyyy HH:mm") Uhr</div>
-                                    <div class="ride-item-route" style="margin-top: 5px; font-size: 1em;">
-                                        <span>@(ride.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
-                                        <span class="arrow" style="margin: 0 5px; color: #aaa;">→</span>
-                                        <span>@(ride.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
-                                    </div>
-                                </div>
-
-                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 100px;">
-                                    <div class="ride-item-badge"
-                                         onclick="showPassengers(@ride.RideId, '@ride.RideDateTime.ToString("dd.MM.yyyy HH:mm")')"
-                                         style="font-size: 0.75em; padding: 4px 8px; border: 1px solid #ffcc00; color: #ffcc00; border-radius: 12px; white-space: nowrap; cursor: pointer;">
-                                        @count Mitfahrer
-                                    </div>
-                                    <button class="cancel-button" onclick="cancelRide(@ride.RideId)"
-                                            style="background: transparent; color: #d9534f; border: 1px solid #d9534f; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75em; transition: all 0.2s;">
-                                        Stornieren
-                                    </button>
-                                </div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p>Keine Fahrten erstellt.</p>
-                    }
-                </div>
-
-                <div class="ride-list-group" style="margin-top: 30px;">
-                    <h3>Mitfahrten (als Passagier)</h3>
-                    @if (Model?.PersonRides != null && Model.PersonRides.Any())
-                    {
-                        @foreach (var pr in Model.PersonRides)
-                        {
-                            <div class="ride-item" id="passenger-ride-@(pr.Ride?.RideId)" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-                                <div style="flex-grow: 1;">
-                                    <div class="ride-item-date" style="color: #ffcc00; font-weight: bold; font-size: 0.9em;">@(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy HH:mm") ?? "---") Uhr</div>
-                                    <div class="ride-item-route" style="margin-top: 5px; font-size: 1em;">
-                                        <span>@(pr.Ride?.FK_StartsAt_Position?.Description ?? "Unbekannt")</span>
-                                        <span class="arrow" style="margin: 0 5px; color: #aaa;">→</span>
-                                        <span>@(pr.Ride?.FK_EndsAt_Position?.Description ?? "Unbekannt")</span>
-                                    </div>
-                                </div>
-
-                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 110px;">
-                                    <span class="status-badge @(pr.Status == 0 ? "accepted" : (pr.Status == 2 ? "rejected" : "pending"))" style="font-size: 0.75em;">
-                                        @(pr.Status == 0 ? "Angenommen" : (pr.Status == 2 ? "Abgelehnt" : "Offen"))
-                                    </span>
-
-                                    <button class="leave-button" onclick="leaveRide(@pr.FK_RideId)"
-                                                    style="background: transparent; color: #d9534f; border: 1px solid #d9534f; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75em; transition: all 0.2s;">
-                                        Fahrt verlassen
-                                    </button>
-                                </div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p>Keine Mitfahrten.</p>
-                    }
-                </div>
-            </div>
-        `;
+        
 
         const createCarHTML = `
                 <form class="create-form-container" method="post" action="@Url.Action("CreateCar", "Profil")">
@@ -224,16 +223,16 @@
                         <h2>Deine Gutscheine</h2>
                             @if (Model?.PersonOffers != null && Model.PersonOffers.Any())
                             {
-                                @foreach (var v in Model.PersonOffers)
-                                {
-                                    <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
-                                        <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
-                                    </div>
-                                }
+                                    @foreach (var v in Model.PersonOffers)
+                                    {
+                                            <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
+                                                <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
+                                            </div>
+                                    }
                             }
                             else
                             {
-                                <p>Noch keine Gutscheine vorhanden.</p>
+                                    <p>Noch keine Gutscheine vorhanden.</p>
                             }
                     </div>
                     <div class="voucher-detail-panel" id="voucherDetailPanel">Wähle einen Gutschein aus.</div>
@@ -242,7 +241,6 @@
 
         const contentData = {
             settings: settingsHTML,
-            check: checkRidesHTML,
             history: statisticsHTML,
             create: createCarHTML,
             voucher: showVoucherHTML
@@ -251,13 +249,16 @@
         contentPanel.innerHTML = contentData.settings;
 
         function attachSettingsListeners() {
+            hideAlertAfterDelay('settingsAlertError', 5000);
+            hideAlertAfterDelay('settingsAlertSuccess', 5000);
+
             const designOptions = document.querySelectorAll('.design-option');
             designOptions.forEach(option => {
                 option.addEventListener('click', () => {
                     currentSettings.selectedDesign = parseInt(option.getAttribute('data-design'));
                     updateSettings();
                     applyDesignClass();
-                    contentPanel.innerHTML = settingsHTML; 
+                    contentPanel.innerHTML = settingsHTML;
                     attachSettingsListeners();
                 });
             });
@@ -318,88 +319,7 @@
                 });
         }
 
-        function cancelRide(rideId) {
-            if (!confirm("Möchtest du diese Fahrt wirklich stornieren? Alle Mitfahrer werden entfernt.")) return;
-
-            const params = new URLSearchParams();
-            params.append('rideId', rideId);
-
-            fetch('@Url.Action("CancelRide", "Profil")', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString()
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const element = document.getElementById(`ride-${rideId}`);
-                    if (element) element.style.display = 'none';
-                    alert(data.message);
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        function leaveRide(rideId) {
-            if (!confirm("Möchtest du deine Teilnahme an dieser Fahrt wirklich absagen?")) return;
-
-            const params = new URLSearchParams();
-            params.append('rideId', rideId);
-
-            fetch('@Url.Action("LeaveRide", "Profil")', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString()
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const element = document.getElementById(`passenger-ride-${rideId}`);
-                    if (element) element.style.display = 'none';
-                    alert(data.message);
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        function showPassengers(rideId, rideTime) {
-            const modal = document.getElementById('passengersModal');
-            const listContainer = document.getElementById('passengersList');
-            const subtitle = document.getElementById('rideInfoSubtitle');
-
-            subtitle.textContent = "Fahrt am " + rideTime + " Uhr";
-            listContainer.innerHTML = '<div style="text-align:center; padding:20px;">Lade Mitfahrer...</div>';
-            modal.style.display = 'block';
-
-            fetch(`/Profil/GetRidePassengers?rideId=${rideId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length === 0) {
-                        listContainer.innerHTML = "<p style='padding:10px;'>Noch keine Mitfahrer für diese Fahrt.</p>";
-                        return;
-                    }
-
-                    let html = '<table style="width: 100%; border-collapse: collapse;">';
-                    html += '<tr style="color: #aaa; font-size: 0.8em; text-align: left;"><th style="padding: 5px;">Name</th><th>Klasse</th></tr>';
-
-                    data.forEach(p => {
-                        html += `<tr style="border-bottom: 1px solid #444;">
-                                    <td style="padding: 10px 5px;">${p.userName}</td>
-                                    <td style="padding: 10px 5px; color: #ffcc00;">${p.klasse}</td>
-                                 </tr>`;
-                    });
-                    html += '</table>';
-                    listContainer.innerHTML = html;
-                })
-                .catch(err => {
-                    listContainer.innerHTML = "<p style='color: #d9534f; padding:10px;'>Fehler beim Laden der Daten.</p>";
-                    console.error(err);
-                });
-        }
+        
 
     </script>
     <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
@@ -409,21 +329,6 @@
                 <div id="qrPlaceholder" style="background:white; padding:10px; margin:15px; display:inline-block;"></div>
                 <p>Nur einmal scannbar!</p>
             </div>
-        </div>
-    </div>
-    <div id="passengersModal" class="admin-modal" style="display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; background-color: rgba(0,0,0,0.8);">
-        <div style="background-color: #2c2c2c; margin: 10% auto; padding: 20px; width: 450px; border-radius: 10px; border: 1px solid #444;">
-            <h3 style="color: #ffcc00; margin-bottom: 5px;">Mitfahrer-Liste</h3>
-            <p id="rideInfoSubtitle" style="color: #888; font-size: 0.85em; margin-bottom: 15px;"></p>
-            <hr style="background: #444; height: 1px; border: none;">
-
-            <div id="passengersList" style="max-height: 300px; overflow-y: auto; color: white; margin-top: 15px;">
-            </div>
-
-            <button onclick="document.getElementById('passengersModal').style.display='none'"
-                    style="width: 100%; margin-top: 20px; background: #555; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">
-                Schließen
-            </button>
         </div>
     </div>
 </body>

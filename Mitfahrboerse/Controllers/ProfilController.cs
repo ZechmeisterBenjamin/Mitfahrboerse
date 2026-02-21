@@ -120,99 +120,15 @@ public class ProfilController : BaseController
             return RedirectToAction("Index");
         }
 
+        var carLicensePlate = car.LicensePlate;
         _context.t_Cars.Remove(car);
         _context.SaveChanges();
 
-        TempData["CarDeleteSuccess"] = "Auto entfernt.";
+        TempData["CarDeleteSuccess"] = $"{car.Brand} {car.Model} ({carLicensePlate}) wurde gelöscht.";
         return RedirectToAction("Index");
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CancelRide(int rideId)
-    {
-        var ride = await _context.t_Rides
-            .Include(r => r.PersonRides)
-            .ThenInclude(pr => pr.Person)
-            .Include(r => r.FK_StartsAt_Position)
-            .Include(r => r.FK_EndsAt_Position)
-            .Include(r => r.FK_Driver_Person)
-            .FirstOrDefaultAsync(r => r.RideId == rideId && r.FK_Driver_PersonId == personId);
-
-        if (ride == null)
-        {
-            return Json(new { success = false, message = "Fahrt nicht gefunden..." });
-        }
-
-        var recipients = ride.PersonRides
-            .Where(pr => pr.Status != 2 && pr.Status != 3)
-            .ToList();
-
-        /*
-        var calendarService = new CalendarEvent(_accessToken);
-        if (!string.IsNullOrEmpty(ride.EventId))
-        {
-            await calendarService.DeleteEventAsync(ride.EventId);
-        }
-
-        foreach (var pr in ride.PersonRides)
-        {
-            if (!string.IsNullOrEmpty(pr.EventId))
-            {
-                await calendarService.DeleteEventAsync(pr.EventId);
-            }
-        }
-        */
-
-        if (ride.PersonRides != null && ride.PersonRides.Any())
-        {
-            _context.t_PersonRides.RemoveRange(ride.PersonRides);
-        }
-        _context.t_Rides.Remove(ride);
-        await _context.SaveChangesAsync();
-
-        foreach (var personRide in recipients)
-        {
-            var message = $"Die Fahrt von {ride.FK_StartsAt_Position.Description} nach {ride.FK_EndsAt_Position.Description} am {ride.RideDateTime.Date} um {ride.RideDateTime.TimeOfDay} wurde von {ride.FK_Driver_Person.FirstName} {ride.FK_Driver_Person.LastName} storniert.";
-            await _hubContext.Clients.User(personRide.FK_PersonId)
-                .SendAsync("ReceiveNotification", "Fahrt storniert!", message);
-        }
-
-        return Json(new { success = true, message = "Fahrt wurde erfolgreich storniert." });
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> LeaveRide(int rideId)
-    {
-        var personRide = await _context.t_PersonRides
-            .FirstOrDefaultAsync(pr => pr.FK_RideId == rideId && pr.FK_PersonId == personId);
-
-        if (personRide == null)
-        {
-            return Json(new { success = false, message = "Teilnahme nicht gefunden." });
-        }
-
-        /*
-        var calendarService = new CalendarEvent(_accessToken);
-        if (!string.IsNullOrEmpty(ride.EventId))
-        {
-            await calendarService.DeleteEventAsync(ride.EventId);
-        }
-
-        foreach (var pr in ride.PersonRides)
-        {
-            if (!string.IsNullOrEmpty(pr.EventId))
-            {
-                await calendarService.DeleteEventAsync(pr.EventId);
-            }
-        } 
-        */
-
-        _context.t_PersonRides.Remove(personRide);
-
-        await _context.SaveChangesAsync();
-
-        return Json(new { success = true, message = "Du hast deine Teilnahme erfolgreich abgesagt." });
-    }
+    
 
     [HttpGet]
     public IActionResult GetVoucherQR(string code)
@@ -231,21 +147,7 @@ public class ProfilController : BaseController
         }
     }
 
-    [AllowAnonymous]
-    [HttpGet]
-    public async Task<IActionResult> GetRidePassengers(int rideId)
-    {
-        var passengers = await _context.t_PersonRides
-            .Include(pr => pr.Person)
-            .Where(pr => pr.FK_RideId == rideId && pr.Status == 0) 
-            .Select(pr => new {
-                UserName = pr.Person.FirstName + " " + pr.Person.LastName,
-                Klasse = pr.Person.Class 
-            })
-            .ToListAsync();
-
-        return Json(passengers);
-    }
+    
 
     public IActionResult Logout()
     {
