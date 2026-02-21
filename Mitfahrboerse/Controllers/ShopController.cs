@@ -100,7 +100,7 @@ public class ShopController : BaseController
     {
         var oldDate = DateOnly.FromDateTime(oldValidUntil);
         var offer = await _context.t_Offers
-            .FirstOrDefaultAsync(o => o.OfferId == id && o.ValidUntil == oldDate);
+            .FirstOrDefaultAsync(o => o.OfferId == id);
 
         bool alreadyPurchased = await _context.t_PersonOffers
                 .AnyAsync(po => po.FK_OfferId == id);

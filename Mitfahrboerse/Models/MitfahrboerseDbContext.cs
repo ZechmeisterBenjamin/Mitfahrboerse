@@ -28,7 +28,7 @@ public partial class MitfahrboerseDbContext : DbContext
 
         modelBuilder.Entity<t_Offer>(entity =>
         {
-            entity.HasKey(e => new { e.OfferId, e.ValidUntil }).HasName("PK__t_Offer__9C2DC745C1C27462");
+            entity.HasKey(e => new { e.OfferId }).HasName("PK__t_Offer__9C2DC745C1C27462");
 
             entity.HasMany(d => d.FK_People).WithMany(p => p.t_Offers)
                 .UsingEntity<t_PersonOffer>( 
@@ -37,12 +37,12 @@ public partial class MitfahrboerseDbContext : DbContext
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK__t_PersonO__FK_Pe__44FF419A"),
                     l => l.HasOne(d => d.FK_Offer).WithMany(p => p.PersonOffers)
-                        .HasForeignKey(d => new { d.FK_OfferId, d.FK_ValidUntil })
+                        .HasForeignKey(d => new { d.FK_OfferId})
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK__t_PersonOffer__440B1D61"),
                     j =>
                     {
-                        j.HasKey(e => new { e.FK_OfferId, e.FK_PersonId, e.FK_ValidUntil }).HasName("PK__t_Person__A1AB7C96D5059798");
+                        j.HasKey(e => new { e.FK_OfferId, e.FK_PersonId }).HasName("PK__t_Person__A1AB7C96D5059798");
                         j.ToTable("t_PersonOffer");
                         j.Property(e => e.Code)
                             .HasMaxLength(50)
