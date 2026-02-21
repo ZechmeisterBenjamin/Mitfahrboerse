@@ -50,6 +50,18 @@ namespace Mitfahrboerse.Controllers
 
             try
             {
+                // Validierung: Preis muss größer als 0 sein
+                if (price <= 0)
+                {
+                    return Json(new { success = false, message = "Der Preis muss größer als 0 sein." });
+                }
+
+                // Validierung: Datum darf nicht in der Vergangenheit liegen
+                if (validUntil < DateTime.Now)
+                {
+                    return Json(new { success = false, message = "Das Verfallsdatum kann nicht in der Vergangenheit liegen." });
+                }
+
                 int nextId = await _context.t_Offers.AnyAsync()
                      ? await _context.t_Offers.MaxAsync(o => o.OfferId) + 1
                      : 1;

@@ -167,6 +167,14 @@ public class RideController : BaseController
                 return Challenge(); 
             }
 
+            if (rideDateTime < DateTime.Now)
+            {
+                ModelState.AddModelError("", "Das Fahrtdatum kann nicht in der Vergangenheit liegen.");
+                ViewBag.UserCars = _context.t_Cars.Where(c => c.FK_Owner_PersonId == personId).ToList();
+                ViewBag.Positions = _context.t_Positions.ToList();
+                return View();
+            }
+
             int startPositionId = await GetOrCreatePositionAsync(startPositionDescription, decimal.Parse(startLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(startLon.Replace(",", "."), CultureInfo.InvariantCulture));
             int endPositionId = await GetOrCreatePositionAsync(endPositionDescription, decimal.Parse(endLat.Replace(",", "."), CultureInfo.InvariantCulture), decimal.Parse(endLon.Replace(",", "."), CultureInfo.InvariantCulture));
 
@@ -183,19 +191,6 @@ public class RideController : BaseController
 
             _context.t_Rides.Add(ride);
             await _context.SaveChangesAsync();
-            
-            /*
-            var calendarService = new CalendarEvent(_accessToken);
-            string subject = $"Fahrt: {startPositionDescription} nach {endPositionDescription}";
-            string eventId = await calendarService.CreateRideEventAsync(
-                subject,
-                rideDateTime,
-                startPositionDescription,
-                endPositionDescription
-            );
-            ride.EventId = eventId;
-            await _context.SaveChangesAsync();
-            */
 
             TempData["Message"] = "Fahrt erfolgreich erstellt!";
             return RedirectToAction(nameof(Index));
@@ -205,7 +200,7 @@ public class RideController : BaseController
             _logger.LogError(ex, "Fehler beim Erstellen der Fahrt.");
             ModelState.AddModelError("", "Es ist ein Fehler aufgetreten: " + ex.Message);
         }
-            
+
         ViewBag.UserCars = _context.t_Cars.Where(c => c.FK_Owner_PersonId == personId).ToList();
         ViewBag.Positions = _context.t_Positions.ToList();
         return View();

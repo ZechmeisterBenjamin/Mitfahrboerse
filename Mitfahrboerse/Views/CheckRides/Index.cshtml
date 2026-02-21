@@ -17,6 +17,26 @@
     .alert-fade-out {
         animation: fadeOut 0.5s ease-out forwards !important;
     }
+
+    .rides-list-container::-webkit-scrollbar {
+        width: 10px; 
+    }
+
+    .rides-list-container::-webkit-scrollbar-track {
+        background: #2c2c2c; 
+        border-radius: 5px;
+    }
+
+    .rides-list-container::-webkit-scrollbar-thumb {
+        background-color: #ffd60a; 
+        border-radius: 5px; 
+        border: 2px solid #2c2c2c; 
+    }
+
+    .rides-list-container {
+        scrollbar-width: thin;
+        scrollbar-color: #ffd60a #2c2c2c;
+    }
 </style>
 
 <main style="display: flex; gap: 20px; padding: 20px; overflow: hidden; max-height: calc(100vh - 100px);">
@@ -159,13 +179,11 @@
             if(confirm("Diese Fahrt wirklich löschen?")) {
                 $.post('@Url.Action("CancelRide")', { rideId: id }, function(res) {
                     if(res.success) {
-                        // Zeige die Erfolgs-Meldung
                         const alertDiv = document.getElementById('rideAlert');
                         const alertText = document.getElementById('rideAlertText');
-                        alertText.innerHTML = res.rideDetails; // z.B. "22.02.2026, 13:31 - Euratfeld → Waidhofen"
+                        alertText.innerHTML = res.rideDetails; 
                         alertDiv.style.display = 'block';
 
-                        // Meldung nach 5 Sekunden verschwinden lassen
                         setTimeout(() => {
                             alertDiv.classList.add('alert-fade-out');
                             setTimeout(() => {
