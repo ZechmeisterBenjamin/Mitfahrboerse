@@ -21,10 +21,9 @@ public partial class t_Offer
 
     public short Price { get; set; }
 
-    [Key]
     public DateOnly ValidUntil { get; set; }
 
-    [ForeignKey("FK_OfferId, FK_ValidUntil")]
+    [ForeignKey("FK_OfferId")]
     [InverseProperty("t_Offers")]
     public virtual ICollection<t_Person> FK_People { get; set; } = new List<t_Person>();
 

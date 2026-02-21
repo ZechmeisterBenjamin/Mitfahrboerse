@@ -17,7 +17,6 @@ namespace Mitfahrboerse.Models
         [Unicode(false)]   
         public string FK_PersonId { get; set; } = null!;
 
-        [Key]
         public DateOnly FK_ValidUntil { get; set; }
 
         [StringLength(50)]
@@ -26,7 +25,7 @@ namespace Mitfahrboerse.Models
 
         public bool IsUsed { get; set; } = false;
 
-        [ForeignKey("FK_OfferId, FK_ValidUntil")]
+        [ForeignKey("FK_OfferId)")]
         [InverseProperty("PersonOffers")]
         public virtual t_Offer FK_Offer { get; set; } = null!;
 
