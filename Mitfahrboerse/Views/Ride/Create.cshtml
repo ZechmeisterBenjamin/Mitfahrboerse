@@ -1,4 +1,4 @@
-﻿@model Mitfahrboerse.Models.t_Ride
+@model Mitfahrboerse.Models.t_Ride
 @{
     ViewData["Title"] = "Fahrt erstellen";
     var positions = ViewBag.Positions as List<Mitfahrboerse.Models.t_Position> ?? new List<Mitfahrboerse.Models.t_Position>();
@@ -45,17 +45,17 @@
                 <div class="form-group mb-3">
                     <label for="startPositionInput">Von:</label>
                     <input id="startPositionInput" name="startPositionDescription" class="form-control" type="text"
-                           placeholder="Startpunkt eingeben" required value="@savedStartPos" />
-                    <input id="startLat" name="startLat" type="hidden" />
-                    <input id="startLon" name="startLon" type="hidden" />
+                           placeholder="Startpunkt eingeben" required value="@savedStartPos"/>
+                    <input id="startLat" name="startLat" type="hidden"/>
+                    <input id="startLon" name="startLon" type="hidden"/>
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="endPositionInput">Nach:</label>
                     <input id="endPositionInput" name="endPositionDescription" class="form-control" type="text"
-                           placeholder="Ziel eingeben" required value="@savedEndPos" />
-                    <input id="endLat" name="endLat" type="hidden" />
-                    <input id="endLon" name="endLon" type="hidden" />
+                           placeholder="Ziel eingeben" required value="@savedEndPos"/>
+                    <input id="endLat" name="endLat" type="hidden"/>
+                    <input id="endLon" name="endLon" type="hidden"/>
                 </div>
 
                 <div class="form-group mb-4">
@@ -79,7 +79,7 @@
 
                 <div class="form-group mb-4">
                     <label for="rideDateTime">Datum &amp; Uhrzeit</label>
-                    <input id="rideDateTime" name="rideDateTime" class="form-control" type="datetime-local" required value="@savedDateTime" />
+                    <input id="rideDateTime" name="rideDateTime" class="form-control" type="datetime-local" required value="@savedDateTime"/>
                     <span asp-validation-for="RideDateTime" class="text-danger"></span>
                 </div>
 
@@ -136,7 +136,6 @@
 
 @section Scripts {
     <script>
-        // Erfolgsmeldung nach 5 Sekunden verschwinden lassen
         function hideMessageAfterDelay(messageId, delayMs = 5000) {
             const message = document.getElementById(messageId);
             if (message) {
@@ -149,7 +148,6 @@
             }
         }
 
-        // Beim Laden der Seite die Erfolgsmeldung starten
         document.addEventListener('DOMContentLoaded', () => {
             hideMessageAfterDelay('successMessage', 5000);
 

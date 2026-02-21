@@ -52,6 +52,9 @@ public class ProfilController : BaseController
             user = new t_Person { PersonId = personId };
         }
 
+        ViewData["SelectedDesign"] = user.Design;
+        ViewData["SelectedStartseite"] = user.Startpage;
+
         return View(user);
     }
 
@@ -133,7 +136,7 @@ public class ProfilController : BaseController
         var voucher = _context.t_PersonOffers.FirstOrDefault(v => v.Code == code);
         if (voucher == null) return NotFound();
 
-        string domain = "https://192.168.178.46";
+        string domain = $"{Request.Scheme}://{Request.Host}";
         string url = $"{domain}/Home/Index?vouchercode={Uri.EscapeDataString(code)}";
 
         using (var qrGen = new QRCodeGenerator())

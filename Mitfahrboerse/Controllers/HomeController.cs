@@ -41,19 +41,19 @@ public class HomeController : BaseController
                 if (voucher == null)
                 {
                     ViewBag.VoucherStatus = "error";
-                    ViewBag.VoucherMessage = "❌ Code nicht gefunden.";
+                    ViewBag.VoucherMessage = "Code nicht gefunden.";
                 }
                 else if (voucher.IsUsed)
                 {
                     ViewBag.VoucherStatus = "warning";
-                    ViewBag.VoucherMessage = $"🚫 '{voucher.FK_Offer?.Title}' wurde bereits eingelöst.";
+                    ViewBag.VoucherMessage = $"'{voucher.FK_Offer?.Title}' wurde bereits eingelöst.";
                 }
                 else
                 {
                     voucher.IsUsed = true;
                     await _context.SaveChangesAsync();
                     ViewBag.VoucherStatus = "success";
-                    ViewBag.VoucherMessage = $"✅ Erfolg! '{voucher.FK_Offer?.Title}' aktiviert.";
+                    ViewBag.VoucherMessage = $"Erfolg! '{voucher.FK_Offer?.Title}' aktiviert.";
                 }
             }
             catch (Exception)

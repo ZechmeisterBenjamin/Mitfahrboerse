@@ -3,30 +3,40 @@
     ViewData["Title"] = "Mitfahren";
     var firstRide = Model.FirstOrDefault();
     var matchingRidesDict = ViewBag.MatchingRidesDict as Dictionary<int, Mitfahrboerse.Services.RideWithDetourInfo>;
+
+    var savedSearchStart = Context.Request.Query["searchStart"].ToString();
+    var savedSearchEnd = Context.Request.Query["searchEnd"].ToString();
+    var savedFilterFrom = Context.Request.Query["filterFrom"].ToString();
+    var savedFilterTo = Context.Request.Query["filterTo"].ToString();
+    var savedFilterDriver = Context.Request.Query["filterDriver"].ToString();
+    var savedFilterClass = Context.Request.Query["filterClass"].ToString();
+    var savedFilterDate = Context.Request.Query["filterDate"].ToString();
+    var savedFilterTime = Context.Request.Query["filterTime"].ToString();
 }
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<div class="filter-bar" style="display: flex; flex-direction: column; align-items: stretch;">
-    <div id="filter-menu" class="fahrt-filter filter-menu" style="display: flex; flex-wrap: wrap; width: 100%; gap: 10px; justify-content: flex-start; padding: 0;">
+<main style="display: flex; flex-direction: column; gap: 20px; padding: 20px;">
+    <div class="filter-bar" style="display: flex; flex-direction: column; align-items: stretch;">
+        <div id="filter-menu" class="fahrt-filter filter-menu" style="display: flex; flex-wrap: wrap; width: 100%; gap: 10px; justify-content: flex-start; padding: 0;">
 
-        <input id="searchStart" type="text" placeholder="Route: Von (z.B. Ybbsitz)" style="flex: 1; min-width: 180px;" />
-        <input id="searchEnd" type="text" placeholder="Route: Nach (z.B. Waidhofen)" style="flex: 1; min-width: 180px;" />
-        <button id="searchBtn" type="button" class="styled-button primary-button" style="margin: 0; padding: 0 20px; height: 48px; flex-shrink: 0;">Suchen</button>
+            <input id="searchStart" type="text" placeholder="Route: Von (z.B. Ybbsitz)" style="flex: 1; min-width: 180px;" value="@savedSearchStart" />
+            <input id="searchEnd" type="text" placeholder="Route: Nach (z.B. Waidhofen)" style="flex: 1; min-width: 180px;" value="@savedSearchEnd" />
+            <button id="searchBtn" type="button" class="styled-button primary-button" style="margin: 0; padding: 0 20px; height: 48px; flex-shrink: 0;">Suchen</button>
 
-        <div style="width: 100%; height: 2px; background: #7a7a7a; margin: 5px 0; border-radius: 2px;"></div>
+            <div style="width: 100%; height: 2px; background: #7a7a7a; margin: 5px 0; border-radius: 2px;"></div>
 
-        <input id="filter-from" type="text" placeholder="Start (Text)" style="flex: 1; min-width: 130px;" />
-        <input id="filter-to" type="text" placeholder="Ziel (Text)" style="flex: 1; min-width: 130px;" />
-        <input id="filter-driver" type="text" placeholder="Fahrer" style="flex: 1; min-width: 130px;" />
-        <input id="filter-class" type="text" placeholder="Klasse" style="flex: 1; min-width: 100px;" />
-        <input id="filter-date" type="date" placeholder="Datum" style="flex: 1; min-width: 140px;" />
-        <input id="filter-time" type="time" placeholder="Zeit" style="flex: 1; min-width: 110px;" />
-        <button id="filter-reset" type="button" class="filter-reset-button" style="margin: 0; padding: 0 20px; height: 48px; flex-shrink: 0;">Filter löschen</button>
+            <input id="filter-from" type="text" placeholder="Start (Text)" style="flex: 1; min-width: 130px;" value="@savedFilterFrom" />
+            <input id="filter-to" type="text" placeholder="Ziel (Text)" style="flex: 1; min-width: 130px;" value="@savedFilterTo" />
+            <input id="filter-driver" type="text" placeholder="Fahrer" style="flex: 1; min-width: 130px;" value="@savedFilterDriver" />
+            <input id="filter-class" type="text" placeholder="Klasse" style="flex: 1; min-width: 100px;" value="@savedFilterClass" />
+            <input id="filter-date" type="date" placeholder="Datum" style="flex: 1; min-width: 140px;" value="@savedFilterDate" />
+            <input id="filter-time" type="time" placeholder="Zeit" style="flex: 1; min-width: 110px;" value="@savedFilterTime" />
+            <button id="filter-reset" type="button" class="filter-reset-button" style="margin: 0; padding: 0 20px; height: 48px; flex-shrink: 0;">Filter löschen</button>
 
+        </div>
     </div>
-</div>
 
 <main style="display: flex; gap: 20px; padding: 20px; overflow: hidden; height: calc(100vh - 300px);">
     <div class="left-column" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
@@ -65,36 +75,57 @@
                                 else
                                 {
 
-                                    <span>Plätze</span>
-                                }
+        <div class="right-column">
+            @if (firstRide != null)
+            {
+                var firstFreeSeats = (firstRide.FK_Car?.Seats ?? 0) - (firstRide.PersonRides?.Count ?? 0);
+
+                <div id="ride-details" class="fahrt-details-compact">
+                    <h3 class="details-title">Fahrtdetails</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Fahrer:</span>
+                            <span id="driver-name" class="detail-value">@firstRide.FK_Driver_Person.FirstName @firstRide.FK_Driver_Person.LastName</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Klasse:</span>
+                            <span id="driver-class" class="detail-value">@firstRide.FK_Driver_Person.Class</span>
+                        </div>
+                        <div class="detail-item highlight-item">
+                            <span class="detail-label">Freie Plätze:</span>
+                            <span id="seats" class="detail-value seats-highlight">@firstFreeSeats</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Datum:</span>
+                            <span id="date" class="detail-value">@firstRide.RideDateTime.ToString("dd.MM.yyyy")</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Zeit:</span>
+                            <span id="time" class="detail-value">@firstRide.RideDateTime.ToString("HH:mm")</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Fahrzeug:</span>
+                            <span id="car-license" class="detail-value">@firstRide.FK_Car?.LicensePlate</span>
+                        </div>
+                        <div class="detail-item route-item">
+                            <span class="detail-label">Strecke:</span>
+                            <span id="route" class="detail-value route-value">
+                                @firstRide.FK_StartsAt_Position.Description → @firstRide.FK_EndsAt_Position.Description
                             </span>
                         </div>
-                        <div class="fahrt-item-route" style="display: flex; align-items: center; gap: 8px; margin: 10px 0;">
-                            <span style="font-weight: bold;">@ride.FK_StartsAt_Position.Description</span>
-                            <div class="route-divider" style="flex-grow: 1; height: 1px; background: #7a7a7a; position: relative;">
-                                <span style="position: absolute; right: -2px; top: -7px; font-size: 10px; color: #ffd60a;">▶</span>
-                            </div>
-                            <span style="font-weight: bold;">@ride.FK_EndsAt_Position.Description</span>
-                        </div>
-                        <div class="fahrt-item-time">
-                            @ride.RideDateTime.ToString("dd.MM.yyyy") | @ride.RideDateTime.ToString("HH:mm")
-                        </div>
-                        @if (matchingRidesDict != null && matchingRidesDict.ContainsKey(ride.RideId))
-                        {
-                            var detourInfo = matchingRidesDict[ride.RideId];
-                            <div class="fahrt-item-detour" style="margin-top: 8px; padding: 5px 10px; border: 1px dashed #ffd60a; color: #ffd60a; border-radius: 6px; display: inline-block; font-size: 12px; background: rgba(255, 214, 10, 0.1);">
-                                📍 Umweg: @Math.Round(detourInfo.DetourKilometers, 1) km (@detourInfo.MatchType)
-                            </div>
-                        }
                     </div>
                 </div>
+                <button class="anfrage-button" id="request-button">
+                    <span>Anfrage schicken</span>
+                </button>
             }
-            <div id="no-rides-message" class="no-rides-message" style="display: none;">
+            else
+            {
                 <div class="empty-state">
-                    <p>Keine Fahrten gefunden</p>
-                    <small>Versuchen Sie, die Filter anzupassen</small>
+                    <p>Keine Fahrten verfügbar</p>
+                    <small>Schauen Sie später wieder vorbei</small>
                 </div>
-            </div>
+            }
         </div>
     </div>
 
@@ -157,25 +188,29 @@
         document.addEventListener('DOMContentLoaded', function() {
             let selectedRideId = @(firstRide?.RideId ?? 0);
 
-            const filterDriver = document.getElementById('filter-driver');
-            const filterClass = document.getElementById('filter-class');
-            const filterFrom = document.getElementById('filter-from');
-            const filterTo = document.getElementById('filter-to');
-            const filterDate = document.getElementById('filter-date');
-            const filterTime = document.getElementById('filter-time');
-            const filterReset = document.getElementById('filter-reset');
-
-            const searchStartInput = document.getElementById('searchStart');
-            const searchEndInput = document.getElementById('searchEnd');
-            const searchBtn = document.getElementById('searchBtn');
+            function getFilterElements() {
+                return {
+                    filterDriver: document.getElementById('filter-driver'),
+                    filterClass: document.getElementById('filter-class'),
+                    filterFrom: document.getElementById('filter-from'),
+                    filterTo: document.getElementById('filter-to'),
+                    filterDate: document.getElementById('filter-date'),
+                    filterTime: document.getElementById('filter-time'),
+                    filterReset: document.getElementById('filter-reset'),
+                    searchStartInput: document.getElementById('searchStart'),
+                    searchEndInput: document.getElementById('searchEnd'),
+                    searchBtn: document.getElementById('searchBtn')
+                };
+            }
 
             function applyFilters() {
-                const driverValue = (filterDriver.value || '').toLowerCase();
-                const classValue = (filterClass.value || '').toLowerCase();
-                const fromValue = (filterFrom.value || '').toLowerCase();
-                const toValue = (filterTo.value || '').toLowerCase();
-                const dateValue = filterDate.value || '';
-                const timeValue = filterTime.value || '';
+                const els = getFilterElements();
+                const driverValue = (els.filterDriver?.value || '').toLowerCase();
+                const classValue = (els.filterClass?.value || '').toLowerCase();
+                const fromValue = (els.filterFrom?.value || '').toLowerCase();
+                const toValue = (els.filterTo?.value || '').toLowerCase();
+                const dateValue = els.filterDate?.value || '';
+                const timeValue = els.filterTime?.value || '';
 
                 const rideItems = document.querySelectorAll('.fahrt-item');
                 let visibleCount = 0;
@@ -213,10 +248,90 @@
                 }
             }
 
-            [filterDriver, filterClass, filterFrom, filterTo, filterDate, filterTime].forEach(input => {
-                input.addEventListener('input', applyFilters);
-                input.addEventListener('change', applyFilters);
-            });
+            function bindFilterEvents() {
+                const els = getFilterElements();
+
+                [els.filterDriver, els.filterClass, els.filterFrom, els.filterTo, els.filterDate, els.filterTime].forEach(input => {
+                    if (input) {
+                        input.addEventListener('input', applyFilters);
+                        input.addEventListener('change', applyFilters);
+                    }
+                });
+
+                if (els.filterReset) {
+                    els.filterReset.addEventListener('click', function() {
+                        window.location.href = '/Ride/Index';
+                    });
+                }
+
+                if (els.searchStartInput) {
+                    els.searchStartInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') els.searchBtn?.click();
+                    });
+                }
+                if (els.searchEndInput) {
+                    els.searchEndInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') els.searchBtn?.click();
+                    });
+                }
+
+                if (els.searchBtn) {
+                    els.searchBtn.addEventListener('click', async function() {
+                        const startInput = els.searchStartInput?.value.trim() || '';
+                        const endInput = els.searchEndInput?.value.trim() || '';
+
+                        if (!startInput || !endInput) {
+                            alert('Bitte geben Sie Start- und Zielort ein.');
+                            return;
+                        }
+
+                        this.disabled = true;
+                        this.innerHTML = '<span>Suche...</span>';
+
+                        const startCoords = await geocodeAddress(startInput);
+
+                        if (!startCoords) {
+                            alert('Startadresse nicht gefunden. Bitte überprüfen Sie die Eingabe.');
+                            this.disabled = false;
+                            this.innerHTML = 'Suchen';
+                            return;
+                        }
+
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+
+                        const endCoords = await geocodeAddress(endInput);
+
+                        if (!endCoords) {
+                            alert('Zieladresse nicht gefunden. Bitte überprüfen Sie die Eingabe.');
+                            this.disabled = false;
+                            this.innerHTML = 'Suchen';
+                            return;
+                        }
+
+                        const url = new URL(window.location.origin + '/Ride/Index');
+                        url.searchParams.set('startLat', startCoords.lat);
+                        url.searchParams.set('startLon', startCoords.lon);
+                        url.searchParams.set('endLat', endCoords.lat);
+                        url.searchParams.set('endLon', endCoords.lon);
+                        url.searchParams.set('searchStart', startInput);
+                        url.searchParams.set('searchEnd', endInput);
+                        url.searchParams.set('filterFrom', els.filterFrom?.value || '');
+                        url.searchParams.set('filterTo', els.filterTo?.value || '');
+                        url.searchParams.set('filterDriver', els.filterDriver?.value || '');
+                        url.searchParams.set('filterClass', els.filterClass?.value || '');
+                        url.searchParams.set('filterDate', els.filterDate?.value || '');
+                        url.searchParams.set('filterTime', els.filterTime?.value || '');
+
+                        await fetchRidesWithoutReload(url.toString());
+
+                        const newBtn = document.getElementById('searchBtn');
+                        if (newBtn) {
+                            newBtn.disabled = false;
+                            newBtn.innerHTML = 'Suchen';
+                        }
+                    });
+                }
+            }
 
             function rebindMainEvents() {
                 const rideItems = document.querySelectorAll('.fahrt-item');
@@ -269,14 +384,20 @@
                                     fetchRidesWithoutReload();
                                 } else {
                                     alert("Fehler: " + data.message);
-                                    requestButton.disabled = false;
-                                    requestButton.innerHTML = '<span>Anfrage schicken</span>';
+                                    const btn = document.getElementById('request-button');
+                                    if (btn) {
+                                        btn.disabled = false;
+                                        btn.innerHTML = '<span>Anfrage schicken</span>';
+                                    }
                                 }
                             })
                             .catch(error => {
                                 alert('Ein Fehler ist aufgetreten.');
-                                requestButton.disabled = false;
-                                requestButton.innerHTML = '<span>Anfrage schicken</span>';
+                                const btn = document.getElementById('request-button');
+                                if (btn) {
+                                    btn.disabled = false;
+                                    btn.innerHTML = '<span>Anfrage schicken</span>';
+                                }
                             });
                         }
                     });
@@ -294,6 +415,7 @@
                     document.querySelector('main').innerHTML = doc.querySelector('main').innerHTML;
                     window.history.pushState({}, '', url);
 
+                    bindFilterEvents();
                     rebindMainEvents();
                     applyFilters();
 
@@ -319,61 +441,7 @@
                 }
             }
 
-            searchBtn.addEventListener('click', async function() {
-                const startInput = searchStartInput.value.trim();
-                const endInput = searchEndInput.value.trim();
-
-                if (!startInput || !endInput) {
-                    alert('Bitte geben Sie Start- und Zielort ein.');
-                    return;
-                }
-
-                searchBtn.disabled = true;
-                searchBtn.innerHTML = '<span>Suche...</span>';
-
-                const startCoords = await geocodeAddress(startInput);
-
-                if (!startCoords) {
-                    alert('Startadresse nicht gefunden. Bitte überprüfen Sie die Eingabe.');
-                    searchBtn.disabled = false;
-                    searchBtn.innerHTML = 'Suchen';
-                    return;
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                const endCoords = await geocodeAddress(endInput);
-
-                if (!endCoords) {
-                    alert('Zieladresse nicht gefunden. Bitte überprüfen Sie die Eingabe.');
-                    searchBtn.disabled = false;
-                    searchBtn.innerHTML = 'Suchen';
-                    return;
-                }
-
-                const url = new URL(window.location.href);
-                url.searchParams.set('startLat', startCoords.lat);
-                url.searchParams.set('startLon', startCoords.lon);
-                url.searchParams.set('endLat', endCoords.lat);
-                url.searchParams.set('endLon', endCoords.lon);
-
-                await fetchRidesWithoutReload(url.toString());
-
-                searchBtn.disabled = false;
-                searchBtn.innerHTML = 'Suchen';
-            });
-
-
-
-            filterReset.addEventListener('click', function() {
-                window.location.href = '@Url.Action("Index", "Ride")';
-            });
-
-            searchStartInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchBtn.click(); });
-            searchEndInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchBtn.click(); });
-
-
-
+            bindFilterEvents();
             rebindMainEvents();
             applyFilters();
         });
