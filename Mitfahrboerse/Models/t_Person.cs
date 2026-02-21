@@ -39,6 +39,8 @@ public partial class t_Person
 
     public byte Startpage { get; set; }
 
+    public bool IsAdmin { get; set; } = false;
+
     [InverseProperty("FK_Owner_Person")]
     public virtual ICollection<t_Car> t_Cars { get; set; } = new List<t_Car>();
 

@@ -26,7 +26,6 @@ namespace Mitfahrboerse.Controllers
             _context = context;
         }
 
-        // Startet den OpenID Connect Login Prozess
         public IActionResult Login()
         {
             return Challenge(
@@ -36,34 +35,30 @@ namespace Mitfahrboerse.Controllers
                 },
                 OpenIdConnectDefaults.AuthenticationScheme);
         }
-        // Wird vor jeder Action Methode ausgeführt
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var isIndexPage = context.RouteData.Values["action"]?.ToString() == "Index";
             var hasVoucher = context.HttpContext.Request.Query.ContainsKey("vouchercode");
 
-            // Wenn wir einen Gutschein haben, überspringen wir die gesamte Microsoft Graph Logik
             if (isIndexPage && hasVoucher)
             {
-                await next(); // Direkt zur Methode im HomeController springen
+                await next(); 
                 return;
             }
             try
             {
-                string[] scopes = { "User.Read", "profile" }; // Benötigte Berechtigungen
+                string[] scopes = { "User.Read", "profile" }; 
 
-                var accessToken = await _accessToken.GetAccessTokenAsync(scopes); // AccessToken abrufen
+                var accessToken = await _accessToken.GetAccessTokenAsync(scopes); 
                 ViewData["Token"] = accessToken;
 
                 var client =
-                    await _accessToken.GetAuthorizedClientAsync(scopes); // HTTP CLient erstellen mit Token im Header
+                    await _accessToken.GetAuthorizedClientAsync(scopes); 
 
-                // Benutzerdaten über MSGraph abrufen
                 var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
                 var content = await response.Content.ReadAsStringAsync();
                 ViewData["GraphResult"] = content;
 
-                // Profilbild abrufen
                 var photoResponse = await client.GetAsync("https://graph.microsoft.com/v1.0/me/photo/$value");
                 if (photoResponse.IsSuccessStatusCode)
                 {
@@ -76,7 +71,6 @@ namespace Mitfahrboerse.Controllers
                     ViewData["ProfilePicture"] = Url.Content("~/Pics/Profile.jpg");
                 }
 
-                // Einzelne Werte speichern
                 var doc = JsonDocument.Parse(content);
                 personId = doc.RootElement.GetProperty("id").GetString();
                 string firstname = doc.RootElement.GetProperty("givenName").GetString();
@@ -86,23 +80,36 @@ namespace Mitfahrboerse.Controllers
 
                 if (!_context.t_People.Any(p => p.PersonId == personId))
                 {
-                    _context.t_People.Add(new t_Person { PersonId = personId, FirstName = firstname, LastName = lastname, Email = email, Class = class_});
+                    bool isAdmin = (class_ == "Lehrer");
+                    _context.t_People.Add(new t_Person { PersonId = personId, FirstName = firstname, LastName = lastname, Email = email, Class = class_, IsAdmin = isAdmin});
                     _context.SaveChanges();
                 }
                 var person = _context.t_People.Where(p => p.PersonId == personId).FirstOrDefaultAsync().Result;
                 ViewData["CoinBalance"] = person.Points;
                 ViewData["SelectedDesign"] = person.Design;
 
-                bool isAdmin = (firstname == "Daniel" && lastname == "Daurer") || (class_ == "Lehrer");
-                ViewData["IsAdmin"] = isAdmin;
+
+                /*
+                bool isAdminUser = (class_ == "Lehrer");
+
+                if (person.IsAdmin != isAdminUser)
+                {
+                    person.IsAdmin = isAdminUser;
+                    _context.SaveChanges();
+                }
+                */
+
+
+                // ViewData["IsAdmin"] nimmt nur den Wert aus der Datenbank
+                ViewData["IsAdmin"] = person.IsAdmin;
             }
             catch
             {
-                // Anmelde Fenster erscheint erneut
                 context.Result = Challenge(
                     new AuthenticationProperties
                     {
-                        RedirectUri = Url.Action("Start", "Home")                    },
+                        RedirectUri = Url.Action("Start", "Home")  
+                    },
                     OpenIdConnectDefaults.AuthenticationScheme);
                 return;
             }
