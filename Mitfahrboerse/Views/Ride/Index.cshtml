@@ -28,13 +28,13 @@
     </div>
 </div>
 
-<main style="display: flex; gap: 20px; padding: 20px;">
-    <div class="left-column">
+<main style="display: flex; gap: 20px; padding: 20px; overflow: hidden; height: calc(100vh - 300px);">
+    <div class="left-column" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
         <div class="rides-header">
             <h3>Verfügbare Fahrten</h3>
             <span class="rides-count" id="rides-count">@Model.Count() Fahrten</span>
         </div>
-        <div class="rides-list-container">
+        <div class="rides-list-container" style="flex: 1; overflow-y: auto; min-height: 0;">
             @foreach (var ride in Model)
             {
                 var occupied = ride.PersonRides?.Count(pr => pr.Status == 0) ?? 0;
@@ -98,7 +98,7 @@
         </div>
     </div>
 
-    <div class="right-column">
+    <div class="right-column" style="display: flex; flex-direction: column; max-height: 100%; min-height: 0;">
         @if (firstRide != null)
         {
             var firstFreeSeats = (firstRide.FK_Car?.Seats ?? 0) - (firstRide.PersonRides?.Count ?? 0);

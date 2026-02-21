@@ -2,12 +2,16 @@
 @{
     ViewData["Title"] = "Fahrt erstellen";
     var positions = ViewBag.Positions as List<Mitfahrboerse.Models.t_Position> ?? new List<Mitfahrboerse.Models.t_Position>();
-
     var userCars = ViewBag.UserCars as List<Mitfahrboerse.Models.t_Car> ?? new List<Mitfahrboerse.Models.t_Car>();
+
+    var savedStartPos = ViewBag.SavedStartPos as string ?? "";
+    var savedEndPos = ViewBag.SavedEndPos as string ?? "";
+    var savedDateTime = ViewBag.SavedDateTime as string ?? "";
+    var newCarId = TempData["NewCarId"] as int?;
 }
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
-<link rel="stylesheet" href="css/StyleSheet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+<link rel="stylesheet" href="css/StyleSheet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
@@ -25,17 +29,17 @@
                 <div class="form-group mb-3">
                     <label for="startPositionInput">Von:</label>
                     <input id="startPositionInput" name="startPositionDescription" class="form-control" type="text"
-                           placeholder="Startpunkt eingeben" required/>
-                    <input id="startLat" name="startLat" type="hidden"/>
-                    <input id="startLon" name="startLon" type="hidden"/>
+                           placeholder="Startpunkt eingeben" required value="@savedStartPos" />
+                    <input id="startLat" name="startLat" type="hidden" />
+                    <input id="startLon" name="startLon" type="hidden" />
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="endPositionInput">Nach:</label>
                     <input id="endPositionInput" name="endPositionDescription" class="form-control" type="text"
-                           placeholder="Ziel eingeben" required/>
-                    <input id="endLat" name="endLat" type="hidden"/>
-                    <input id="endLon" name="endLon" type="hidden"/>
+                           placeholder="Ziel eingeben" required value="@savedEndPos" />
+                    <input id="endLat" name="endLat" type="hidden" />
+                    <input id="endLon" name="endLon" type="hidden" />
                 </div>
 
                 <div class="form-group mb-4">
@@ -44,37 +48,78 @@
                         <option value="">-- Auto auswählen --</option>
                         @foreach (var car in userCars)
                         {
-                            <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
+                            if (newCarId.HasValue && newCarId.Value == car.CarId)
+                            {
+                                <option value="@car.CarId" selected>@car.Brand @car.Model (@car.LicensePlate)</option>
+                            }
+                            else
+                            {
+                                <option value="@car.CarId">@car.Brand @car.Model (@car.LicensePlate)</option>
+                            }
                         }
+                        <option value="new-car">➕ Neues Auto erstellen</option>
                     </select>
                 </div>
 
                 <div class="form-group mb-4">
-                    <label for="rideDateTime">Datum & Uhrzeit</label>
-                    <input id="rideDateTime" name="rideDateTime" class="form-control" type="datetime-local" required/>
+                    <label for="rideDateTime">Datum &amp; Uhrzeit</label>
+                    <input id="rideDateTime" name="rideDateTime" class="form-control" type="datetime-local" required value="@savedDateTime" />
                     <span asp-validation-for="RideDateTime" class="text-danger"></span>
                 </div>
 
                 <div class="form-group text-center mt-4">
                     <button id="showRouteBtn" type="button" class="styled-button" style="display:none;">Route anzeigen</button>
-
                     <button type="submit" class="styled-button primary-button">Fahrt erstellen</button>
-
                     <label id="routeLengthLabel" class="route-length-label"></label>
-                    <input id="routeLength" name="routeLength" type="hidden"/>
+                    <input id="routeLength" name="routeLength" type="hidden" />
                 </div>
             </form>
         </div>
     </div>
-    
+
     <div class="ride-create-map-container">
         <div id="map"></div>
     </div>
 </div>
 
+<div id="carModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+        <h3>Neues Auto hinzufügen</h3>
+        <form id="createCarForm" asp-controller="Ride" asp-action="CreateCarAndReturn" method="post">
+            <input type="hidden" id="carFormStartPos" name="startPos" />
+            <input type="hidden" id="carFormEndPos" name="endPos" />
+            <input type="hidden" id="carFormDateTime" name="dateTime" />
+
+            <div class="form-group mb-3">
+                <label>Kennzeichen:</label>
+                <input type="text" name="kennzeichen" class="form-control" required placeholder="WY-123AB" />
+            </div>
+            <div class="form-group mb-3">
+                <label>Marke:</label>
+                <input type="text" name="marke" class="form-control" required placeholder="Volkswagen" />
+            </div>
+            <div class="form-group mb-3">
+                <label>Modell:</label>
+                <input type="text" name="modell" class="form-control" required placeholder="Golf" />
+            </div>
+            <div class="form-group mb-3">
+                <label>Farbe:</label>
+                <input type="text" name="farbe" class="form-control" required placeholder="Schwarz" />
+            </div>
+            <div class="form-group mb-3">
+                <label>Sitzplätze (inkl. Fahrer):</label>
+                <input type="number" name="sitze" class="form-control" required min="2" max="9" placeholder="5" />
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="styled-button primary-button" style="flex: 1;">Auto erstellen</button>
+                <button type="button" id="closeCarModal" class="styled-button" style="flex: 1;">Abbrechen</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        // Leaflet initialisieren
         const map = L.map('map').setView([47.9505574, 14.7842044], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -90,19 +135,14 @@
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT&_=${new Date().getTime()}`;
             try {
                 const response = await fetch(url, {
-                    headers: {
-                        'User-Agent': 'Mitfahrboerse Ride-Sharing App'
-                    }
+                    headers: { 'User-Agent': 'Mitfahrboerse Ride-Sharing App' }
                 });
-                if (!response.ok) {
-                    throw new Error('Netzwerkfehler');
-                }
+                if (!response.ok) throw new Error('Netzwerkfehler');
                 const data = await response.json();
                 if (data && data.length > 0) {
                     return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-                } else {
-                    return null;
                 }
+                return null;
             } catch (error) {
                 console.error('Geocoding-Fehler:', error);
                 return null;
@@ -113,19 +153,9 @@
             const startInput = document.getElementById('startPositionInput').value;
             const endInput = document.getElementById('endPositionInput').value;
 
-            // Vorherige Route & Marker entfernen
-            if (control) {
-                map.removeControl(control);
-                control = null;
-            }
-            if (startMarker) {
-                map.removeLayer(startMarker);
-                startMarker = null;
-            }
-            if (endMarker) {
-                map.removeLayer(endMarker);
-                endMarker = null;
-            }
+            if (control) { map.removeControl(control); control = null; }
+            if (startMarker) { map.removeLayer(startMarker); startMarker = null; }
+            if (endMarker) { map.removeLayer(endMarker); endMarker = null; }
 
             if (startInput && endInput) {
                 const startCoords = await geocodeAddress(startInput);
@@ -138,52 +168,31 @@
                         iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
                     });
 
-                    startMarker = L.marker(startCoords, {icon: icon}).addTo(map);
-                    startMarker.bindPopup("Start: " + startInput).openPopup();
-
-                    endMarker = L.marker(endCoords, {icon: icon}).addTo(map);
-                    endMarker.bindPopup("Ziel: " + endInput).openPopup();
+                    startMarker = L.marker(startCoords, {icon: icon}).addTo(map).bindPopup("Start: " + startInput).openPopup();
+                    endMarker = L.marker(endCoords, {icon: icon}).addTo(map).bindPopup("Ziel: " + endInput);
 
                     document.getElementById("startLat").value = startCoords[0];
                     document.getElementById("startLon").value = startCoords[1];
                     document.getElementById("endLat").value = endCoords[0];
                     document.getElementById("endLon").value = endCoords[1];
 
-                    // Route erzeugen
                     control = L.Routing.control({
-                        waypoints: [
-                            L.latLng(startCoords[0], startCoords[1]),
-                            L.latLng(endCoords[0], endCoords[1])
-                        ],
+                        waypoints: [L.latLng(startCoords[0], startCoords[1]), L.latLng(endCoords[0], endCoords[1])],
                         routeWhileDragging: true,
-                        lineOptions: {
-                            styles: [{color: '#1a75ff', opacity: 1, weight: 5}]
-                        },
+                        lineOptions: { styles: [{color: '#1a75ff', opacity: 1, weight: 5}] },
                         show: false,
                         collapsed: true,
-                        createMarker: function () {
-                            return null;
-                        },
+                        createMarker: function() { return null; },
                         language: 'de'
                     }).addTo(map);
 
-                    // Event: Route gefunden
-                    control.on('routesfound', function (e) {
+                    control.on('routesfound', function(e) {
                         const route = e.routes[0];
-                        const distanceMeters = route.summary.totalDistance;
-                        const distanceKm = (distanceMeters / 1000).toFixed(2);
-
-                        // Label aktualisieren
+                        const distanceKm = (route.summary.totalDistance / 1000).toFixed(2);
                         document.getElementById("routeLengthLabel").textContent = `Routenlänge: ${distanceKm} km`;
-
-                        // Hidden Field für Controller
                         document.getElementById("routeLength").value = distanceKm;
-
-                        // Karte auf Route anpassen
-                        const bounds = L.latLngBounds(route.coordinates);
-                        map.fitBounds(bounds, {padding: L.point(50, 50)});
+                        map.fitBounds(L.latLngBounds(route.coordinates), {padding: L.point(50, 50)});
                     });
-
                 } else {
                     document.getElementById("routeLengthLabel").textContent = '';
                     document.getElementById("routeLength").value = '';
@@ -193,13 +202,38 @@
 
         function debouncedCalculateRoute() {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(calculateRoute, 800); // 800ms Verzögerung für Geocoding
+            debounceTimer = setTimeout(calculateRoute, 800);
         }
 
         document.getElementById("startPositionInput").addEventListener("input", debouncedCalculateRoute);
         document.getElementById("endPositionInput").addEventListener("input", debouncedCalculateRoute);
-
         document.getElementById("showRouteBtn").addEventListener("click", calculateRoute);
+
+        const carModal = document.getElementById('carModal');
+        const closeCarModal = document.getElementById('closeCarModal');
+        const carSelect = document.getElementById('carId');
+
+        carSelect.addEventListener('change', function() {
+            if (this.value === 'new-car') {
+                document.getElementById('carFormStartPos').value = document.getElementById('startPositionInput').value;
+                document.getElementById('carFormEndPos').value = document.getElementById('endPositionInput').value;
+                document.getElementById('carFormDateTime').value = document.getElementById('rideDateTime').value;
+                carModal.style.display = 'flex';
+                this.value = '';
+            }
+        });
+
+        closeCarModal.addEventListener('click', function() {
+            carModal.style.display = 'none';
+        });
+
+        carModal.addEventListener('click', function(e) {
+            if (e.target === carModal) carModal.style.display = 'none';
+        });
+
+        if (document.getElementById('startPositionInput').value && document.getElementById('endPositionInput').value) {
+            setTimeout(calculateRoute, 500);
+        }
     </script>
 
     @{
