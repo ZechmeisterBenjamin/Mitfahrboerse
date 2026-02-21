@@ -255,8 +255,10 @@
 
         carSelect.addEventListener('change', function() {
             if (this.value === 'new-car') {
-                // Navigiere zur Profil-Seite mit dem Auto-Erstellen-Tab
-                window.location.href = '@Url.Action("Index", "Profil")?tab=create';
+                document.getElementById('carFormStartPos').value = document.getElementById('startPositionInput').value;
+                document.getElementById('carFormEndPos').value = document.getElementById('endPositionInput').value;
+                document.getElementById('carFormDateTime').value = document.getElementById('rideDateTime').value;
+                carModal.style.display = 'flex';
                 this.value = '';
             }
         });
