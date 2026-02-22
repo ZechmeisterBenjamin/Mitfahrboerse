@@ -33,18 +33,6 @@ public class ProfilController : BaseController
             .Include(p => p.t_Cars)
             .Include(p => p.PersonOffers)
             .ThenInclude(po => po.FK_Offer)
-            .Include(p => p.t_Rides)
-            .ThenInclude(r => r.FK_StartsAt_Position)
-            .Include(p => p.t_Rides)
-            .ThenInclude(r => r.FK_EndsAt_Position)
-            .Include(p => p.t_Rides)
-            .ThenInclude(r => r.PersonRides)
-            .Include(p => p.PersonRides)
-            .ThenInclude(pr => pr.Ride)
-            .ThenInclude(r => r.FK_StartsAt_Position)
-            .Include(p => p.PersonRides)
-            .ThenInclude(pr => pr.Ride)
-            .ThenInclude(r => r.FK_EndsAt_Position)
             .FirstOrDefaultAsync(p => p.PersonId == personId);
 
         if (user == null)
