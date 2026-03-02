@@ -3,175 +3,136 @@
     ViewData["Title"] = "Fahrten verwalten";
 }
 
-<style>
-    @@keyframes slideIn {
-        from { transform: translateX(400px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
+<main class="manage-rides-container" style="display: flex; gap: 20px; padding: 20px;">
 
-    @@keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-    }
-
-    .alert-fade-out {
-        animation: fadeOut 0.5s ease-out forwards !important;
-    }
-
-    .rides-list-container::-webkit-scrollbar {
-        width: 10px; 
-    }
-
-    .rides-list-container::-webkit-scrollbar-track {
-        background: #2c2c2c; 
-        border-radius: 5px;
-    }
-
-    .rides-list-container::-webkit-scrollbar-thumb {
-        background-color: #ffd60a; 
-        border-radius: 5px; 
-        border: 2px solid #2c2c2c; 
-    }
-
-    .rides-list-container {
-        scrollbar-width: thin;
-        scrollbar-color: #ffd60a #2c2c2c;
-    }
-</style>
-
-<main style="display: flex; gap: 20px; padding: 20px; overflow: hidden; max-height: calc(100vh - 100px);">
-    <div id="rideAlert" style="display: none; position: fixed; top: 100px; right: 20px; background-color: #28a745; color: white; padding: 15px 20px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out; max-width: 350px;">
-        <strong>✅ Fahrt storniert:</strong> <span id="rideAlertText"></span>
-    </div>
-    <div class="left-column" style="flex: 1; display: flex; flex-direction: column; max-height: 100%;">
+    <div class="left-column" style="flex: 1; display: flex; flex-direction: column;">
         <div class="rides-header">
-            <h3 style="color: #ffd60a; margin: 0; text-align: center; width: 100%;">Geplante Fahrten (Fahrer)</h3>
+            <h3>Geplante Fahrten (Fahrer)</h3>
         </div>
-        <div class="rides-list-container" style="flex: 1; overflow-y: auto;">
+
+        <div class="rides-list-container" style="flex-grow: 1;">
             @if (Model?.t_Rides != null && Model.t_Rides.Any())
             {
                 @foreach (var ride in Model.t_Rides.OrderBy(r => r.RideDateTime))
                 {
                     var occupied = ride.PersonRides?.Count(pr => pr.Status == 0) ?? 0;
+
                     <div class="fahrt-item" id="ride-@ride.RideId">
-                        <div style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
-                            <div style="position: relative; text-align: center;">
-                                <strong style="color: #ffd60a; font-size: 1.1rem;">@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong>
-                                <button class="styled-button" style="background-color: #4caf50; color: white; width: auto; margin: 0; padding: 5px 12px; font-size: 0.8rem; min-height: auto; position: absolute; top: 0; right: 0;" onclick="showPassengers(@ride.RideId, '@ride.RideDateTime.ToString("dd.MM HH:mm")')">
+                        <div class="fahrt-item-content">
+                            <div class="fahrt-item-header">
+                                <strong class="driver-name">@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong>
+                                <span class="seats-badge available" style="cursor: pointer; border: none;" onclick="showPassengers(@ride.RideId, '@ride.RideDateTime.ToString("dd.MM HH:mm")')">
                                     @occupied Mitfahrer
-                                </button>
+                                </span>
                             </div>
-                            <div class="fahrt-item-route" style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-weight: bold;">@ride.FK_StartsAt_Position?.Description</span>
-                                <div style="flex-grow: 1; height: 1px; background: #7a7a7a; position: relative;">
-                                    <span style="position: absolute; right: -2px; top: -7px; font-size: 10px; color: #4285f4;">▶</span>
-                                </div>
-                                <span style="font-weight: bold;">@ride.FK_EndsAt_Position?.Description</span>
+
+                            <div class="fahrt-item-route">
+                                <strong>@ride.FK_StartsAt_Position?.Description</strong> → <strong>@ride.FK_EndsAt_Position?.Description</strong>
                             </div>
-                            <div class="fahrt-item-time">@ride.RideDateTime.ToString("dd.MM.yyyy | HH:mm")</div>
-                            <button class="styled-button primary-button" style="margin: 0; width: 100%;" onclick="cancelRide(@ride.RideId)">Fahrt stornieren</button>
+
+                            <div class="fahrt-item-time">
+                                @ride.RideDateTime.ToString("dd.MM.yyyy") | @ride.RideDateTime.ToString("HH:mm")
+                            </div>
+
+                            <button class="anfrage-button" style="width: 100%; margin-top: 10px;" onclick="cancelRide(@ride.RideId)">
+                                <span>Fahrt stornieren</span>
+                            </button>
                         </div>
                     </div>
                 }
             }
             else
             {
-                <div class="empty-state">
-                    <p>Keine geplanten Fahrten</p>
+                <div class="no-rides-message" style="display: block;">
+                    <div class="empty-state"><p>Keine Fahrten als Fahrer</p></div>
                 </div>
             }
         </div>
     </div>
 
-    <div class="left-column" style="flex: 1; display: flex; flex-direction: column; max-height: 100%;">
+    <div class="right-column" style="flex: 1; display: flex; flex-direction: column; background-color: #666;">
         <div class="rides-header">
-            <h3 style="color: #ffd60a; margin: 0; text-align: center; width: 100%;">Meine Mitfahrten (Passagier)</h3>
+            <h3>Meine Mitfahrten (Passagier)</h3>
         </div>
-        <div class="rides-list-container" style="flex: 1; overflow-y: auto;">
+
+        <div class="rides-list-container" style="flex-grow: 1;">
             @if (Model?.PersonRides != null && Model.PersonRides.Any())
             {
                 @foreach (var pr in Model.PersonRides.OrderBy(x => x.Ride?.RideDateTime))
                 {
                     <div class="fahrt-item" id="passenger-ride-@pr.FK_RideId">
-                        <div style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
-                            <div style="position: relative; text-align: center;">
-                                <strong style="color: #ffd60a; font-size: 1.1rem;">@(pr.Ride?.FK_Driver_Person?.FirstName) @(pr.Ride?.FK_Driver_Person?.LastName)</strong>
-                                <span class="seats-badge @(pr.Status == 0 ? "available" : "")" style="position: absolute; top: 0; right: 0;">
+                        <div class="fahrt-item-content">
+                            <div class="fahrt-item-header">
+                                <strong class="driver-name">@(pr.Ride?.FK_Driver_Person?.FirstName) @(pr.Ride?.FK_Driver_Person?.LastName)</strong>
+                                <span class="seats-badge @(pr.Status == 0 ? "available" : "full")">
                                     @(pr.Status == 0 ? "Bestätigt" : "Offen")
                                 </span>
                             </div>
-                            <div class="fahrt-item-route" style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-weight: bold;">@pr.Ride?.FK_StartsAt_Position?.Description</span>
-                                <div style="flex-grow: 1; height: 1px; background: #7a7a7a; position: relative;">
-                                    <span style="position: absolute; right: -2px; top: -7px; font-size: 10px; color: #4285f4;">▶</span>
-                                </div>
-                                <span style="font-weight: bold;">@pr.Ride?.FK_EndsAt_Position?.Description</span>
+
+                            <div class="fahrt-item-route">
+                                <strong>@pr.Ride?.FK_StartsAt_Position?.Description</strong> → <strong>@pr.Ride?.FK_EndsAt_Position?.Description</strong>
                             </div>
-                            <div class="fahrt-item-time">@pr.Ride?.RideDateTime.ToString("dd.MM.yyyy | HH:mm")</div>
-                            <button class="styled-button primary-button" style="margin: 0; width: 100%;" onclick="leaveRide(@pr.FK_RideId)">Teilnahme absagen</button>
+
+                            <div class="fahrt-item-time">
+                                @(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy") ?? "") | @(pr.Ride?.RideDateTime.ToString("HH:mm") ?? "")
+                            </div>
+
+                            <button class="anfrage-button" style="width: 100%; margin-top: 10px;" onclick="leaveRide(@pr.FK_RideId)">
+                                <span>Teilnahme absagen</span>
+                            </button>
                         </div>
                     </div>
                 }
             }
             else
             {
-                <div class="empty-state">
-                    <p>Keine Mitfahrten vorhanden</p>
+                <div class="no-rides-message" style="display: block;">
+                    <div class="empty-state"><p>Keine Mitfahrten als Passagier</p></div>
                 </div>
             }
         </div>
     </div>
 </main>
-<div id="passengersModal" class="modal fade" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background-color: #2c2c2c; border: 1px solid #444; border-radius: 15px;">
-            <div class="modal-header border-bottom border-secondary">
-                <h5 class="modal-title" id="modalTitle" style="color: #ffd60a;">Mitfahrer-Liste</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <ul id="passengersList" class="list-group list-group-flush">
-                </ul>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal" style="background: #555; border: none;">Schließen</button>
-            </div>
-        </div>
+
+<div id="passengersModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="background-color: #2c2c2c; border: 1px solid #444;">
+        <h3 id="modalTitle" style="color: #ffd60a; margin-top: 0;">Mitfahrer-Liste</h3>
+        <ul id="passengersList" style="list-style: none; padding: 0; margin: 20px 0;">
+        </ul>
+        <button class="anfrage-button" style="width: 100%;" onclick="closeModal()">
+            <span>Schließen</span>
+        </button>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        function closeModal() {
+            document.getElementById('passengersModal').style.display = 'none';
+        }
+
         function showPassengers(rideId, timeStr) {
-            var modalElement = document.getElementById('passengersModal');
-            var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-            var list = document.getElementById('passengersList');
-            var title = document.getElementById('modalTitle');
+            const modal = document.getElementById('passengersModal');
+            const list = document.getElementById('passengersList');
+            document.getElementById('modalTitle').innerText = "Mitfahrer: " + timeStr;
 
-            title.innerText = "Mitfahrer: " + timeStr;
-            list.innerHTML = '<li class="list-group-item bg-transparent text-white border-0 text-center">Lade...</li>';
-
-            modal.show();
+            list.innerHTML = '<li style="color: white; text-align: center;">Lade...</li>';
+            modal.style.display = 'flex';
 
             $.get('/CheckRides/GetPassengers', { rideId: rideId })
                 .done(function(data) {
                     list.innerHTML = '';
                     if (!data || data.length === 0) {
-                        list.innerHTML = '<li class="list-group-item bg-transparent text-white border-0 text-center p-4">Keine Mitfahrer gefunden.</li>';
+                        list.innerHTML = '<li style="color: white; text-align: center;">Keine Mitfahrer gefunden.</li>';
                     } else {
                         data.forEach(p => {
                             list.innerHTML += `
-                                <li class="list-group-item bg-transparent text-white border-bottom border-secondary p-3">
-                                    <div class="d-flex flex-column">
-                                        <span style="font-weight: bold; font-size: 1.15rem; color: #fff;">${p.name}</span>
-                                        <span style="color: #ffd60a; font-size: 0.95rem; opacity: 0.9;">${p.klasse || 'Keine Klasse'}</span>
-                                    </div>
+                                <li style="padding: 12px; border-bottom: 1px solid #444; display: flex; flex-direction: column;">
+                                    <span style="font-weight: bold; color: white; font-size: 1.1rem;">${p.name}</span>
+                                    <span style="color: #ffd60a; font-size: 0.9rem;">${p.klasse || 'Keine Klasse'}</span>
                                 </li>`;
                         });
                     }
-                })
-                .fail(function() {
-                    list.innerHTML = '<li class="list-group-item bg-transparent text-danger border-0 text-center p-4">Fehler beim Laden der Daten.</li>';
                 });
         }
 
