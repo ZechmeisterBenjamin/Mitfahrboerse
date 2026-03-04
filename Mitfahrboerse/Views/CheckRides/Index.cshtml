@@ -140,20 +140,14 @@
             if(confirm("Diese Fahrt wirklich löschen?")) {
                 $.post('@Url.Action("CancelRide")', { rideId: id }, function(res) {
                     if(res.success) {
+                        $(`#ride-${id}`).remove();
+
                         const alertDiv = document.getElementById('rideAlert');
-                        const alertText = document.getElementById('rideAlertText');
-                        alertText.innerHTML = res.rideDetails; 
-                        alertDiv.style.display = 'block';
-
-                        setTimeout(() => {
-                            alertDiv.classList.add('alert-fade-out');
-                            setTimeout(() => {
-                                alertDiv.style.display = 'none';
-                                alertDiv.classList.remove('alert-fade-out');
-                            }, 500);
-                        }, 5000);
-
-                        $(`#ride-${id}`).fadeOut();
+                        if(alertDiv) {
+                            const alertText = document.getElementById('rideAlertText');
+                            alertText.innerHTML = res.rideDetails;
+                            alertDiv.style.display = 'block';
+                        }
                     } else {
                         alert(res.message);
                     }
@@ -165,7 +159,7 @@
             if(confirm("Möchtest du die Mitfahrt wirklich absagen?")) {
                 $.post('@Url.Action("LeaveRide")', { rideId: id }, function(res) {
                     if(res.success) {
-                        $(`#passenger-ride-${id}`).fadeOut();
+                        $(`#passenger-ride-${id}`).remove();
                     } else {
                         alert(res.message);
                     }
