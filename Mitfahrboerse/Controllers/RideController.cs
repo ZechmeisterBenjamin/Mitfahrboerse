@@ -290,10 +290,10 @@ public class RideController : BaseController
             }
 
             // TODO: Bei realem Betrieb auskommentieren
-            // if (ride.FK_Driver_PersonId == personId)
-            // {
-            //     return Json(new { success = false, message = "Du kannst nicht bei deiner eigenen Fahrt mitfahren." });
-            // }
+            if (ride.FK_Driver_PersonId == personId)
+             {
+                 return Json(new { success = false, message = "Du kannst nicht bei deiner eigenen Fahrt mitfahren." });
+             }
 
             
 

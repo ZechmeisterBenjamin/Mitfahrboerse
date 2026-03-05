@@ -3,92 +3,92 @@
     ViewData["Title"] = "Fahrten verwalten";
 }
 
-<main class="manage-rides-container" style="display: flex; gap: 20px; padding: 20px;">
+<main class="manage-rides-container" style="display: flex; gap: 20px; padding: 20px; align-items: stretch;">
 
-    <div class="left-column" style="flex: 1; display: flex; flex-direction: column;">
-        <div class="rides-header">
-            <h3>Geplante Fahrten (Fahrer)</h3>
+    <div style="flex: 1; background-color: #666; border-radius: 15px; padding: 20px; display: flex; flex-direction: column;">
+        <div class="rides-header" style="border-bottom: 1px solid #777; margin-bottom: 15px; padding-bottom: 5px;">
+            <h3 style="margin: 0; color: white;">Geplante Fahrten (Fahrer)</h3>
         </div>
 
         <div class="rides-list-container" style="flex-grow: 1;">
-            @if (Model?.t_Rides != null && Model.t_Rides.Any())
+            <div class="no-rides-message" style="display: @(Model?.t_Rides != null && Model.t_Rides.Any() ? "none" : "block"); background-color: #444; border-radius: 10px; padding: 40px; text-align: center;">
+                <div class="empty-state"><p style="color: white; font-weight: bold; margin: 0;">Keine Fahrten als Fahrer</p></div>
+            </div>
+
+            @if (Model?.t_Rides != null)
             {
                 @foreach (var ride in Model.t_Rides.OrderBy(r => r.RideDateTime))
                 {
                     var occupied = ride.PersonRides?.Count(pr => pr.Status == 0) ?? 0;
-
-                    <div class="fahrt-item" id="ride-@ride.RideId">
+                    <div class="fahrt-item" id="ride-@ride.RideId" style="margin-bottom: 15px; background-color: #444; border-radius: 10px; padding: 15px; position: relative;">
                         <div class="fahrt-item-content">
-                            <div class="fahrt-item-header">
-                                <strong class="driver-name">@ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName</strong>
-                                <span class="seats-badge available" style="cursor: pointer; border: none;" onclick="showPassengers(@ride.RideId, '@ride.RideDateTime.ToString("dd.MM HH:mm")')">
+                            <div class="fahrt-item-header" style="position: relative; width: 100%; min-height: 30px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+
+                                <strong style="color: #ffd700; font-size: 1.1em; text-align: center;">
+                                    @ride.FK_Driver_Person.FirstName @ride.FK_Driver_Person.LastName
+                                </strong>
+
+                                <span class="seats-badge available"
+                                      style="position: absolute; right: 0; top: 0; background-color: #5cb85c; color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.85em; cursor: pointer; border: none; z-index: 10;"
+                                      onclick="showPassengers(@ride.RideId, '@ride.RideDateTime.ToString("dd.MM HH:mm")')">
                                     @occupied Mitfahrer
                                 </span>
                             </div>
 
-                            <div class="fahrt-item-route">
-                                <strong>@ride.FK_StartsAt_Position?.Description</strong> → <strong>@ride.FK_EndsAt_Position?.Description</strong>
+                            <div style="text-align: center; color: white;">
+                                <div style="margin-bottom: 5px; font-weight: bold;">@ride.FK_StartsAt_Position?.Description → @ride.FK_EndsAt_Position?.Description</div>
+                                <div style="font-size: 0.9em; opacity: 0.9;">@ride.RideDateTime.ToString("dd.MM.yyyy | HH:mm")</div>
                             </div>
 
-                            <div class="fahrt-item-time">
-                                @ride.RideDateTime.ToString("dd.MM.yyyy") | @ride.RideDateTime.ToString("HH:mm")
-                            </div>
-
-                            <button class="anfrage-button" style="width: 100%; margin-top: 10px;" onclick="cancelRide(@ride.RideId)">
+                            <button class="anfrage-button" style="width: 100%; margin-top: 15px; background: transparent; border: 2px solid white; color: white; border-radius: 20px; padding: 8px; cursor: pointer;" onclick="cancelRide(@ride.RideId)">
                                 <span>Fahrt stornieren</span>
                             </button>
                         </div>
                     </div>
                 }
             }
-            else
-            {
-                <div class="no-rides-message" style="display: block;">
-                    <div class="empty-state"><p>Keine Fahrten als Fahrer</p></div>
-                </div>
-            }
         </div>
     </div>
 
-    <div class="right-column" style="flex: 1; display: flex; flex-direction: column; background-color: #666;">
-        <div class="rides-header">
-            <h3>Meine Mitfahrten (Passagier)</h3>
+    <div style="flex: 1; background-color: #666; border-radius: 15px; padding: 20px; display: flex; flex-direction: column;">
+        <div class="rides-header" style="border-bottom: 1px solid #777; margin-bottom: 15px; padding-bottom: 5px;">
+            <h3 style="margin: 0; color: white;">Meine Mitfahrten (Passagier)</h3>
         </div>
 
         <div class="rides-list-container" style="flex-grow: 1;">
-            @if (Model?.PersonRides != null && Model.PersonRides.Any())
+            <div class="no-rides-message" style="display: @(Model?.PersonRides != null && Model.PersonRides.Any() ? "none" : "block"); background-color: #444; border-radius: 10px; padding: 40px; text-align: center;">
+                <div class="empty-state"><p style="color: white; font-weight: bold; margin: 0;">Keine Mitfahrten als Passagier</p></div>
+            </div>
+
+            @if (Model?.PersonRides != null)
             {
                 @foreach (var pr in Model.PersonRides.OrderBy(x => x.Ride?.RideDateTime))
                 {
-                    <div class="fahrt-item" id="passenger-ride-@pr.FK_RideId">
+                    <div class="fahrt-item" id="passenger-ride-@pr.FK_RideId" style="margin-bottom: 15px; background-color: #444; border-radius: 10px; padding: 15px; position: relative;">
                         <div class="fahrt-item-content">
-                            <div class="fahrt-item-header">
-                                <strong class="driver-name">@(pr.Ride?.FK_Driver_Person?.FirstName) @(pr.Ride?.FK_Driver_Person?.LastName)</strong>
-                                <span class="seats-badge @(pr.Status == 0 ? "available" : "full")">
+                            <div class="fahrt-item-header" style="position: relative; width: 100%; min-height: 30px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+
+                                <strong style="color: #ffd700; font-size: 1.1em; text-align: center;">
+                                    @(pr.Ride?.FK_Driver_Person?.FirstName) @(pr.Ride?.FK_Driver_Person?.LastName)
+                                </strong>
+
+                                <span class="seats-badge @(pr.Status == 0 ? "available" : "full")"
+                                      style="position: absolute; right: 0; top: 0; background-color: @(pr.Status == 0 ? "#5cb85c" : "#d9534f"); color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.85em;">
                                     @(pr.Status == 0 ? "Bestätigt" : "Offen")
                                 </span>
                             </div>
 
-                            <div class="fahrt-item-route">
-                                <strong>@pr.Ride?.FK_StartsAt_Position?.Description</strong> → <strong>@pr.Ride?.FK_EndsAt_Position?.Description</strong>
+                            <div style="text-align: center; color: white;">
+                                <div style="margin-bottom: 5px; font-weight: bold;">@pr.Ride?.FK_StartsAt_Position?.Description → @pr.Ride?.FK_EndsAt_Position?.Description</div>
+                                <div style="font-size: 0.9em; opacity: 0.9;">@(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy | HH:mm") ?? "")</div>
                             </div>
 
-                            <div class="fahrt-item-time">
-                                @(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy") ?? "") | @(pr.Ride?.RideDateTime.ToString("HH:mm") ?? "")
-                            </div>
-
-                            <button class="anfrage-button" style="width: 100%; margin-top: 10px;" onclick="leaveRide(@pr.FK_RideId)">
+                            <button class="anfrage-button" style="width: 100%; margin-top: 15px; background: transparent; border: 2px solid white; color: white; border-radius: 20px; padding: 8px; cursor: pointer;" onclick="leaveRide(@pr.FK_RideId)">
                                 <span>Teilnahme absagen</span>
                             </button>
                         </div>
                     </div>
                 }
-            }
-            else
-            {
-                <div class="no-rides-message" style="display: block;">
-                    <div class="empty-state"><p>Keine Mitfahrten als Passagier</p></div>
-                </div>
             }
         </div>
     </div>
@@ -140,7 +140,14 @@
             if(confirm("Diese Fahrt wirklich löschen?")) {
                 $.post('@Url.Action("CancelRide")', { rideId: id }, function(res) {
                     if(res.success) {
-                        $(`#ride-${id}`).remove();
+                        const $item = $(`#ride-${id}`);
+                        const $container = $item.closest('.rides-list-container');
+
+                        $item.remove();
+
+                        if ($container.find('.fahrt-item').length === 0) {
+                            $container.find('.no-rides-message').show();
+                        }
 
                         const alertDiv = document.getElementById('rideAlert');
                         if(alertDiv) {
@@ -159,7 +166,14 @@
             if(confirm("Möchtest du die Mitfahrt wirklich absagen?")) {
                 $.post('@Url.Action("LeaveRide")', { rideId: id }, function(res) {
                     if(res.success) {
-                        $(`#passenger-ride-${id}`).remove();
+                        const $item = $(`#passenger-ride-${id}`);
+                        const $container = $item.closest('.rides-list-container');
+
+                        $item.remove();
+
+                        if ($container.find('.fahrt-item').length === 0) {
+                            $container.find('.no-rides-message').show();
+                        }
                     } else {
                         alert(res.message);
                     }
