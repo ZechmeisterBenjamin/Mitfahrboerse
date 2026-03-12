@@ -19,26 +19,26 @@
 
 <main style="display: flex; flex-direction: column; gap: 20px; padding: 20px;">
     <div class="filter-bar" style="display: flex; flex-direction: column; align-items: stretch;">
-        <div id="filter-menu" class="fahrt-filter filter-menu" style="display: flex; flex-wrap: wrap; width: 100%; gap: 10px; justify-content: flex-start; padding: 0;">
+        <div id="filter-menu" class="fahrt-filter filter-menu">
 
-            <input id="searchStart" type="text" placeholder="Route: Von (z.B. Ybbsitz)" style="flex: 1; min-width: 180px;" value="@savedSearchStart" />
-            <input id="searchEnd" type="text" placeholder="Route: Nach (z.B. Waidhofen)" style="flex: 1; min-width: 180px;" value="@savedSearchEnd" />
-            <button id="searchBtn" type="button" class="styled-button primary-button" style="margin: 0; padding: 0 20px; height: 48px; flex-shrink: 0;">Suchen</button>
+            <input id="searchStart" type="text" placeholder="Route: Von (z.B. Ybbsitz)" value="@savedSearchStart" />
+            <input id="searchEnd" type="text" placeholder="Route: Nach (z.B. Waidhofen)" value="@savedSearchEnd" />
+            <button id="searchBtn" type="button" class="styled-button primary-button">Suchen</button>
 
-            <div style="width: 100%; height: 2px; background: #7a7a7a; margin: 5px 0; border-radius: 2px;"></div>
+            <div class="filter-divider"></div>
 
-            <input id="filter-from" type="text" placeholder="Start (Text)" style="flex: 1; min-width: 130px;" value="@savedFilterFrom" />
-            <input id="filter-to" type="text" placeholder="Ziel (Text)" style="flex: 1; min-width: 130px;" value="@savedFilterTo" />
-            <input id="filter-driver" type="text" placeholder="Fahrer" style="flex: 1; min-width: 130px;" value="@savedFilterDriver" />
-            <input id="filter-class" type="text" placeholder="Klasse" style="flex: 1; min-width: 100px;" value="@savedFilterClass" />
-            <input id="filter-date" type="date" placeholder="Datum" style="flex: 1; min-width: 140px;" value="@savedFilterDate" />
-            <input id="filter-time" type="time" placeholder="Zeit" style="flex: 1; min-width: 110px;" value="@savedFilterTime" />
-            <button id="filter-reset" type="button" class="filter-reset-button" style="margin: 0; padding: 0 20px; height: 48px; flex-shrink: 0;">Filter löschen</button>
+            <input id="filter-from" type="text" placeholder="Start (Text)" value="@savedFilterFrom" />
+            <input id="filter-to" type="text" placeholder="Ziel (Text)" value="@savedFilterTo" />
+            <input id="filter-driver" type="text" placeholder="Fahrer" value="@savedFilterDriver" />
+            <input id="filter-class" type="text" placeholder="Klasse" value="@savedFilterClass" />
+            <input id="filter-date" type="date" placeholder="Datum" value="@savedFilterDate" />
+            <input id="filter-time" type="time" placeholder="Zeit" value="@savedFilterTime" />
+            <button id="filter-reset" type="button" class="filter-reset-button">Filter löschen</button>
 
         </div>
     </div>
 
-    <div class="rides-content" style="display: flex; gap: 20px;">
+    <div class="rides-content">
         <div class="left-column">
             <div class="rides-header">
                 <h3>Verfügbare Fahrten</h3>
