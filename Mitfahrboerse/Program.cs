@@ -63,6 +63,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
+app.UseWebSockets();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

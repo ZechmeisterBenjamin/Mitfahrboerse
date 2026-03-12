@@ -1,6 +1,10 @@
 "use strict";
 
-const connection = new signalR.HubConnectionBuilder()    .withUrl("/notificationHub")
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/notificationHub", {
+        transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.ServerSentEvents | signalR.HttpTransportType.LongPolling
+    })
+    .withAutomaticReconnect()
     .build();
 
 connection.on("ReceiveNotification", function (title, message) {

@@ -71,6 +71,7 @@ public class RideController : BaseController
             .Include(r => r.FK_Car)
             .Include(r => r.PersonRides)
             .ThenInclude(pr => pr.Person)
+            .Where(r => r.FK_Driver_PersonId != personId)
             .ToList();
 
         List<RideWithDetourInfo> matchingRides = new();
@@ -289,13 +290,12 @@ public class RideController : BaseController
                 return Json(new { success = false, message = "Fahrt nicht gefunden." });
             }
 
-            // TODO: Bei realem Betrieb auskommentieren
             if (ride.FK_Driver_PersonId == personId)
-             {
-                 return Json(new { success = false, message = "Du kannst nicht bei deiner eigenen Fahrt mitfahren." });
-             }
+            {
+                return Json(new { success = false, message = "Du kannst nicht bei deiner eigenen Fahrt mitfahren." });
+            }
 
-            
+
 
             bool alreadyRequested = await _context.t_PersonRides
                 .AnyAsync(pr => pr.FK_RideId == rideId && pr.FK_PersonId == personId);
