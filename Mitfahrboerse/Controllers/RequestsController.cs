@@ -71,7 +71,7 @@ namespace Mitfahrboerse.Controllers
                     anfrage.EventId = eventId;
                 }
                 */
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
             
             var message = $"Deine Anfrage für die Fahrt von {anfrage.Ride.FK_StartsAt_Position.Description} nach {anfrage.Ride.FK_EndsAt_Position.Description} am {anfrage.Ride.RideDateTime.Date} um {anfrage.Ride.RideDateTime.TimeOfDay} wurde {(newStatus == 2 ? "abgelehnt" : "akzeptiert")}";

@@ -51,7 +51,7 @@ public class HomeController : BaseController
                 else
                 {
                     voucher.IsUsed = true;
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                     ViewBag.VoucherStatus = "success";
                     ViewBag.VoucherMessage = $"Erfolg! '{voucher.FK_Offer?.Title}' aktiviert.";
                 }

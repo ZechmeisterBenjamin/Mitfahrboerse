@@ -46,6 +46,14 @@ builder.Services.AddScoped<IRouteMatchService, RouteMatchService>();
 
 var app = builder.Build();
 
+var options = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+options.KnownNetworks.Clear(); 
+options.KnownProxies.Clear();   
+app.UseForwardedHeaders(options);
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -57,11 +65,6 @@ if (!app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
 
 app.UseWebSockets();
 

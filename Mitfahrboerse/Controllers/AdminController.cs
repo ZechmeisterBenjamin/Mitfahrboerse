@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿  using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mitfahrboerse.Interfaces;
@@ -16,7 +16,6 @@ namespace Mitfahrboerse.Controllers
             _context = context;
         }
 
-        // Private Hilfsmethode zur Admin-Authentifizierung
         private async Task<IActionResult> CheckAdminAuthorizationAsync()
         {
             if (string.IsNullOrEmpty(personId))
@@ -75,7 +74,7 @@ namespace Mitfahrboerse.Controllers
                 };
 
                 _context.t_Offers.Add(newOffer);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
 
                 return Json(new { success = true, message = "Gutschein erfolgreich erstellt!" });
             }

@@ -84,7 +84,7 @@ namespace Mitfahrboerse.Controllers
                 _context.t_PersonRides.RemoveRange(ride.PersonRides);
             }
             _context.t_Rides.Remove(ride);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             // Fahrt-Details für die Erfolgs-Meldung
             var rideDetails = $"{ride.RideDateTime.ToString("dd.MM.yyyy, HH:mm")} - {ride.FK_StartsAt_Position.Description} → {ride.FK_EndsAt_Position.Description}";

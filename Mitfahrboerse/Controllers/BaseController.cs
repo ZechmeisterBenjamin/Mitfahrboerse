@@ -8,6 +8,7 @@ using Microsoft.Identity.Web;
 using System.Text.Json;
 using Mitfahrboerse.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
 
 namespace Mitfahrboerse.Controllers
 {
@@ -89,15 +90,19 @@ namespace Mitfahrboerse.Controllers
                 ViewData["SelectedDesign"] = person.Design;
 
 
-                /*
+                
                 bool isAdminUser = (class_ == "Lehrer");
-
                 if (person.IsAdmin != isAdminUser)
                 {
                     person.IsAdmin = isAdminUser;
                     _context.SaveChanges();
                 }
-                */
+                person.PersonId = personId;
+                person.FirstName = firstname;
+                person.LastName = lastname;
+                person.Email = email;
+                person.Class = class_;
+                _context.SaveChanges();
 
 
                 // ViewData["IsAdmin"] nimmt nur den Wert aus der Datenbank
