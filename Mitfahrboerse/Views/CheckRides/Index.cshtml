@@ -72,9 +72,22 @@
                                     @(pr.Ride?.FK_Driver_Person?.FirstName) @(pr.Ride?.FK_Driver_Person?.LastName)
                                 </strong>
 
-                                <span class="seats-badge @(pr.Status == 0 ? "available" : "full")"
-                                      style="position: absolute; right: 0; top: 0; background-color: @(pr.Status == 0 ? "#5cb85c" : "#d9534f"); color: white; padding: 4px 10px; border-radius: 10px; font-size: 0.85em;">
-                                    @(pr.Status == 0 ? "Bestätigt" : "Offen")
+                                <span class="seats-badge"
+                                      style="position: absolute; right: 0; top: 0; padding: 4px 10px; border-radius: 10px; font-size: 0.85em; color: white;
+                     background-color: @(pr.Status == 0 ? "#5cb85c" : (pr.Status == 2 ? "#d9534f" : "#f0ad4e"));">
+
+                                    @if (pr.Status == 0)
+                                    {
+                                        @:Bestätigt
+                                    }
+                                    else if (pr.Status == 2)
+                                    {
+                                        @:Abgelehnt
+                                    }
+                                    else
+                                    {
+                                        @:Offen
+                                    }
                                 </span>
                             </div>
 
