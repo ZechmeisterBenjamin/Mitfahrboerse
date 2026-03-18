@@ -74,7 +74,7 @@ namespace Mitfahrboerse.Controllers
                 };
 
                 _context.t_Offers.Add(newOffer);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return Json(new { success = true, message = "Gutschein erfolgreich erstellt!" });
             }
