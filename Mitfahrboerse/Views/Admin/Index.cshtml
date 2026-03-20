@@ -37,21 +37,21 @@
         <div class="admin-section-header">
             <h2>Fahrten Statistik Gesamt</h2>
         </div>
-        
+
         <div class="statistics-grid">
             <div class="stat-card">
                 <div class="stat-label">Fahrten gesamt:</div>
-                <div class="stat-value" id="totalRides">5</div>
+                <div class="stat-value">@ViewBag.TotalRides</div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-label">Gesamt gefahrene Kilometer:</div>
-                <div class="stat-value" id="totalDistance">100km</div>
+                <div class="stat-value">@(ViewBag.TotalDistance)km</div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-label">Gesamt Anzahl Passagiere:</div>
-                <div class="stat-value" id="totalPassengers">10</div>
+                <div class="stat-value">@ViewBag.TotalPassengers</div>
             </div>
         </div>
     </div>
@@ -69,20 +69,8 @@
                 <text>alert("@TempData["Success"]");</text>
             }
 
-            loadStatistics();
         });
 
-        function loadStatistics() {
-            fetch('@Url.Action("GetStatistics", "Admin")')
-                .then(response => response.json())
-                .then(data => {
-                    if(data.success) {
-                        document.getElementById('totalRides').textContent = data.totalRides || '0';
-                        document.getElementById('totalDistance').textContent = (data.totalDistance || '0') + 'km';
-                        document.getElementById('totalPassengers').textContent = data.totalPassengers || '0';
-                    }
-                })
-                .catch(error => console.error('Error loading statistics:', error));
-        }
+        
     </script>
 }

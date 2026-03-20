@@ -37,6 +37,10 @@ namespace Mitfahrboerse.Controllers
             var authResult = await CheckAdminAuthorizationAsync();
             if (authResult != null) return authResult;
 
+            ViewBag.TotalRides = await _context.t_Rides.CountAsync();
+            ViewBag.TotalDistance = await _context.t_Rides.SumAsync(r => r.Distance);
+            ViewBag.TotalPassengers = await _context.t_PersonRides.CountAsync(pr => pr.Status == 1);
+
             return View();
         }
 
@@ -85,30 +89,6 @@ namespace Mitfahrboerse.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetStatistics()
-        {
-            var authResult = await CheckAdminAuthorizationAsync();
-            if (authResult != null) return authResult;
-
-            try
-            {
-                var totalRides = await _context.t_Rides.CountAsync();
-                var totalDistance = await _context.t_Rides.SumAsync(r => r.Distance);
-                var totalPassengers = await _context.t_PersonRides.CountAsync(pr => pr.Status == 1);
-
-                return Json(new
-                {
-                    success = true,
-                    totalRides = totalRides,
-                    totalDistance = totalDistance,
-                    totalPassengers = totalPassengers
-                });
-            }
-            catch
-            {
-                return Json(new { success = false });
-            }
-        }
+        
     }
 }
