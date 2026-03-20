@@ -16,8 +16,8 @@ namespace Mitfahrboerse.Controllers
         private readonly MitfahrboerseDbContext _context;
         private readonly IHubContext<NotificationHub> _hubContext;
         public RequestsController(
-            MitfahrboerseDbContext context, 
-            ILogger<RideController> logger, 
+            MitfahrboerseDbContext context,
+            ILogger<RideController> logger,
             IAccessToken accessToken,
             IHubContext<NotificationHub> hubContext)
             : base(logger, accessToken, context)
@@ -29,8 +29,8 @@ namespace Mitfahrboerse.Controllers
         public async Task<IActionResult> Index()
         {
             var anfragen = await _context.t_PersonRides
-                .Include(pr => pr.Person) 
-                .Include(pr => pr.Ride)   
+                .Include(pr => pr.Person)
+                .Include(pr => pr.Ride)
                     .ThenInclude(r => r.FK_StartsAt_Position)
                 .Include(pr => pr.Ride)
                     .ThenInclude(r => r.FK_EndsAt_Position)
@@ -73,10 +73,10 @@ namespace Mitfahrboerse.Controllers
                 */
                 await _context.SaveChangesAsync();
             }
-            
+
             var message = $"Deine Anfrage für die Fahrt von {anfrage.Ride.FK_StartsAt_Position.Description} nach {anfrage.Ride.FK_EndsAt_Position.Description} am {anfrage.Ride.RideDateTime.Date} um {anfrage.Ride.RideDateTime.TimeOfDay} wurde {(newStatus == 2 ? "abgelehnt" : "akzeptiert")}";
             await _hubContext.Clients.User(requesterId).SendAsync("ReceiveNotification", $"Anfrage {(newStatus == 2 ? "abgelehnt" : "akzeptiert")}", message);
-            return Json(new { success = true, rideId = rideId, requesterId = requesterId });
+            return RedirectToAction(nameof(Index));
         }
     }
 }

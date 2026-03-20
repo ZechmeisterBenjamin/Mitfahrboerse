@@ -27,20 +27,21 @@ public class ShopController : BaseController
     }
 
     [HttpPost]
-    public IActionResult BuyVoucher(int offerId, int price)
+    public IActionResult BuyVoucher(int offerId)
     {
         var user = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
         var offer = _context.t_Offers.FirstOrDefault(p => p.OfferId == offerId);
 
-        bool alreadyOwned = _context.t_PersonOffers.Any(po => po.FK_OfferId == offerId && po.FK_PersonId == personId);
+        if (offer == null || user == null) return RedirectToAction("Index");
 
+        bool alreadyOwned = _context.t_PersonOffers.Any(po => po.FK_OfferId == offerId && po.FK_PersonId == personId);
         if (alreadyOwned)
         {
-            return Json(new { success = false, message = "Du besitzt diesen Gutschein bereits!" });
+            TempData["Error"] = "Du besitzt diesen Gutschein bereits!";
+            return RedirectToAction("Index");
         }
 
-        string rndcode = RandomCodeGenerator(user.LastName, offer);
-
+        // Prüfung: Punkte
         if (user.Points >= offer.Price)
         {
             user.Points -= (int)offer.Price;
@@ -50,56 +51,41 @@ public class ShopController : BaseController
                 FK_OfferId = offer.OfferId,
                 FK_PersonId = user.PersonId,
                 FK_ValidUntil = offer.ValidUntil,
-                Code = rndcode,
+                Code = RandomCodeGenerator(user.LastName, offer),
             };
 
             _context.t_PersonOffers.Add(person_offer);
             _context.SaveChanges();
 
-            return Json(new { success = true, message = $"Erfolgreich gekauft: {offer.Title}\nCode zum Einlösen: {rndcode}" });
+            TempData["Success"] = $"Gutschein '{offer.Title}' erfolgreich gekauft!";
+        }
+        else
+        {
+            TempData["Error"] = "Nicht genügend Punkte!";
         }
 
-        return Json(new { success = false, message = "Fehler: Nicht genügend Punkte!" });
+        return RedirectToAction("Index");
     }
 
     [HttpPost]
-    public async Task<IActionResult> DeleteOffer(int id, string validUntil)
+    public IActionResult DeleteOffer(int id)
     {
-        try
+        var alreadyPurchased = _context.t_PersonOffers.Any(po => po.FK_OfferId == id);
+        if (alreadyPurchased)
         {
-            if (!DateOnly.TryParse(validUntil, out DateOnly dateOnly))
-            {
-                return Json(new { success = false, message = "Ungültiges Datumsformat." });
-            }
-
-            bool alreadyPurchased = await _context.t_PersonOffers
-                .AnyAsync(po => po.FK_OfferId == id);
-
-            if (alreadyPurchased)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "Löschen nicht möglich: Dieser Gutschein wurde bereits  gekauft!"
-                });
-            }
-
-            var offer = await _context.t_Offers
-                .FirstOrDefaultAsync(o => o.OfferId == id && o.ValidUntil == dateOnly);
-
-            if (offer != null)
-            {
-                _context.t_Offers.Remove(offer);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Angebot wurde erfolgreich gelöscht." });
-            }
-
-            return Json(new { success = false, message = "Angebot nicht gefunden." });
+            TempData["Error"] = "Löschen nicht möglich: Gutschein wurde bereits gekauft!";
+            return RedirectToAction("Index");
         }
-        catch (Exception ex)
+
+        var offer = _context.t_Offers.FirstOrDefault(o => o.OfferId == id);
+        if (offer != null)
         {
-            return Json(new { success = false, message = "Fehler: " + ex.Message });
+            _context.t_Offers.Remove(offer);
+            _context.SaveChanges();
+            TempData["Success"] = "Angebot wurde gelöscht.";
         }
+
+        return RedirectToAction("Index");
     }
 
     [HttpPost]

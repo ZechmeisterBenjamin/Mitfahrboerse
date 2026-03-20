@@ -48,50 +48,36 @@ namespace Mitfahrboerse.Controllers
         {
             var ride = await _context.t_Rides
                 .Include(r => r.PersonRides)
-                .ThenInclude(pr => pr.Person)
-                .Include(r => r.FK_StartsAt_Position)
-                .Include(r => r.FK_EndsAt_Position)
-                .Include(r => r.FK_Driver_Person)
                 .FirstOrDefaultAsync(r => r.RideId == rideId && r.FK_Driver_PersonId == personId);
 
-            if (ride == null)
+            if (ride != null)
             {
-                return Json(new { success = false, message = "Fahrt nicht gefunden..." });
-            }
-
-            var recipients = ride.PersonRides
-                .Where(pr => pr.Status != 2 && pr.Status != 3)
-                .ToList();
-
-
-
-            /*
-            var calendarService = new CalendarEvent(_accessToken);
-            if (!string.IsNullOrEmpty(ride.EventId))
-            {
-                await calendarService.DeleteEventAsync(ride.EventId);
-            }
-
-            foreach (var pr in ride.PersonRides)
-            {
-                if (!string.IsNullOrEmpty(pr.EventId))
+                if (ride.PersonRides != null && ride.PersonRides.Any())
                 {
-                    await calendarService.DeleteEventAsync(pr.EventId);
+                    _context.t_PersonRides.RemoveRange(ride.PersonRides);
                 }
+                _context.t_Rides.Remove(ride);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Fahrt wurde erfolgreich storniert.";
+
+                /*
+                var calendarService = new CalendarEvent(_accessToken);
+                if (!string.IsNullOrEmpty(ride.EventId))
+                {
+                    await calendarService.DeleteEventAsync(ride.EventId);
+                }
+
+                foreach (var pr in ride.PersonRides)
+                {
+                    if (!string.IsNullOrEmpty(pr.EventId))
+                    {
+                        await calendarService.DeleteEventAsync(pr.EventId);
+                    }
+                }
+                */
             }
-            */
 
-            if (ride.PersonRides != null && ride.PersonRides.Any())
-            {
-                _context.t_PersonRides.RemoveRange(ride.PersonRides);
-            }
-            _context.t_Rides.Remove(ride);
-            await _context.SaveChangesAsync();
-
-            // Fahrt-Details für die Erfolgs-Meldung
-            var rideDetails = $"{ride.RideDateTime.ToString("dd.MM.yyyy, HH:mm")} - {ride.FK_StartsAt_Position.Description} → {ride.FK_EndsAt_Position.Description}";
-
-            return Json(new { success = true, message = "Fahrt wurde erfolgreich storniert.", rideDetails = rideDetails });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -100,32 +86,32 @@ namespace Mitfahrboerse.Controllers
             var personRide = await _context.t_PersonRides
                 .FirstOrDefaultAsync(pr => pr.FK_RideId == rideId && pr.FK_PersonId == personId);
 
-            if (personRide == null)
+            if (personRide != null)
             {
-                return Json(new { success = false, message = "Teilnahme nicht gefunden." });
-            }
-
-            /*
-            var calendarService = new CalendarEvent(_accessToken);
-            if (!string.IsNullOrEmpty(ride.EventId))
-            {
-                await calendarService.DeleteEventAsync(ride.EventId);
-            }
-
-            foreach (var pr in ride.PersonRides)
-            {
-                if (!string.IsNullOrEmpty(pr.EventId))
+                _context.t_PersonRides.Remove(personRide);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Teilnahme erfolgreich abgesagt.";
+                /*
+                var calendarService = new CalendarEvent(_accessToken);
+                if (!string.IsNullOrEmpty(ride.EventId))
                 {
-                    await calendarService.DeleteEventAsync(pr.EventId);
+                    await calendarService.DeleteEventAsync(ride.EventId);
                 }
-            } 
-            */
 
-            _context.t_PersonRides.Remove(personRide);
+                foreach (var pr in ride.PersonRides)
+                {
+                    if (!string.IsNullOrEmpty(pr.EventId))
+                    {
+                        await calendarService.DeleteEventAsync(pr.EventId);
+                    }
+                } 
+                */
+            }
 
-            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
 
-            return Json(new { success = true, message = "Du hast deine Teilnahme erfolgreich abgesagt." });
+            
+
         }
 
         [HttpGet]

@@ -140,19 +140,26 @@ public class ProfilController : BaseController
     public IActionResult ReturnVoucher(string code)
     {
         var voucher = _context.t_PersonOffers
+            .Include(v => v.FK_Offer) 
             .FirstOrDefault(v => v.Code == code && v.FK_PersonId == personId);
 
         if (voucher == null)
         {
-            return Json(new { success = false, message = "Gutschein nicht gefunden oder gehört nicht dir." });
+            TempData["CarDeleteError"] = "Gutschein nicht gefunden."; 
+            return RedirectToAction("Index", new { tab = "voucher" });
+        }
+
+        var user = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
+        if (user != null && voucher.FK_Offer != null)
+        {
+            user.Points += voucher.FK_Offer.Price;
         }
 
         _context.t_PersonOffers.Remove(voucher);
-        var user = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
-        var offer = _context.t_Offers.FirstOrDefault(o => o.OfferId == voucher.FK_OfferId);
-        user.Points += offer.Price;
         _context.SaveChanges();
-        return Json(new { success = true, message = "Gutschein erfolgreich zurückgegeben." });
+
+        TempData["CarDeleteSuccess"] = "Gutschein erfolgreich zurückgegeben. Punkte wurden gutgeschrieben.";
+        return RedirectToAction("Index", new { tab = "voucher" });
     }
 
     [HttpGet]

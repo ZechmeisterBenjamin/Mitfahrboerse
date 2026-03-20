@@ -59,40 +59,19 @@
 
 @section Scripts {
     <script>
-        document.getElementById('createVoucherForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const button = this.querySelector('button[type="submit"]');
-            const originalText = button.innerHTML;
-            
-            button.disabled = true;
-            button.innerHTML = '<span>Wird erstellt...</span>';
-            
-            fetch(this.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    alert(data.message || 'Gutschein erfolgreich erstellt!');
-                    this.reset();
-                } else {
-                    alert(data.message || 'Fehler beim Erstellen des Gutscheins.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Ein technischer Fehler ist aufgetreten.');
-            })
-            .finally(() => {
-                button.disabled = false;
-                button.innerHTML = originalText;
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (TempData["Error"] != null)
+            {
+                <text>alert("@TempData["Error"]");</text>
+            }
+            @if (TempData["Success"] != null)
+            {
+                <text>alert("@TempData["Success"]");</text>
+            }
+
+            loadStatistics();
         });
-        
-        // Statistiken laden
+
         function loadStatistics() {
             fetch('@Url.Action("GetStatistics", "Admin")')
                 .then(response => response.json())
@@ -103,12 +82,7 @@
                         document.getElementById('totalPassengers').textContent = data.totalPassengers || '0';
                     }
                 })
-                .catch(error => {
-                    console.error('Error loading statistics:', error);
-                });
+                .catch(error => console.error('Error loading statistics:', error));
         }
-        
-        // Statistiken beim Laden der Seite abrufen
-        document.addEventListener('DOMContentLoaded', loadStatistics);
     </script>
 }

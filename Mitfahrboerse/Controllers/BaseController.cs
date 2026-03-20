@@ -91,12 +91,7 @@ namespace Mitfahrboerse.Controllers
 
 
                 
-                bool isAdminUser = (class_ == "Lehrer");
-                if (person.IsAdmin != isAdminUser)
-                {
-                    person.IsAdmin = isAdminUser;
-                    _context.SaveChanges();
-                }
+                
                 person.PersonId = personId;
                 person.FirstName = firstname;
                 person.LastName = lastname;

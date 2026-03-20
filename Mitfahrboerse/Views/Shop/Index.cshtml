@@ -61,14 +61,27 @@
                     <p>✓ Gültig bis <span id="voucherDateText">@initialDate</span></p>
                     <p>✓ Nicht übertragbar</p>
                 </div>
-                <button class="buy-button" id="buyButton">Gutschein kaufen (@initialPrice Punkte)</button>
+                <form asp-action="BuyVoucher" method="post">
+                    <input type="hidden" name="offerId" id="hiddenOfferId" value="@firstOffer?.OfferId" />
+                    <button type="submit" class="buy-button" id="buyButtonUI">
+                        Gutschein kaufen (@initialPrice Punkte)
+                    </button>
+                </form>
                 @if (ViewData["IsAdmin"] != null && (bool)ViewData["IsAdmin"])
                 {
                     <div class="admin-controls" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #444;">
                         <div style="display: flex; gap: 10px;">
-                            <button class="buy-button" id="deleteButton" style="background-color: #dc3545;">Löschen</button>
-                            <button class="buy-button" id="openEditModalBtn" style="background-color: #f39c12;">Bearbeiten</button>
-                            <button class="buy-button" id="viewPurchasesBtn" style="background-color: #3498db;">Käufer anzeigen</button>
+
+                            <form asp-action="DeleteOffer" method="post" onsubmit="return confirm('Wirklich löschen?');" style="flex: 1;">
+                                <input type="hidden" name="id" id="hiddenDeleteId" value="@firstOffer?.OfferId" />
+
+                                <button type="submit" class="buy-button" style="background-color: #dc3545; width: 100%;">
+                                    Löschen
+                                </button>
+                            </form>
+
+                            <button type="button" class="buy-button" id="openEditModalBtn" style="background-color: #f39c12; flex: 1;">Bearbeiten</button>
+                            <button type="button" class="buy-button" id="viewPurchasesBtn" style="background-color: #3498db; flex: 1;">Käufer</button>
                         </div>
                     </div>
                 }
@@ -119,8 +132,12 @@
             const voucherItems = document.querySelectorAll('.voucher-item');
             const voucherTitle = document.getElementById('voucherTitle');
             const voucherDate = document.getElementById('voucherDate');
-            const buyButton = document.getElementById('buyButton');
-            const deleteButton = document.getElementById('deleteButton');
+            const voucherDateText = document.getElementById('voucherDateText');
+            const buyButtonUI = document.getElementById('buyButtonUI');
+
+            const hiddenOfferId = document.getElementById('hiddenOfferId');
+            const hiddenDeleteId = document.getElementById('hiddenDeleteId');
+
             const openEditModalBtn = document.getElementById('openEditModalBtn');
             const saveEditBtn = document.getElementById('saveEditBtn');
             const editModal = document.getElementById('editModal');
@@ -128,7 +145,6 @@
             const purchasesModal = document.getElementById('purchasesModal');
             const purchasesList = document.getElementById('purchasesList');
 
-            let firstItem = voucherItems[0];
             let selectedId = "@firstOffer?.OfferId";
             let selectedTitle = "@initialTitle";
             let selectedPrice = "@initialPrice";
@@ -146,7 +162,11 @@
 
                     if (voucherTitle) voucherTitle.textContent = selectedTitle;
                     if (voucherDate) voucherDate.textContent = this.getAttribute('data-date');
-                    if (buyButton) buyButton.textContent = `Gutschein kaufen (${selectedPrice} Punkte)`;
+                    if (voucherDateText) voucherDateText.textContent = this.getAttribute('data-date');
+                    if (buyButtonUI) buyButtonUI.textContent = `Gutschein kaufen (${selectedPrice} Punkte)`;
+
+                    if (hiddenOfferId) hiddenOfferId.value = selectedId;
+                    if (hiddenDeleteId) hiddenDeleteId.value = selectedId;
                 });
             });
 
@@ -161,44 +181,16 @@
 
             if (saveEditBtn) {
                 saveEditBtn.addEventListener('click', function() {
-                    const newTitle = document.getElementById('editTitle').value;
-                    const newPrice = document.getElementById('editPrice').value;
-                    const newValidUntil = document.getElementById('editDate').value;
-
                     const params = new URLSearchParams();
                     params.append('id', selectedId);
-                    params.append('oldValidUntil', selectedDateRaw); 
-                    params.append('newTitle', newTitle);
-                    params.append('newPrice', newPrice);
-                    params.append('newValidUntil', newValidUntil); 
+                    params.append('newTitle', document.getElementById('editTitle').value);
+                    params.append('newPrice', document.getElementById('editPrice').value);
+                    params.append('newValidUntil', document.getElementById('editDate').value);
 
                     fetch('@Url.Action("EditOffer", "Shop")', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: params.toString()
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if (data.success) {
-                            location.reload(); 
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert("Fehler beim Senden der Daten.");
-                    });
-                });
-            }
-
-            if (deleteButton) {
-                deleteButton.addEventListener('click', function() {
-                    if (!confirm(`Möchtest du "${selectedTitle}" wirklich löschen?`)) return;
-
-                    fetch('@Url.Action("DeleteOffer", "Shop")', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `id=${selectedId}&validUntil=${selectedDateRaw}`
                     })
                     .then(r => r.json())
                     .then(data => {
@@ -211,7 +203,7 @@
             if (viewPurchasesBtn) {
                 viewPurchasesBtn.addEventListener('click', function() {
                     document.getElementById('purchaseVoucherTitle').textContent = selectedTitle;
-                    purchasesList.innerHTML = '<div style="text-align:center; padding:20px;">Lade Käufer für ID: ' + selectedId + '...</div>';
+                    purchasesList.innerHTML = '<div style="text-align:center; padding:20px;">Lade Käufer...</div>';
                     purchasesModal.style.display = 'block';
 
                     fetch(`/Shop/GetVoucherPurchases?id=${selectedId}`)
@@ -221,10 +213,7 @@
                                 purchasesList.innerHTML = "<p style='padding:10px;'>Diesen Gutschein hat noch niemand gekauft.</p>";
                                 return;
                             }
-
                             let html = '<table style="width: 100%; border-collapse: collapse;">';
-                            html += '<tr style="color: #aaa; font-size: 0.8em; text-align: left;"><th style="padding: 5px;">Name</th><th>Code</th></tr>';
-
                             data.forEach(p => {
                                 html += `<tr style="border-bottom: 1px solid #444;">
                                             <td style="padding: 10px 5px;">${p.userName}</td>
@@ -233,42 +222,18 @@
                             });
                             html += '</table>';
                             purchasesList.innerHTML = html;
-                        })
-                        .catch(err => {
-                            purchasesList.innerHTML = "Fehler beim Laden.";
-                            console.error(err);
                         });
                 });
             }
-
-            if (buyButton) {
-                buyButton.addEventListener('click', function() {
-                    this.disabled = true;
-
-                    const formData = new URLSearchParams();
-                    formData.append('offerId', selectedId);
-                    formData.append('price', selectedPrice);
-
-                    fetch('@Url.Action("BuyVoucher", "Shop")', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: formData.toString()
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if(data.success) {
-                            location.reload();
-                        } else {
-                            this.disabled = false;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        this.disabled = false;
-                    });
-                });
-            }
+                    // Prüfen, ob der Controller eine Nachricht gesendet hat
+        @if (TempData["Error"] != null)
+        {
+                <text>alert("@(TempData["Error"])");</text>
+        }
+        @if (TempData["Success"] != null)
+        {
+                <text>alert("@(TempData["Success"])");</text>
+        }
         });
     </script>
 </body>

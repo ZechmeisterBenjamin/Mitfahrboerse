@@ -40,9 +40,12 @@
                                 <div style="font-size: 0.9em; opacity: 0.9;">@ride.RideDateTime.ToString("dd.MM.yyyy | HH:mm")</div>
                             </div>
 
-                            <button class="anfrage-button" style="width: 100%; margin-top: 15px; background: transparent; border: 2px solid white; color: white; border-radius: 20px; padding: 8px; cursor: pointer;" onclick="cancelRide(@ride.RideId)">
-                                <span>Fahrt stornieren</span>
-                            </button>
+                            <form asp-controller="CheckRides" asp-action="CancelRide" method="post" onsubmit="return confirm('Möchtest du diese Fahrt wirklich stornieren?');">
+                                <input type="hidden" name="rideId" value="@ride.RideId" />
+                                <button type="submit" class="anfrage-button" style="width: 100%; margin-top: 15px; background: transparent; border: 2px solid white; color: white; border-radius: 20px; padding: 8px; cursor: pointer;">
+                                    <span>Fahrt stornieren</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 }
@@ -96,9 +99,12 @@
                                 <div style="font-size: 0.9em; opacity: 0.9;">@(pr.Ride?.RideDateTime.ToString("dd.MM.yyyy | HH:mm") ?? "")</div>
                             </div>
 
-                            <button class="anfrage-button" style="width: 100%; margin-top: 15px; background: transparent; border: 2px solid white; color: white; border-radius: 20px; padding: 8px; cursor: pointer;" onclick="leaveRide(@pr.FK_RideId)">
-                                <span>Teilnahme absagen</span>
-                            </button>
+                            <form asp-controller="CheckRides" asp-action="LeaveRide" method="post" onsubmit="return confirm('Möchtest du die Teilnahme wirklich absagen?');">
+                                <input type="hidden" name="rideId" value="@pr.FK_RideId" />
+                                <button type="submit" class="anfrage-button" style="width: 100%; margin-top: 15px; background: transparent; border: 2px solid white; color: white; border-radius: 20px; padding: 8px; cursor: pointer;">
+                                    <span>Teilnahme absagen</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 }
@@ -149,51 +155,6 @@
                         });
                     }
                 });
-        }
-
-        function cancelRide(id) {
-            if(confirm("Diese Fahrt wirklich löschen?")) {
-                $.post('@Url.Action("CancelRide")', { rideId: id }, function(res) {
-                    if(res.success) {
-                        const $item = $(`#ride-${id}`);
-                        const $container = $item.closest('.rides-list-container');
-
-                        $item.remove();
-
-                        if ($container.find('.fahrt-item').length === 0) {
-                            $container.find('.no-rides-message').show();
-                        }
-
-                        const alertDiv = document.getElementById('rideAlert');
-                        if(alertDiv) {
-                            const alertText = document.getElementById('rideAlertText');
-                            alertText.innerHTML = res.rideDetails;
-                            alertDiv.style.display = 'block';
-                        }
-                    } else {
-                        alert(res.message);
-                    }
-                });
-            }
-        }
-
-        function leaveRide(id) {
-            if(confirm("Möchtest du die Mitfahrt wirklich absagen?")) {
-                $.post('@Url.Action("LeaveRide")', { rideId: id }, function(res) {
-                    if(res.success) {
-                        const $item = $(`#passenger-ride-${id}`);
-                        const $container = $item.closest('.rides-list-container');
-
-                        $item.remove();
-
-                        if ($container.find('.fahrt-item').length === 0) {
-                            $container.find('.no-rides-message').show();
-                        }
-                    } else {
-                        alert(res.message);
-                    }
-                });
-            }
         }
     </script>
 }

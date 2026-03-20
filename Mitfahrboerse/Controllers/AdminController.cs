@@ -49,16 +49,16 @@ namespace Mitfahrboerse.Controllers
 
             try
             {
-                // Validierung: Preis muss größer als 0 sein
                 if (price <= 0)
                 {
-                    return Json(new { success = false, message = "Der Preis muss größer als 0 sein." });
+                    TempData["Error"] = "Der Preis muss größer als 0 sein.";
+                    return RedirectToAction("Index");
                 }
 
-                // Validierung: Datum darf nicht in der Vergangenheit liegen
                 if (validUntil < DateTime.Now)
                 {
-                    return Json(new { success = false, message = "Das Verfallsdatum kann nicht in der Vergangenheit liegen." });
+                    TempData["Error"] = "Das Verfallsdatum kann nicht in der Vergangenheit liegen.";
+                    return RedirectToAction("Index");
                 }
 
                 int nextId = await _context.t_Offers.AnyAsync()
@@ -76,12 +76,13 @@ namespace Mitfahrboerse.Controllers
                 _context.t_Offers.Add(newOffer);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Gutschein erfolgreich erstellt!" });
+                TempData["Success"] = "Gutschein erfolgreich erstellt!";
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Fehler: " + ex.Message });
+                TempData["Error"] = "Fehler: " + ex.Message;
             }
+            return RedirectToAction("Index");
         }
 
         [HttpGet]

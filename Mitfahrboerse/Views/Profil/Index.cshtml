@@ -286,49 +286,16 @@
                             QR-Code anzeigen
                         </button>
 
-                        <button class="styled-button"
-                                onclick="returnVoucher('${code}')"
-                                style="width: 100%; background-color: #dc3545; color: white; border: none;">
-                            Gutschein zurückgeben
-                        </button>
+                        <form method="post" action="@Url.Action("ReturnVoucher", "Profil")">
+                            <input type="hidden" name="code" value="${code}" />
+                            <button type="submit" class="styled-button"
+                                    onclick="return confirm('Möchtest du diesen Gutschein wirklich zurückgeben?');"
+                                    style="width: 100%; background-color: #dc3545; color: white; border: none;">
+                                Gutschein zurückgeben
+                            </button>
+                        </form>
                     </div>
                 </div>`;
-        }
-
-        function returnVoucher(code) {
-            if (!confirm("Möchtest du diesen Gutschein wirklich zurückgeben? Die Punkte werden dir gutgeschrieben.")) {
-                return;
-            }
-
-            const params = new URLSearchParams();
-            params.append('code', code);
-
-            fetch('@Url.Action("ReturnVoucher", "Profil")', {
-                method: 'POST',
-                body: params,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('voucherDetailPanel').innerHTML = 
-                        `<div style="color: #28a745; text-align: center; padding: 20px;">
-                            <strong> ${data.message}</strong>
-                         </div>`;
-
-                    setTimeout(() => {
-                        window.location.href = '@Url.Action("Index", "Profil")?tab=voucher';
-                    }, 1500);
-                } else {
-                    alert("Fehler: " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Ein Fehler ist aufgetreten.");
-            });
         }
 
         function openQRModal(code, title) {
@@ -338,61 +305,11 @@
             var myModal = new bootstrap.Modal(document.getElementById('qrModal'));
             myModal.show();
 
-            startVoucherCheck(code);
-
-            document.getElementById('qrModal').addEventListener('hidden.bs.modal', stopVoucherCheck);
-
             fetch(`/Profil/GetVoucherQR?code=${encodeURIComponent(code)}`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('qrPlaceholder').innerHTML = `<img src="${data.image}" style="width: 200px; height: 200px;" />`;
                 });
-        }
-
-        let voucherCheckInterval = null;
-
-        function startVoucherCheck(code) {
-            stopVoucherCheck();
-
-            voucherCheckInterval = setInterval(() => {
-                fetch(`/Profil/CheckVoucherStatus?code=${encodeURIComponent(code)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.isGone) {
-                            stopVoucherCheck();
-
-                            const modalElement = document.getElementById('qrModal');
-                            const modal = bootstrap.Modal.getInstance(modalElement);
-                            if (modal) modal.hide();
-
-                            removeVoucherFromUI(code);
-                        }
-                    });
-            }, 2000); 
-        }
-
-        function stopVoucherCheck() {
-            if (voucherCheckInterval) {
-                clearInterval(voucherCheckInterval);
-                voucherCheckInterval = null;
-            }
-        }
-
-        function removeVoucherFromUI(code) {
-            // 1. Das Detail-Panel leeren
-            document.getElementById('voucherDetailPanel').innerHTML =
-                '<div class="text-success" style="padding:20px; text-align:center;">' +
-                '<strong>Gutschein wurde erfolgreich eingelöst!</strong></div>';
-
-            // 2. Den Eintrag aus der Liste links entfernen
-            // Dafür müssen wir die Liste neu rendern oder das Element finden.
-            // Am einfachsten: Wir laden den Gutschein-Tab-Inhalt kurz neu oder nutzen IDs.
-
-            // Tipp: Da dein HTML in Konstanten (showVoucherHTML) liegt,
-            // ist ein kurzer Redirect mit Tab-Parameter am saubersten für die Konsistenz:
-            setTimeout(() => {
-                window.location.href = '@Url.Action("Index", "Profil")?tab=voucher';
-            }, 2000);
         }
 
     </script>
