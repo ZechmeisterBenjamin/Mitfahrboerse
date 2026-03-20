@@ -76,7 +76,7 @@ namespace Mitfahrboerse.Controllers
             
             var message = $"Deine Anfrage für die Fahrt von {anfrage.Ride.FK_StartsAt_Position.Description} nach {anfrage.Ride.FK_EndsAt_Position.Description} am {anfrage.Ride.RideDateTime.Date} um {anfrage.Ride.RideDateTime.TimeOfDay} wurde {(newStatus == 2 ? "abgelehnt" : "akzeptiert")}";
             await _hubContext.Clients.User(requesterId).SendAsync("ReceiveNotification", $"Anfrage {(newStatus == 2 ? "abgelehnt" : "akzeptiert")}", message);
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true, rideId = rideId, requesterId = requesterId });
         }
     }
 }

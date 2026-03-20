@@ -86,35 +86,28 @@
         margin-right: auto;
     }
 </style>
-
 <div class="content-panel">
     <div class="anfragen-container" id="anfragenContainer">
         @if (Model.Any())
         {
             @foreach (var item in Model)
             {
-                <div class="anfrage-item" style="margin-bottom: 10px;">
+                // Eindeutige ID für das Element hinzufügen, um es später zu entfernen
+                <div class="anfrage-item" id="request-@item.FK_RideId-@item.FK_PersonId" style="margin-bottom: 10px; transition: all 0.4s ease;">
                     <div class="anfrage-info">
                         <span class="name">@item.Person.FirstName @item.Person.LastName</span>
                         <span class="tag">@item.Person.Class</span>
-
                         <span><strong>Von:</strong> @item.Ride.FK_StartsAt_Position.Description</span>
                         <span><strong>Nach:</strong> @item.Ride.FK_EndsAt_Position.Description</span>
                         <span><strong>Um:</strong> @item.Ride.RideDateTime.ToString("HH:mm")</span>
                     </div>
 
                     <div class="anfrage-actions">
-                        <form asp-action="HandleAction" method="post" style="display:inline;">
-                            <input type="hidden" name="rideId" value="@item.FK_RideId" />
-                            <input type="hidden" name="requesterId" value="@item.FK_PersonId" />
-                            <input type="hidden" name="newStatus" value="0" />
+                        <form onsubmit="handleRequestAction(event, @item.FK_RideId, '@item.FK_PersonId', 0)" style="display:inline;">
                             <button type="submit" class="accept-btn">✔</button>
                         </form>
 
-                        <form asp-action="HandleAction" method="post" style="display:inline;">
-                            <input type="hidden" name="rideId" value="@item.FK_RideId" />
-                            <input type="hidden" name="requesterId" value="@item.FK_PersonId" />
-                            <input type="hidden" name="newStatus" value="2" />
+                        <form onsubmit="handleRequestAction(event, @item.FK_RideId, '@item.FK_PersonId', 2)" style="display:inline;">
                             <button type="submit" class="reject-btn">✖</button>
                         </form>
                     </div>
@@ -123,9 +116,53 @@
         }
         else
         {
-            <div style="text-align:center; padding: 20px; color: #ccc;">
+            <div id="emptyMessage" style="text-align:center; padding: 20px; color: #ccc;">
                 Keine offenen Anfragen vorhanden.
             </div>
         }
     </div>
 </div>
+
+<script>
+    async function handleRequestAction(event, rideId, requesterId, newStatus) {
+        event.preventDefault();
+
+        const formData = new URLSearchParams();
+        formData.append('rideId', rideId);
+        formData.append('requesterId', requesterId);
+        formData.append('newStatus', newStatus);
+
+        try {
+            const response = await fetch('@Url.Action("HandleAction", "Requests")', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const element = document.getElementById(`request-${rideId}-${requesterId}`);
+
+                element.style.opacity = '0';
+                element.style.transform = 'translateX(20px)';
+
+                setTimeout(() => {
+                    element.remove();
+
+                    const container = document.getElementById('anfragenContainer');
+                    if (container.querySelectorAll('.anfrage-item').length === 0) {
+                        container.innerHTML = '<div id="emptyMessage" style="text-align:center; padding: 20px; color: #ccc;">Keine offenen Anfragen vorhanden.</div>';
+                    }
+                }, 400);
+            } else {
+                alert("Fehler: " + result.message);
+            }
+        } catch (error) {
+            console.error("Fehler beim Senden:", error);
+            alert("Ein technischer Fehler ist aufgetreten.");
+        }
+    }
+</script>
