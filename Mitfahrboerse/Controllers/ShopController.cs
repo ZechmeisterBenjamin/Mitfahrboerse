@@ -32,6 +32,13 @@ public class ShopController : BaseController
         var user = _context.t_People.FirstOrDefault(p => p.PersonId == personId);
         var offer = _context.t_Offers.FirstOrDefault(p => p.OfferId == offerId);
 
+        bool alreadyOwned = _context.t_PersonOffers.Any(po => po.FK_OfferId == offerId && po.FK_PersonId == personId);
+
+        if (alreadyOwned)
+        {
+            return Json(new { success = false, message = "Du besitzt diesen Gutschein bereits!" });
+        }
+
         string rndcode = RandomCodeGenerator(user.LastName, offer);
 
         if (user.Points >= offer.Price)

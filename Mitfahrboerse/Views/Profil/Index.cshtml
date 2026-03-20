@@ -210,13 +210,13 @@
                 <div class="voucher-section">
                     <div class="voucher-list-panel">
                         <h2>Deine Gutscheine</h2>
-                            @if (Model?.PersonOffers != null && Model.PersonOffers.Any())
+                            @if (Model?.PersonOffers != null && Model.PersonOffers.Any(v => !v.IsUsed))
                             {
-                                @foreach (var v in Model.PersonOffers)
+                                @foreach (var v in Model.PersonOffers.Where(v => !v.IsUsed))
                                 {
-                                        <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
-                                            <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
-                                        </div>
+                                    <div class="voucher-card" onclick="showVoucherDetails('@v.Code', '@(v.FK_Offer?.Title ?? "Gutschein")', '@v.FK_ValidUntil')">
+                                        <label>@(v.FK_Offer?.Title ?? "Gutschein")</label>
+                                    </div>
                                 }
                             }
                             else
@@ -338,17 +338,62 @@
             var myModal = new bootstrap.Modal(document.getElementById('qrModal'));
             myModal.show();
 
+            startVoucherCheck(code);
+
+            document.getElementById('qrModal').addEventListener('hidden.bs.modal', stopVoucherCheck);
+
             fetch(`/Profil/GetVoucherQR?code=${encodeURIComponent(code)}`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('qrPlaceholder').innerHTML = `<img src="${data.image}" style="width: 200px; height: 200px;" />`;
-                })
-                .catch(err => {
-                    document.getElementById('qrPlaceholder').innerHTML = '<span class="text-danger">Fehler beim Laden</span>';
                 });
         }
 
-        
+        let voucherCheckInterval = null;
+
+        function startVoucherCheck(code) {
+            stopVoucherCheck();
+
+            voucherCheckInterval = setInterval(() => {
+                fetch(`/Profil/CheckVoucherStatus?code=${encodeURIComponent(code)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.isGone) {
+                            stopVoucherCheck();
+
+                            const modalElement = document.getElementById('qrModal');
+                            const modal = bootstrap.Modal.getInstance(modalElement);
+                            if (modal) modal.hide();
+
+                            removeVoucherFromUI(code);
+                        }
+                    });
+            }, 2000); 
+        }
+
+        function stopVoucherCheck() {
+            if (voucherCheckInterval) {
+                clearInterval(voucherCheckInterval);
+                voucherCheckInterval = null;
+            }
+        }
+
+        function removeVoucherFromUI(code) {
+            // 1. Das Detail-Panel leeren
+            document.getElementById('voucherDetailPanel').innerHTML =
+                '<div class="text-success" style="padding:20px; text-align:center;">' +
+                '<strong>Gutschein wurde erfolgreich eingelöst!</strong></div>';
+
+            // 2. Den Eintrag aus der Liste links entfernen
+            // Dafür müssen wir die Liste neu rendern oder das Element finden.
+            // Am einfachsten: Wir laden den Gutschein-Tab-Inhalt kurz neu oder nutzen IDs.
+
+            // Tipp: Da dein HTML in Konstanten (showVoucherHTML) liegt,
+            // ist ein kurzer Redirect mit Tab-Parameter am saubersten für die Konsistenz:
+            setTimeout(() => {
+                window.location.href = '@Url.Action("Index", "Profil")?tab=voucher';
+            }, 2000);
+        }
 
     </script>
     <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">

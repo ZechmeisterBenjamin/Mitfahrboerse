@@ -31,7 +31,7 @@ public class ProfilController : BaseController
     {
         var user = await _context.t_People
             .Include(p => p.t_Cars)
-            .Include(p => p.PersonOffers)
+            .Include(p => p.PersonOffers.Where(po => !po.IsUsed))
             .ThenInclude(po => po.FK_Offer)
             .FirstOrDefaultAsync(p => p.PersonId == personId);
 
@@ -153,6 +153,14 @@ public class ProfilController : BaseController
         user.Points += offer.Price;
         _context.SaveChanges();
         return Json(new { success = true, message = "Gutschein erfolgreich zurückgegeben." });
+    }
+
+    [HttpGet]
+    public IActionResult CheckVoucherStatus(string code)
+    {
+        var exists = _context.t_PersonOffers.Any(v => v.Code == code);
+
+        return Json(new { isGone = !exists });
     }
 
     public IActionResult Logout()

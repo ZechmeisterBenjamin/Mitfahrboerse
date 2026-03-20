@@ -27,8 +27,8 @@ namespace Mitfahrboerse.Controllers
                 .Include(p => p.t_Rides).ThenInclude(r => r.FK_StartsAt_Position)
                 .Include(p => p.t_Rides).ThenInclude(r => r.FK_EndsAt_Position)
                 .Include(p => p.t_Rides).ThenInclude(r => r.PersonRides)
-                .Include(p => p.PersonRides.Where(pr => pr.Status == 0 || pr.Status == 1)).ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_StartsAt_Position)
-                .Include(p => p.PersonRides.Where(pr => pr.Status == 0 || pr.Status == 1)).ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_EndsAt_Position)
+                .Include(p => p.PersonRides.Where(pr => pr.Status == 0 || pr.Status == 1 && pr.Ride.RideDateTime >= DateTime.Now)).ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_StartsAt_Position)
+                .Include(p => p.PersonRides.Where(pr => pr.Status == 0 || pr.Status == 1 && pr.Ride.RideDateTime >= DateTime.Now)).ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_EndsAt_Position)
                 .FirstOrDefaultAsync(p => p.PersonId == personId);
 
             if (user?.PersonRides != null)
@@ -62,6 +62,8 @@ namespace Mitfahrboerse.Controllers
             var recipients = ride.PersonRides
                 .Where(pr => pr.Status != 2 && pr.Status != 3)
                 .ToList();
+
+
 
             /*
             var calendarService = new CalendarEvent(_accessToken);
@@ -134,7 +136,7 @@ namespace Mitfahrboerse.Controllers
                 .Include(pr => pr.Person)
                 .Select(pr => new {
                     name = pr.Person.FirstName + " " + pr.Person.LastName,
-                    klasse = pr.Person.Class 
+                    klasse = pr.Person.Class, 
                 })
                 .ToListAsync();
 

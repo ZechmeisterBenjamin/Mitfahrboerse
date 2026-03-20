@@ -51,6 +51,7 @@ public class HomeController : BaseController
                 else
                 {
                     voucher.IsUsed = true;
+                    _context.t_PersonOffers.Remove(voucher);
                     await _context.SaveChangesAsync();
                     ViewBag.VoucherStatus = "success";
                     ViewBag.VoucherMessage = $"Erfolg! '{voucher.FK_Offer?.Title}' aktiviert.";
