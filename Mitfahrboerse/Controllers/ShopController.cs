@@ -89,50 +89,56 @@ public class ShopController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditOffer(int id, DateTime oldValidUntil, string newTitle, short newPrice, DateTime newValidUntil)
+    public async Task<IActionResult> EditOffer(int id, string newTitle, short newPrice, DateTime newValidUntil)
     {
-        var oldDate = DateOnly.FromDateTime(oldValidUntil);
-        var offer = await _context.t_Offers
-            .FirstOrDefaultAsync(o => o.OfferId == id);
+        var offer = await _context.t_Offers.FirstOrDefaultAsync(o => o.OfferId == id);
 
-        bool alreadyPurchased = await _context.t_PersonOffers
-                .AnyAsync(po => po.FK_OfferId == id);
+        if (offer == null) return RedirectToAction("Index");
+
+        bool alreadyPurchased = await _context.t_PersonOffers.AnyAsync(po => po.FK_OfferId == id);
 
         if (alreadyPurchased)
         {
-            return Json(new
-            {
-                success = false,
-                message = "Ändern nicht möglich: Dieser Gutschein wurde bereits gekauft!"
-            });
+            TempData["Error"] = "Ändern nicht möglich: Dieser Gutschein wurde bereits gekauft!";
+            return RedirectToAction("Index");
         }
 
-        if (offer != null)
-        {
-            offer.Title = newTitle;
-            offer.Price = newPrice;
-            offer.ValidUntil = DateOnly.FromDateTime(newValidUntil);
+        offer.Title = newTitle;
+        offer.Price = newPrice;
+        offer.ValidUntil = DateOnly.FromDateTime(newValidUntil);
 
-            _context.Update(offer);
-            await _context.SaveChangesAsync();
-            return Json(new { success = true, message = "Angebot aktualisiert." });
-        }
-        return Json(new { success = false, message = "Fehler beim Aktualisieren." });
+        _context.Update(offer);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Angebot erfolgreich aktualisiert.";
+        return RedirectToAction("Index");
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetVoucherPurchases(int id)
+    [HttpGet]
+    public async Task<string> GetVoucherPurchases(int id)
     {
         var purchases = await _context.t_PersonOffers
             .Include(po => po.FK_Person)
             .Where(po => po.FK_OfferId == id)
-            .Select(po => new {
-                UserName = po.FK_Person.FirstName + " " + po.FK_Person.LastName,
-                Code = po.Code
-            })
             .ToListAsync();
 
-        return Json(purchases);
+        if (!purchases.Any())
+        {
+            return "<p style='padding:10px;'>Diesen Gutschein hat noch niemand gekauft.</p>";
+        }
+
+        var html = "<table style='width: 100%; border-collapse: collapse;'>";
+        foreach (var p in purchases)
+        {
+            html += $@"<tr style='border-bottom: 1px solid #444;'>
+                    <td style='padding: 10px 5px; color: white;'>{p.FK_Person.FirstName} {p.FK_Person.LastName}</td>
+                    <td style='padding: 10px 5px; font-family: monospace; color: #ffcc00;'>{p.Code}</td>
+                  </tr>";
+        }
+        html += "</table>";
+
+        return html; // Gibt fertiges HTML zurück
     }
 
     public string RandomCodeGenerator(string name, t_Offer offer)

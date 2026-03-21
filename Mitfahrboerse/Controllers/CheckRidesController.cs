@@ -27,8 +27,11 @@ namespace Mitfahrboerse.Controllers
                 .Include(p => p.t_Rides).ThenInclude(r => r.FK_StartsAt_Position)
                 .Include(p => p.t_Rides).ThenInclude(r => r.FK_EndsAt_Position)
                 .Include(p => p.t_Rides).ThenInclude(r => r.PersonRides)
-                .Include(p => p.PersonRides.Where(pr => pr.Status == 0 || pr.Status == 1 && pr.Ride.RideDateTime >= DateTime.Now)).ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_StartsAt_Position)
-                .Include(p => p.PersonRides.Where(pr => pr.Status == 0 || pr.Status == 1 && pr.Ride.RideDateTime >= DateTime.Now)).ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_EndsAt_Position)
+
+                .Include(p => p.PersonRides.Where(pr => pr.Status == 0 || pr.Status == 1 && pr.Ride.RideDateTime >= DateTime.Now))
+                    .ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_StartsAt_Position)
+                .Include(p => p.PersonRides.Where(pr => pr.Status == 0 || pr.Status == 1 && pr.Ride.RideDateTime >= DateTime.Now))
+                    .ThenInclude(pr => pr.Ride).ThenInclude(r => r.FK_EndsAt_Position)
                 .FirstOrDefaultAsync(p => p.PersonId == personId);
 
             if (user?.PersonRides != null)
