@@ -17,13 +17,25 @@
 
 <style>
     @@keyframes slideIn {
-        from { transform: translateX(-400px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+        from {
+            transform: translateX(-400px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
     }
 
     @@keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+        }
     }
 
     .alert-fade-out {
@@ -39,23 +51,23 @@
                 <div id="successMessage" class="alert alert-success" style="animation: slideIn 0.3s ease-out;">@TempData["Message"]</div>
             }
 
-            <form asp-action="Create" method="post">
+            <form id="createRideForm" asp-action="Create" method="post">
                 <div id="validationErrors" asp-validation-summary="ModelOnly" class="text-danger" style="animation: slideIn 0.3s ease-out;"></div>
 
                 <div class="form-group mb-3">
                     <label for="startPositionInput">Von:</label>
                     <input id="startPositionInput" name="startPositionDescription" class="form-control" type="text"
-                           placeholder="Startpunkt eingeben" required value="@savedStartPos"/>
-                    <input id="startLat" name="startLat" type="hidden"/>
-                    <input id="startLon" name="startLon" type="hidden"/>
+                           placeholder="Startpunkt eingeben" required value="@savedStartPos" />
+                    <input id="startLat" name="startLat" type="hidden" />
+                    <input id="startLon" name="startLon" type="hidden" />
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="endPositionInput">Nach:</label>
                     <input id="endPositionInput" name="endPositionDescription" class="form-control" type="text"
-                           placeholder="Ziel eingeben" required value="@savedEndPos"/>
-                    <input id="endLat" name="endLat" type="hidden"/>
-                    <input id="endLon" name="endLon" type="hidden"/>
+                           placeholder="Ziel eingeben" required value="@savedEndPos" />
+                    <input id="endLat" name="endLat" type="hidden" />
+                    <input id="endLon" name="endLon" type="hidden" />
                 </div>
 
                 <div class="form-group mb-4">
@@ -79,7 +91,7 @@
 
                 <div class="form-group mb-4">
                     <label for="rideDateTime">Datum &amp; Uhrzeit</label>
-                    <input id="rideDateTime" name="rideDateTime" class="form-control" type="datetime-local" required value="@savedDateTime" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"/>
+                    <input id="rideDateTime" name="rideDateTime" class="form-control" type="datetime-local" required value="@savedDateTime" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
                     <span asp-validation-for="RideDateTime" class="text-danger"></span>
                 </div>
 
@@ -143,7 +155,7 @@
                     message.classList.add('alert-fade-out');
                     setTimeout(() => {
                         message.style.display = 'none';
-                    }, 500); // Warte auf die Fade-out Animation
+                    }, 500);
                 }, delayMs);
             }
         }
@@ -151,7 +163,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             hideMessageAfterDelay('successMessage', 5000);
 
-            // Auch Validierungsfehler nach 5 Sekunden verstecken (wenn vorhanden)
             const validationDiv = document.getElementById('validationErrors');
             if (validationDiv && validationDiv.textContent.trim() !== '') {
                 hideMessageAfterDelay('validationErrors', 5000);
@@ -169,6 +180,7 @@
         let endMarker = null;
         let debounceTimer = null;
 
+        // 1. Validierung der API-Antwort in der Geocoding-Funktion (bereits korrekt im Code)
         async function geocodeAddress(address) {
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=AT&_=${new Date().getTime()}`;
             try {
@@ -177,10 +189,13 @@
                 });
                 if (!response.ok) throw new Error('Netzwerkfehler');
                 const data = await response.json();
+
+                // Prüfen auf valide Ergebnisse, um NaN-Fehler zu vermeiden
                 if (data && data.length > 0) {
                     return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                } else {
+                    return null; // Fallback bei fiktiven oder leeren Adressen
                 }
-                return null;
             } catch (error) {
                 console.error('Geocoding-Fehler:', error);
                 return null;
@@ -200,6 +215,9 @@
                 const endCoords = await geocodeAddress(endInput);
 
                 if (startCoords && endCoords) {
+                    // Route erfolgreich: Farbe zurücksetzen, falls sie vorher rot war
+                    document.getElementById("routeLengthLabel").style.color = '';
+
                     const icon = new L.Icon({
                         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
                         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -232,7 +250,14 @@
                         map.fitBounds(L.latLngBounds(route.coordinates), {padding: L.point(50, 50)});
                     });
                 } else {
-                    document.getElementById("routeLengthLabel").textContent = '';
+                    // 2. Routenberechnung: Visuelles Feedback bei Fehlern
+                    const label = document.getElementById("routeLengthLabel");
+                    label.textContent = 'Fehler: Adresse nicht gefunden. Bitte Eingabe prüfen.';
+                    label.style.color = 'red';
+
+                    // Geodaten leeren, um unvollständige Einträge in der DB zu verhindern
+                    document.getElementById("startLat").value = '';
+                    document.getElementById("endLat").value = '';
                     document.getElementById("routeLength").value = '';
                 }
             }
@@ -246,6 +271,20 @@
         document.getElementById("startPositionInput").addEventListener("input", debouncedCalculateRoute);
         document.getElementById("endPositionInput").addEventListener("input", debouncedCalculateRoute);
         document.getElementById("showRouteBtn").addEventListener("click", calculateRoute);
+
+        // 3. Letzte Sicherheitsinstanz: Abschicken blockieren
+        document.getElementById("createRideForm").addEventListener("submit", function(event) {
+            if (!document.getElementById("startLat").value || !document.getElementById("endLat").value) {
+                event.preventDefault(); // Verhindert das Senden fehlerhafter Daten
+
+                // Optional: Den User darauf hinweisen, falls er den Fehler übersieht
+                const label = document.getElementById("routeLengthLabel");
+                if (label.textContent === '') {
+                    label.textContent = 'Fehler: Bitte gültige Adressen für die Berechnung eingeben.';
+                    label.style.color = 'red';
+                }
+            }
+        });
 
         const carModal = document.getElementById('carModal');
         const closeCarModal = document.getElementById('closeCarModal');
