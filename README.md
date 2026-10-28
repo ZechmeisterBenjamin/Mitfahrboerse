@@ -1,1 +1,73 @@
-# Mitfahrboerse
+# Mitfahrbörse
+
+Eine Webapp für Fahrgemeinschaften an der HTL Waidhofen/Ybbs. Wer mit dem Auto in die Schule fährt, stellt seine Fahrt ein, andere können mitfahren. Für jede Fahrt gibt es Punkte, die man im Shop gegen Gutscheine eintauschen kann, zum Beispiel für die Kantine.
+
+Das Projekt ist unsere Diplomarbeit aus dem Schuljahr 2025/26, gebaut zu dritt.
+
+## Screenshots
+
+**Mitfahren:** Fahrten suchen, filtern und anfragen
+
+![Mitfahren](docs/mitfahren.png)
+
+**Fahrt erstellen**
+
+![Fahrt erstellen](docs/fahrt-erstellen.png)
+
+**Shop:** Punkte einlösen
+
+![Shop](docs/shop.png)
+
+## Was die App kann
+
+- Login mit dem Schulkonto über Microsoft Entra ID
+- Fahrten anbieten, suchen, filtern und anfragen
+- Auch Fahrten finden, die nur in der Nähe vorbeikommen, solange der Umweg für den Fahrer unter 30 km bleibt
+- Benachrichtigungen in Echtzeit über SignalR
+- Punkte für jede Fahrt und ein Shop zum Einlösen
+- Adminbereich, unter anderem zum Anlegen von Gutscheinen
+
+## Technik
+
+ASP.NET Core MVC (.NET 9), Entity Framework Core mit SQL Server, SignalR, Microsoft Identity Web und Docker Compose.
+
+## Team
+
+- Benjamin Zechmeister ([@ZechmeisterBenjamin](https://github.com/ZechmeisterBenjamin))
+- Daniel Daurer ([@DaurerDaniel](https://github.com/DaurerDaniel))
+- Daniel Macek ([@Macek-Daniel](https://github.com/Macek-Daniel))
+
+### Mein Teil (Benjamin)
+
+- ER-Modell und Datenbank, Anbindung mit EF Core (database-first)
+- Backend zum Anlegen von Fahrten und Fahrzeugen
+- Filter auf der Mitfahren-Seite
+- Profileinstellungen
+- Punktesystem: Der `PointService` berechnet die Punkte aus Passagieren und Kilometern, ein Hintergrundjob schreibt sie gut
+- Push-Benachrichtigungen an einzelne Nutzer über SignalR (`NotificationHub`)
+
+## Lokal starten
+
+Mit Docker:
+
+```bash
+cd Mitfahrboerse
+cp .env.example .env    # Werte eintragen
+docker compose up --build
+```
+
+Die App läuft dann auf http://localhost:8080.
+
+Ohne Docker kommen die Werte aus den User Secrets:
+
+```bash
+cd Mitfahrboerse
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<connection string>"
+dotnet user-secrets set "AzureAd:TenantId" "<tenant-id>"
+dotnet user-secrets set "AzureAd:ClientId" "<client-id>"
+dotnet user-secrets set "AzureAd:ClientSecret" "<client-secret>"
+dotnet user-secrets set "PointsApi:ApiKey" "<api-key>"
+dotnet run
+```
+
+Für den Login braucht man eine eigene App-Registrierung in Microsoft Entra ID.
