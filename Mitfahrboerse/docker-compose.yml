@@ -6,7 +6,7 @@ services:
     container_name: sqlserver
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=Password123!
+      - SA_PASSWORD=${SA_PASSWORD}
       - MSSQL_AUTHENTICATION_MODE=SqlAuth
     ports:
       - "1433:1433"
@@ -26,7 +26,11 @@ services:
       - "8081:8081"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=Mitfahrboerse;User Id=sa;Password=Password123!;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=db;Database=Mitfahrboerse;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;
+      - AzureAd__TenantId=${AZUREAD_TENANT_ID}
+      - AzureAd__ClientId=${AZUREAD_CLIENT_ID}
+      - AzureAd__ClientSecret=${AZUREAD_CLIENT_SECRET}
+      - PointsApi__ApiKey=${POINTS_API_KEY}
 
 volumes:
   sql_data:
