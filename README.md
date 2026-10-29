@@ -31,20 +31,24 @@ Das Projekt ist unsere Diplomarbeit aus dem Schuljahr 2025/26, gebaut zu dritt.
 
 ASP.NET Core MVC (.NET 9), Entity Framework Core mit SQL Server, SignalR, Microsoft Identity Web und Docker Compose.
 
-## Team
+## Team und Aufgabenverteilung
 
-- Benjamin Zechmeister ([@ZechmeisterBenjamin](https://github.com/ZechmeisterBenjamin))
-- Daniel Daurer ([@DaurerDaniel](https://github.com/DaurerDaniel))
-- Daniel Macek ([@Macek-Daniel](https://github.com/Macek-Daniel))
-
-### Mein Teil (Benjamin)
-
-- ER-Modell und Datenbank, Anbindung mit EF Core (database-first)
-- Backend zum Anlegen von Fahrten und Fahrzeugen
-- Filter auf der Mitfahren-Seite
-- Profileinstellungen
-- Punktesystem: Der `PointService` berechnet die Punkte aus Passagieren und Kilometern, ein Hintergrundjob schreibt sie gut
-- Push-Benachrichtigungen an einzelne Nutzer über SignalR (`NotificationHub`)
+- **Benjamin Zechmeister** ([@ZechmeisterBenjamin](https://github.com/ZechmeisterBenjamin))
+  - Datenbankdesign (ER-Modell) und Entity Framework Core (database-first)
+  - Fahrten und Fahrzeuge anlegen, Zwischenstopps
+  - Routen-Matching (`RouteMatchService`)
+  - Filter auf der Mitfahren-Seite, Profileinstellungen
+  - Punktesystem (`PointService`) mit zeitgesteuertem Hintergrundjob
+  - Echtzeit-Benachrichtigungen mit SignalR (`NotificationHub`)
+- **Daniel Daurer** ([@DaurerDaniel](https://github.com/DaurerDaniel))
+  - Anmeldung über Microsoft Entra ID und Microsoft Graph
+  - Anfragen, Fahrtenübersicht und Kalendereinträge
+  - Shop mit Gutscheinen und QR-Codes, Admin-Funktionen
+  - Docker-Setup
+- **Daniel Macek** ([@Macek-Daniel](https://github.com/Macek-Daniel))
+  - Frontend und Responsive Design, Dark Mode
+  - Kartenintegration mit Leaflet und Routenanzeige
+  - UI für Shop, Profil, Anfragen und Admin-Bereich
 
 ## Lokal starten
 
