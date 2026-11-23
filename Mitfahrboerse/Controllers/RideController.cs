@@ -64,15 +64,16 @@ public class RideController : BaseController
     {
         DateTime now = DateTime.Now;
 
-        var rides = _context.t_Rides
+        var rides = await _context.t_Rides
             .Include(r => r.FK_Driver_Person)
             .Include(r => r.FK_StartsAt_Position)
             .Include(r => r.FK_EndsAt_Position)
             .Include(r => r.FK_Car)
             .Include(r => r.PersonRides)
             .ThenInclude(pr => pr.Person)
-            .Where(r => r.FK_Driver_PersonId != personId)
-            .ToList();
+            .Where(r => r.FK_Driver_PersonId != personId && r.RideDateTime >= now)
+            .OrderBy(r => r.RideDateTime)
+            .ToListAsync();
 
         List<RideWithDetourInfo> matchingRides = new();
         
@@ -99,7 +100,6 @@ public class RideController : BaseController
         }
         else
         {
-            rides = rides.OrderBy(r => r.RideDateTime).ToList();
             ViewBag.HasSearch = false;
         }
 
